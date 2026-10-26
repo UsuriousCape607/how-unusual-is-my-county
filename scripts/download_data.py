@@ -20,7 +20,7 @@ import sys
 import zipfile
 from datetime import datetime, timezone
 
-from common import RAW, SOURCES, gazetteer_delimiter, read_json, write_json
+from common import POP_COLUMN, RAW, SOURCES, gazetteer_delimiter, read_json, write_json
 
 MANIFEST = RAW / "manifest.json"
 MIN_COUNTY_ROWS = 3000  # 3,144 counties in the 50 states + DC; guards against truncated files
@@ -76,12 +76,12 @@ def check_popest(path) -> dict:
         except UnicodeDecodeError:
             continue
     reader = csv.DictReader(io.StringIO(text))
-    _require(reader.fieldnames or [], ["SUMLEV", "STATE", "COUNTY", "STNAME", "CTYNAME", "POPESTIMATE2025"], path.name)
+    _require(reader.fieldnames or [], ["SUMLEV", "STATE", "COUNTY", "STNAME", "CTYNAME", POP_COLUMN], path.name)
     rows = [r for r in reader if r["SUMLEV"] == "050"]
     if len(rows) < MIN_COUNTY_ROWS:
         raise SchemaError(f"{path.name}: only {len(rows)} county (SUMLEV 050) rows")
-    if any(not r["POPESTIMATE2025"].strip().isdigit() for r in rows):
-        raise SchemaError(f"{path.name}: non-integer POPESTIMATE2025 values")
+    if any(not r[POP_COLUMN].strip().isdigit() for r in rows):
+        raise SchemaError(f"{path.name}: non-integer {POP_COLUMN} values")
     return {"encoding": enc, "county_rows": len(rows), "columns": len(reader.fieldnames)}
 
 

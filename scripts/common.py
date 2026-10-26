@@ -18,6 +18,12 @@ DISTANCE_METHOD = "euclidean_z_ln_population_ln_density_popsd_v1"
 COMPUTE_ATLAS_TAG = "v1.34.1"
 COMPUTE_ATLAS_BASE = f"https://raw.githubusercontent.com/ek33450505/compute-atlas/{COMPUTE_ATLAS_TAG}"
 
+# Census inputs are pinned to one vintage. Download URLs, the population column the checks require, and the dates
+# shown on the site are all derived from this number, so they cannot drift apart.
+CENSUS_VINTAGE = 2025
+POP_COLUMN = f"POPESTIMATE{CENSUS_VINTAGE}"
+POP_REFERENCE_DATE = f"{CENSUS_VINTAGE}-07-01"  # Census estimates refer to July 1
+
 SOURCES = {
     "compute_atlas_facilities": {
         "url": f"{COMPUTE_ATLAS_BASE}/data/facilities.json",
@@ -32,16 +38,18 @@ SOURCES = {
         "file": "compute_atlas_LICENSE-DATA.txt",
     },
     "census_popest_2025": {
-        "url": "https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/counties/totals/co-est2025-alldata.csv",
-        "file": "co-est2025-alldata.csv",
+        "url": f"https://www2.census.gov/programs-surveys/popest/datasets/2020-{CENSUS_VINTAGE}/counties/totals/"
+               f"co-est{CENSUS_VINTAGE}-alldata.csv",
+        "file": f"co-est{CENSUS_VINTAGE}-alldata.csv",
     },
     "census_gazetteer_2025": {
-        "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2025_Gazetteer/2025_Gaz_counties_national.zip",
-        "file": "2025_Gaz_counties_national.zip",
+        "url": f"https://www2.census.gov/geo/docs/maps-data/data/gazetteer/{CENSUS_VINTAGE}_Gazetteer/"
+               f"{CENSUS_VINTAGE}_Gaz_counties_national.zip",
+        "file": f"{CENSUS_VINTAGE}_Gaz_counties_national.zip",
     },
     "census_cb_counties_2025": {
-        "url": "https://www2.census.gov/geo/tiger/GENZ2025/shp/cb_2025_us_county_500k.zip",
-        "file": "cb_2025_us_county_500k.zip",
+        "url": f"https://www2.census.gov/geo/tiger/GENZ{CENSUS_VINTAGE}/shp/cb_{CENSUS_VINTAGE}_us_county_500k.zip",
+        "file": f"cb_{CENSUS_VINTAGE}_us_county_500k.zip",
     },
 }
 
@@ -113,4 +121,4 @@ def read_json(path: Path):
 def data_version() -> str:
     """Short identifier of the exact inputs, e.g. 'compute-atlas-v1.34.1-asof-2026-10-02_census-v2025'."""
     meta = read_json(RAW / SOURCES["compute_atlas_meta"]["file"])
-    return f"compute-atlas-{COMPUTE_ATLAS_TAG}-asof-{meta['asOf'][:10]}_census-v2025"
+    return f"compute-atlas-{COMPUTE_ATLAS_TAG}-asof-{meta['asOf'][:10]}_census-v{CENSUS_VINTAGE}"

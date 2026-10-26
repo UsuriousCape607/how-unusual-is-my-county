@@ -15,9 +15,9 @@ import pandas as pd
 
 import zipfile
 
-from common import PROCESSED, RAW, SOURCES, STATE_FIPS_TO_USPS, gazetteer_delimiter, norm_name, write_json
+from common import POP_COLUMN, PROCESSED, RAW, SOURCES, STATE_FIPS_TO_USPS, gazetteer_delimiter, norm_name, write_json
 
-POP_COL = "POPESTIMATE2025"
+POP_COL = POP_COLUMN
 
 
 def fail(msg: str) -> None:

@@ -22,6 +22,8 @@ There is no backend, database, auth, paid tiles, or live LLM.
   `representative_multi_site` ⇒ excluded. Never guess; log to `data/processed/assignment_review.csv`.
 - Peers: z-scores (population SD, ddof=0) of ln(pop) and ln(density) over the eligible universe; Euclidean distance;
   40 nearest, self excluded, ties broken by GEOID ascending. The data-center count is never used for matching.
+- Census vintage is set once (`CENSUS_VINTAGE` in `scripts/common.py`); URLs, the required population column and the
+  dates shown on the site derive from it. Changing it is a deliberate, manual step (re-verify schemas).
 - Data dates must be unmissable: the "Data as of" banner (`DataFreshness.tsx`) under the header, as-of dates next to
   every count, a Data dates table in Methodology, and a neutral notice when the snapshot is > 45 days old.
 - No live fetching in the browser. Owner-approved post-MVP extension (2026-10-26): a scheduled GitHub Actions rebuild

@@ -18,7 +18,8 @@ from shapely.affinity import translate
 from shapely.geometry import MultiPolygon, Polygon, mapping
 
 from common import (
-    ACCEPTED_CONFIDENCE, COMPUTE_ATLAS_TAG, DISTANCE_METHOD, FACILITY_TYPE, N_PEERS, OPERATIONAL_STATUS,
+    ACCEPTED_CONFIDENCE, CENSUS_VINTAGE, COMPUTE_ATLAS_TAG, DISTANCE_METHOD, FACILITY_TYPE, N_PEERS, OPERATIONAL_STATUS,
+    POP_COLUMN, POP_REFERENCE_DATE,
     PIPELINE_STATUSES, PROCESSED, PUBLIC_DATA, RAW, SOURCES, data_version, read_json, write_json,
 )
 
@@ -111,9 +112,9 @@ def main() -> int:
         "data_dates": {
             "facility_snapshot_as_of": ca_meta["asOf"],
             "facility_file_retrieved_at": manifest["compute_atlas_facilities"].get("retrieved_at"),
-            "population_reference_date": "2025-07-01",
-            "population_vintage": "Vintage 2025 estimates",
-            "geography_vintage": "2025",
+            "population_reference_date": POP_REFERENCE_DATE,
+            "population_vintage": f"Vintage {CENSUS_VINTAGE} estimates",
+            "geography_vintage": str(CENSUS_VINTAGE),
             "site_data_built_at": generated_at,
         },
         "sources": {k: {kk: v.get(kk) for kk in ("url", "retrieved_at", "sha256", "bytes", "note") if v.get(kk) is not None}
@@ -133,9 +134,10 @@ def main() -> int:
                                "counted per county, and reduced to a subset of fields. No records were edited or added.",
         },
         "census": {
-            "population": "Vintage 2025 county population estimates (POPESTIMATE2025, July 1, 2025)",
-            "land_area": "2025 Gazetteer county file, ALAND_SQMI (land only; water excluded)",
-            "boundaries": "2025 cartographic boundary file cb_2025_us_county_500k (NAD83, reprojected to WGS84)",
+            "population": f"Vintage {CENSUS_VINTAGE} county population estimates ({POP_COLUMN}, July 1, {CENSUS_VINTAGE})",
+            "land_area": f"{CENSUS_VINTAGE} Gazetteer county file, ALAND_SQMI (land only; water excluded)",
+            "boundaries": f"{CENSUS_VINTAGE} cartographic boundary file cb_{CENSUS_VINTAGE}_us_county_500k "
+                          "(NAD83, reprojected to WGS84)",
             "license": "U.S. Census Bureau data are public domain",
         },
         "geographic_scope": "Counties and county equivalents in the 50 states and the District of Columbia. "
