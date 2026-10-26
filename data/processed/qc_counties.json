@@ -1,0 +1,26 @@
+{
+  "population_rows_by_sumlev": {
+    "050": 3144,
+    "040": 51
+  },
+  "population_file_encoding": "latin-1",
+  "in_scope_counts": {
+    "population": 3144,
+    "gazetteer": 3144,
+    "boundaries": 3144
+  },
+  "only_in_population": [],
+  "only_in_gazetteer": [],
+  "only_in_boundaries": [],
+  "excluded_out_of_scope": {
+    "population": 0,
+    "gazetteer": 78,
+    "boundaries": 91
+  },
+  "boundary_source_crs": "EPSG:4269",
+  "name_mismatch_population_vs_boundaries": [],
+  "max_rel_diff_gazetteer_vs_cb_aland": 0.0,
+  "invalid_population_or_area": [],
+  "universe_size": 3144,
+  "eligible_size": 3144
+}

@@ -21,8 +21,9 @@ MODEL_LABEL = "Anthropic Claude (via Claude Code)"
 
 BANNED = [
     r"\bharm", r"\bpollut", r"\bwater\b", r"electric", r"\bprices?\b", r"\bjobs?\b", r"\btax", r"\bracial",
-    r"\bdiscriminat", r"\boppos", r"\bsupport(s|ed|ing)?\b", r"\bbecause\b", r"\bcaus(e|ed|es|ing)\b",
-    r"\bdue to\b", r"\bdriv(en|es|ing) by\b", r"statistically significant", r"has no (proposed )?data cent",
+    r"\bdiscriminat", r"\boppos", r"\bsupport(s|ed|ing)?\b", r"\bbecause\b", r"\bcaused by\b",
+    r"\bdue to\b", r"\bdriv(en|es|ing) by\b", r"\bled to\b", r"\bresult(s|ed)? in\b", r"statistically significant",
+    r"has no (proposed )?data cent",
 ]
 
 

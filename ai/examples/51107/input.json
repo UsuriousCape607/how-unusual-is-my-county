@@ -1,0 +1,41 @@
+{
+  "county": {
+    "name": "Loudoun County",
+    "state": "Virginia",
+    "geoid": "51107",
+    "population_2025": 449749,
+    "density_per_sqmi": 872.04
+  },
+  "metric": "qualifying documented data-center pipeline site records (proposed, permitted or under construction; confirmed or reported confidence)",
+  "pipeline_count": 9,
+  "peer_method": "40 counties nearest in standardized log population and log population density; data-center counts are not used to choose peers",
+  "n_peers": 40,
+  "peer_population_range": [
+    324411,
+    611708
+  ],
+  "peer_density_range_per_sqmi": [
+    599.42,
+    1246.36
+  ],
+  "peer_median": 0.5,
+  "peer_mean": 1.25,
+  "n_peers_fewer": 40,
+  "n_peers_equal": 0,
+  "n_peers_greater": 0,
+  "n_peers_with_at_least_one_record": 20,
+  "snapshot_date": "2026-10-02",
+  "data_version": "compute-atlas-v1.34.1-asof-2026-10-02_census-v2025",
+  "limitations": [
+    "Counts are documented site records in one dataset snapshot, not verified counts of buildings or all real projects.",
+    "A zero means no qualifying record was found in this snapshot, not that no development is proposed.",
+    "Compute Atlas coverage is incomplete and uneven; better-documented places may show more records.",
+    "Records with only approximate coordinates are assigned by their source county name, never by the map point.",
+    "Peer comparisons are descriptive. They do not show causes, impacts, or statistical significance."
+  ],
+  "quality_indicators": {
+    "records_in_snapshot": 2328,
+    "pipeline_records_counted_nationally": 799,
+    "pipeline_candidates_not_assignable_to_one_county": 29
+  }
+}

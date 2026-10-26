@@ -12,7 +12,9 @@ live AI.
 - How the numbers are made: [METHODOLOGY.md](METHODOLOGY.md)
 - Sources, versions, licenses: [DATA_SOURCES.md](DATA_SOURCES.md)
 - AI explanations and their checks: [AI_EVALUATION.md](AI_EVALUATION.md)
-- Test results: [TEST_RESULTS.md](TEST_RESULTS.md) · implementation log: [NOTES.md](NOTES.md)
+- Test results: [TEST_RESULTS.md](TEST_RESULTS.md) · what shipped: [COMPLETION_REPORT.md](COMPLETION_REPORT.md) · implementation log: [NOTES.md](NOTES.md)
+
+![Desktop view: Loudoun County, VA](docs/screenshots/desktop.png)
 
 ## Requirements
 - Python 3.11+ with the packages in `requirements.txt` (pandas, GeoPandas, Shapely ≥ 2.1, pyogrio, pyproj,
@@ -47,6 +49,8 @@ python -m pytest -q          # logic tests + data/comparison checks on the built
 npm test                     # search and template-summary tests
 npm run build && npm run test:e2e   # Playwright smoke test (desktop + mobile)
 ```
+The end-to-end test needs Playwright with Chromium. If it is not installed globally:
+`npm i -D playwright && npx playwright install chromium`.
 
 ## Deploy (any static host)
 `npm run build` produces a self-contained `dist/` folder (relative paths, data included). Upload it to GitHub

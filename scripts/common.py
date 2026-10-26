@@ -90,6 +90,11 @@ def split_suffix(raw: str) -> tuple[str, str | None]:
     return s, None
 
 
+def gazetteer_delimiter(header_line: str) -> str:
+    """The 2025 Gazetteer is pipe-delimited; earlier vintages were tab-delimited. Detect from the header row."""
+    return "|" if header_line.count("|") > header_line.count("\t") else "\t"
+
+
 def write_json(path: Path, obj, compact: bool = False) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:

@@ -54,6 +54,17 @@ def test_gazetteer_checks_columns(tmp_path):
         dd.check_gazetteer(bad)
 
 
+def test_gazetteer_accepts_pipe_delimited_2025_layout(tmp_path):
+    p = tmp_path / "gaz2025.zip"
+    with zipfile.ZipFile(p, "w") as z:
+        z.writestr("2025_Gaz_counties_national.txt",
+                   "USPS|GEOID|GEOIDFQ|ANSICODE|NAME|ALAND|AWATER|ALAND_SQMI|AWATER_SQMI|INTPTLAT|INTPTLONG\n"
+                   "AL|01001|0500000US01001|1|Autauga County|1|1|594.4|1|32.5|-86.6\n"
+                   "AL|01003|0500000US01003|1|Baldwin County|1|1|1589.8|1|30.7|-87.7\n")
+    info = dd.check_gazetteer(p)
+    assert info["rows"] == 2 and info["delimiter"] == "pipe"
+
+
 def test_boundaries_require_shapefile_fields(tmp_path):
     gdf = gpd.GeoDataFrame(
         {"GEOID": ["01001", "01003"], "STATEFP": ["01", "01"], "COUNTYFP": ["001", "003"], "NAME": ["A", "B"],

@@ -1,0 +1,78 @@
+source_id,name,status,state,source_county,location_precision,latitude,longitude,point_county,name_candidates,county_geoid,assignment_method,name_check,assignment_issue
+digital-realty-8100-boone-boulevard-former-dupont-fabros-va3-va,Digital Realty 8100 Boone Boulevard (former DuPont Fabros VA3),operational,VA,Fairfax,approximate,38.9137236,-77.2258825,51059,51059|51600,,unassigned,,ambiguous_source_county_name
+expedient-bwi1-owings-mills-md,Expedient BWI1 (Owings Mills),operational,MD,Baltimore,approximate,39.4273178,-76.8115503,24005,24005|24510,,unassigned,,ambiguous_source_county_name
+lumen-mclean-1-va,Lumen McLean 1,operational,VA,Fairfax,approximate,38.9208538,-77.2115713,51059,51059|51600,,unassigned,,ambiguous_source_county_name
+penzance-chantilly-premier-fairfax-va,Chantilly Premier,under_construction,VA,Fairfax,approximate,38.8943,-77.4311,51059,51059|51600,,unassigned,,ambiguous_source_county_name
+security-land-woodlawn-baltimore-county-md,1500 Woodlawn Drive Data Center Campus,proposed,MD,Baltimore,approximate,39.3196,-76.7448,24005,24005|24510,,unassigned,,ambiguous_source_county_name
+365-data-centers-washington-dc,"365 Data Centers – Washington, D.C.",operational,DC,,approximate,38.902580481701,-77.029210511723,11001,,,unassigned,,approximate_without_source_county
+alaska-communications-anchorage-ak,Alaska Communications Data Center,operational,AK,,approximate,61.188009403546,-149.87239078076,02020,,,unassigned,,approximate_without_source_county
+armory-innovation-district-st-louis-mo,Armory Innovation District Data Center,permitted,MO,,approximate,38.636,-90.237,29510,,,unassigned,,approximate_without_source_county
+centersquare-ord2-elk-grove-village-il,Centersquare ORD2 (Elk Grove Village),operational,IL,,approximate,41.9923175,-87.9582323,17043,,,unassigned,,approximate_without_source_county
+drfortress-koapaka-honolulu-hi,DRFortress Data Center,operational,HI,,approximate,21.3344171,-157.9171752,15003,,,unassigned,,approximate_without_source_county
+gci-anchorage-ak,GCI Anchorage Data Center,operational,AK,,approximate,61.2163129,-149.894852,02020,,,unassigned,,approximate_without_source_county
+hawaiiantel-endeavor-honolulu-hi,Endeavor Data Center,operational,HI,,approximate,21.304547,-157.855676,15003,,,unassigned,,approximate_without_source_county
+hawaiki-cable-kapolei-hi,Kapolei Cable Landing Station,operational,HI,,approximate,21.349388772017,-158.128697947756,15003,,,unassigned,,approximate_without_source_county
+host-digital-northeast-oklahoma-ok,Host Digital Northeast Oklahoma Data Center,operational,OK,,approximate,36.154,-95.9928,40143,,,unassigned,,approximate_without_source_county
+menlo-digital-jamestown-drive-petersburg-va,Menlo Digital Richmond Virginia Data Center (Jamestown Drive),permitted,VA,,approximate,37.199,-77.363,51730,,,unassigned,,approximate_without_source_county
+monarch-rock-air-rockford-il,Rock Air Data Center Campus,proposed,IL,,approximate,42.1514357,-89.101077,17201,,,unassigned,,approximate_without_source_county
+nuvu-county-drive-petersburg-va,NuVu County Drive Data Center Campus,permitted,VA,,approximate,37.193,-77.376,51730,,,unassigned,,approximate_without_source_county
+powerhouse-circle-t-westlake-tx,PowerHouse Circle T Data Center Campus,proposed,TX,,approximate,32.9972,-97.2083,48121,,,unassigned,,approximate_without_source_county
+tierpoint-waterbury-ct,TierPoint Waterbury,operational,CT,,approximate,41.554366,-73.0410751,09140,,,unassigned,,approximate_without_source_county
+uh-mhpcc-kihei-hi,Maui High Performance Computing Center,operational,HI,,approximate,20.74929227073,-156.439610266824,15009,,,unassigned,,approximate_without_source_county
+warrenton-group-halifax-road-petersburg-va,TWG Data Halifax Road Campus (former Collier Yard),permitted,VA,,approximate,37.177,-77.418,51730,,,unassigned,,approximate_without_source_county
+yondr-cerberus-manassas-va,Yondr Manassas Data Center Campus,proposed,VA,,approximate,38.7509,-77.4753,51683,,,unassigned,,approximate_without_source_county
+applied-digital-delta-forge-1-la,Applied Digital Delta Forge 1 AI Factory Campus,under_construction,LA,Rapides,exact,31.4,-92.65,22043,22079,,unassigned,,conflict_point_county_vs_source_county
+cyrusone-chi1-chi3-aurora-il,CyrusOne CHI1-CHI3 (Aurora),operational,IL,Kane,exact,41.7966077,-88.2438232,17043,17089,,unassigned,,conflict_point_county_vs_source_county
+digital-realty-atl11-ga,Digital Realty ATL11,operational,GA,Cobb,exact,33.7465605,-84.5797407,13097,13067,,unassigned,,conflict_point_county_vs_source_county
+edged-aurora-il,Edged Chicago Campus — Aurora (ORD01),under_construction,IL,DuPage,exact,41.79,-88.284,17089,17043,,unassigned,,conflict_point_county_vs_source_county
+flexential-dallas-richardson-tx,Flexential Dallas - Richardson,operational,TX,Dallas,exact,32.9948122,-96.7524974,48085,48113,,unassigned,,conflict_point_county_vs_source_county
+flexential-denver-englewood-co,Flexential Denver - Englewood,operational,CO,Arapahoe,exact,39.558994,-104.8375559,08035,08005,,unassigned,,conflict_point_county_vs_source_county
+google-nebraska-ai-campus-proposed,Google Nebraska AI Campus (proposed),proposed,NE,Otoe,exact,40.474,-96.371,31097,31131,,unassigned,,conflict_point_county_vs_source_county
+google-project-mica-kc-northland-mo,Google Project Mica,under_construction,MO,Clay,exact,39.274,-94.651,29165,29047,,unassigned,,conflict_point_county_vs_source_county
+iron-mountain-white-oak-henrico-va,Iron Mountain White Oak Technology Park Campus,proposed,VA,Henrico,exact,37.556,-77.427,51760,51087,,unassigned,,conflict_point_county_vs_source_county
+meta-kansas-city-northland-mo,Meta Kansas City Northland,operational,MO,Clay,exact,39.247,-94.705,29165,29047,,unassigned,,conflict_point_county_vs_source_county
+meta-prometheus-new-albany-oh,Meta Prometheus,under_construction,OH,Licking,exact,40.092,-82.836,39049,39089,,unassigned,,conflict_point_county_vs_source_county
+microsoft-malaga-wa,Microsoft Malaga Campus,under_construction,WA,Chelan,exact,47.23,-120.2,53037,53007,,unassigned,,conflict_point_county_vs_source_county
+powerhouse-provident-grand-prairie-tx,PowerHouse Grand Prairie Campus,under_construction,TX,Ellis,exact,32.62,-97.02,48113,48139,,unassigned,,conflict_point_county_vs_source_county
+riverview-innovation-tech-campus-tonawanda-ny,Riverview Innovation & Technology Campus,proposed,NY,Erie,exact,43.037,-78.887,36063,36029,,unassigned,,conflict_point_county_vs_source_county
+switch-citadel-storey-county-nv,Switch CITADEL Campus,operational,NV,Storey,exact,39.6183,-119.3732,32031,32029,,unassigned,,conflict_point_county_vs_source_county
+terawulf-muskie-eastpark-ky,TeraWulf Muskie Data Campus (EastPark),proposed,KY,Greenup,exact,38.4042,-82.79,21019,21089,,unassigned,,conflict_point_county_vs_source_county
+tpa-social-circle-technology-park-ga,Social Circle Technology Park,proposed,GA,Newton,exact,33.6562,-83.7182,13297,13217,,unassigned,,conflict_point_county_vs_source_county
+penzance-bedington-berkeley-county-wv,Bedington Campus,proposed,WV,Berkeley,exact,39.554,-77.882,24043,54003,,unassigned,,conflict_point_state_vs_source_state
+terawulf-morgantown-charles-county-md,TeraWulf Morgantown Generating Station AI Campus,proposed,MD,Charles,exact,38.362,-77.129,51099,24017,,unassigned,,conflict_point_state_vs_source_state
+docomo-guam-harmon-gu,DoCoMo Guam Data Center,operational,GU,,approximate,13.5120114,144.827566,,,,unassigned,,outside_geographic_scope
+docomo-saipan-susupe-mp,DoCoMo Pacific Susupe Data Center,operational,MP,,approximate,15.1568682,145.7051697,,,,unassigned,,outside_geographic_scope
+edgeuno-sju1-san-juan-pr,EdgeUno SJU1,operational,PR,,approximate,18.43004,-66.05873,,,,unassigned,,outside_geographic_scope
+epicio-st-croix-vi,Epic.io St. Croix Data Center,operational,VI,,approximate,17.7581924,-64.8874524,,,,unassigned,,outside_geographic_scope
+gta-gu1-gu2-piti-gu,GTA Guam Data Center (GU1/GU2),operational,GU,,approximate,13.4672901,144.6991934,,,,unassigned,,outside_geographic_scope
+gta-gu3-alupang-tamuning-gu,GTA Alupang Data Center (GU3),operational,GU,,approximate,13.4961094,144.7745311,,,,unassigned,,outside_geographic_scope
+hub787-carolina-pr,HUB787,operational,PR,,approximate,18.442021,-66.021669,,,,unassigned,,outside_geographic_scope
+ite-guam-harmon-gu,IT&E Guam Data Center,operational,GU,,approximate,13.5030828,144.8117863,,,,unassigned,,outside_geographic_scope
+ite-saipan-susupe-mp,IT&E Saipan Data Center,operational,MP,,approximate,15.1587626,145.7066756,,,,unassigned,,outside_geographic_scope
+9ldg-niagara-falls-ny,9LDG Niagara AI Data Center,proposed,NY,Niagara,exact,43.0628,-79.0175,,36063,,unassigned,,point_outside_county_polygons
+atlas-capital-bloomfield-ct,Atlas Capital Group Data Center (132 Griffin Road North),proposed,CT,Hartford,approximate,41.8843905,-72.7389957,09110,,,unassigned,,unrecognized_source_county_name
+cigna-windsor-data-center-ct,Cigna Windsor Data Center (9 Griffin Road North),operational,CT,Hartford,approximate,41.879941,-72.73157,09110,,,unassigned,,unrecognized_source_county_name
+ct-das-groton-data-center-ct,State of Connecticut Groton Data Center (Pfizer campus Building 230),operational,CT,New London,approximate,41.334586,-72.076516,09180,,,unassigned,,unrecognized_source_county_name
+eip-energy-innovation-park-new-britain-ct,Energy & Innovation Park Data Center (480 Myrtle Street),proposed,CT,Hartford,approximate,41.669693,-72.797359,09110,,,unassigned,,unrecognized_source_county_name
+og-industries-beacon-falls-ct,Beacon Falls Data Center Campus (1 Lopus Road),proposed,CT,New Haven,approximate,41.442318,-73.064334,09140,,,unassigned,,unrecognized_source_county_name
+omega-systems-stamford-ct,"Omega Systems Stamford Data Center (26 Fahey Street, formerly Amnet/Cloudpath CT1)",operational,CT,Fairfield,approximate,41.091473,-73.517633,09190,,,unassigned,,unrecognized_source_county_name
+renew-riverside-bristol-ct,ReNew Riverside Micro Cloud Technology Center (234 Riverside Avenue),proposed,CT,Hartford,approximate,41.670002,-72.934109,09140,,,unassigned,,unrecognized_source_county_name
+aws-westborough-ma,Amazon Data Services Westborough,proposed,MA,Worcester,representative_multi_site,42.28296,-71.58339,25027,25027,,unassigned,,unresolved_multi_site
+cologix-cedar-knolls-campus-nj,Cologix Cedar Knolls Campus,operational,NJ,Morris,representative_multi_site,40.81995,-74.427986,34027,34027,,unassigned,,unresolved_multi_site
+digital-realty-clifton-campus-nj,Digital Realty Clifton Campus,operational,NJ,Passaic,representative_multi_site,40.862137,-74.160393,34031,34031,,unassigned,,unresolved_multi_site
+doe-oak-ridge-reservation-ai-data-centers-tn,Oak Ridge Reservation AI Data Center Sites (DOE land lease),proposed,TN,Roane,representative_multi_site,35.9352633,-84.3923554,47145,47145,,unassigned,,unresolved_multi_site
+lumen-salt-lake-city-ut,"Lumen Salt Lake City Sites (Salt Lake 1, 2 and 4)",operational,UT,Salt Lake,representative_multi_site,40.75962,-111.8868,49035,49035,,unassigned,,unresolved_multi_site
+atmosphere-dickerson-montgomery-md,Dickerson Data Center,proposed,MD,Montgomery,approximate,39.2117,-77.4736,51107,24031,24031,source_name_match,approx_point_outside_named_county,
+aws-costas-ridgeland-ms,AWS Costas Property Campus (Ridgeland),under_construction,MS,Madison,approximate,32.400198,-90.1818699,28049,28089,28089,source_name_match,approx_point_outside_named_county,
+beacon-calvert-al,Calvert Infrastructure Hub,proposed,AL,Mobile,approximate,31.1551748,-88.0099997,01129,01097,01097,source_name_match,approx_point_outside_named_county,
+beltline-oklahoma-city-frisco-road-ok,Beltline Energy Oklahoma City Campus,proposed,OK,Oklahoma,approximate,35.49,-97.795,40017,40109,40109,source_name_match,approx_point_outside_named_county,
+copt-defense-properties-van-meter-ia,COPT Defense Van Meter Data Center Shell Site,proposed,IA,Dallas,approximate,41.5031,-93.9469,19121,19049,19049,source_name_match,approx_point_outside_named_county,
+cyrusone-nym5-norwalk-ct,CyrusOne NYM5 (Norwalk),operational,CT,Fairfield,exact,41.1130924,-73.3886495,09190,,09190,spatial_join,source_name_unrecognized,
+cyrusone-project-peach-palmetto-ga,Project Peach (CyrusOne Palmetto Data Center Campus),permitted,GA,Coweta,approximate,33.5182,-84.6693,13121,13077,13077,source_name_match,approx_point_outside_named_county,
+digital-realty-aurora-ai-factory-manassas-va,Aurora AI Factory,under_construction,VA,Prince William,approximate,38.7509,-77.4753,51683,51153,51153,source_name_match,approx_point_outside_named_county,
+edgecore-shannon-hill-louisa-va,EdgeCore Shannon Hill Data Center Campus,proposed,VA,Louisa,approximate,37.836,-77.988,51075,51109,51109,source_name_match,approx_point_outside_named_county,
+meta-stanton-springs-newton-ga,Meta Newton Data Center (Stanton Springs),operational,GA,Newton,approximate,33.6551,-83.7182,13297,13217,13217,source_name_match,approx_point_outside_named_county,
+nextnrg-nassau-county-data-center-energy-campus-fl,NextNRG Nassau County Data Center & Energy Campus,proposed,FL,Nassau,approximate,30.55,-81.68,12031,12089,12089,source_name_match,approx_point_outside_named_county,
+prometheus-hyperscale-casper-wy,Prometheus Hyperscale Falls Ranch Data Center Campus,proposed,WY,Converse,approximate,42.87,-106.15,56025,56009,56009,source_name_match,approx_point_outside_named_county,
+qts-kearneysville-berkeley-jefferson-wv,Berkeley/Jefferson County Data Center Campus (QTS Kearneysville),proposed,WV,Berkeley,approximate,39.3729,-77.8636,54037,54003,54003,source_name_match,approx_point_outside_named_county,
+thornberry-data-center-campus-caroline-va,Thornberry Data Center Campus,proposed,VA,Caroline,approximate,37.885,-77.52,51085,51033,51033,source_name_match,approx_point_outside_named_county,

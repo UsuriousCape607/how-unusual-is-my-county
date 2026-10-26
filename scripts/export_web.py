@@ -12,7 +12,6 @@ import sys
 from datetime import datetime, timezone
 
 import geopandas as gpd
-import numpy as np
 import pandas as pd
 import shapely
 from shapely.affinity import translate
@@ -23,8 +22,9 @@ from common import (
     PIPELINE_STATUSES, PROCESSED, PUBLIC_DATA, RAW, SOURCES, data_version, read_json, write_json,
 )
 
-DISPLAY_TOLERANCE_DEG = 0.004
-COORD_DECIMALS = 4
+DISPLAY_TOLERANCE_DEG = 0.005
+STATE_TOLERANCE_DEG = 0.01
+COORD_DECIMALS = 3  # ~100 m; display only
 # Demonstration county shown on first load. Chosen because it has several qualifying records;
 # its numbers are calculated like every other county's.
 DEFAULT_GEOID = "51107"  # Loudoun County, Virginia
@@ -58,12 +58,13 @@ def main() -> int:
     write_json(PUBLIC_DATA / "counties.geojson", feature_collection(county_features), compact=True)
 
     sgdf = gpd.GeoDataFrame({"state_fips": polys["geoid"].str[:2]}, geometry=simple, crs=4326)
-    state_features = []
+    fips_list, state_geoms = [], []
     for fips, grp in sgdf.groupby("state_fips"):
         g = shapely.coverage_union_all(grp.geometry.values)
-        if not isinstance(g, (Polygon, MultiPolygon)):
-            g = shapely.make_valid(g)
-        state_features.append(rounded_feature(g, {"state_fips": fips}))
+        fips_list.append(fips)
+        state_geoms.append(g if isinstance(g, (Polygon, MultiPolygon)) else shapely.make_valid(g))
+    state_geoms = shapely.coverage_simplify(state_geoms, STATE_TOLERANCE_DEG)
+    state_features = [rounded_feature(g, {"state_fips": f}) for g, f in zip(state_geoms, fips_list)]
     write_json(PUBLIC_DATA / "states.geojson", feature_collection(state_features), compact=True)
 
     m = pd.read_csv(PROCESSED / "county_metrics.csv", dtype={"geoid": str, "state_fips": str})
@@ -83,7 +84,9 @@ def main() -> int:
     write_json(PUBLIC_DATA / "county_metrics.json", metrics, compact=True)
 
     peers = read_json(PROCESSED / "county_peers.json")
-    write_json(PUBLIC_DATA / "county_peers.json", peers, compact=True)
+    # Distances stay in data/processed/county_peers.json; the site does not display them.
+    web_peers = {**peers, "peers": {g: {k: v for k, v in r.items() if k != "peer_distances"} for g, r in peers["peers"].items()}}
+    write_json(PUBLIC_DATA / "county_peers.json", web_peers, compact=True)
 
     facilities = read_json(PROCESSED / "facilities_included.json")
     write_json(PUBLIC_DATA / "facilities.json", facilities, compact=True)
@@ -166,7 +169,7 @@ def main() -> int:
         ],
     }
     write_json(PUBLIC_DATA / "metadata.json", metadata)
-    sizes = {p.name: f"{p.stat().st_size / 1e6:.2f} MB" for p in sorted(PUBLIC_DATA.glob("*.json*"))}
+    sizes = {p.name: f"{p.stat().st_size / 1e6:.2f} MB" for p in sorted(PUBLIC_DATA.glob("*json"))}
     print("Exported:", sizes)
     print(f"Default county: {by_geoid[DEFAULT_GEOID]['county_name']}, {by_geoid[DEFAULT_GEOID]['state']}")
     return 0

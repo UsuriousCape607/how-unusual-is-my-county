@@ -20,7 +20,7 @@ import sys
 import zipfile
 from datetime import datetime, timezone
 
-from common import RAW, SOURCES, read_json, write_json
+from common import RAW, SOURCES, gazetteer_delimiter, read_json, write_json
 
 MANIFEST = RAW / "manifest.json"
 MIN_COUNTY_ROWS = 3000  # 3,144 counties in the 50 states + DC; guards against truncated files
@@ -92,11 +92,12 @@ def check_gazetteer(path) -> dict:
             raise SchemaError(f"{path.name}: expected one .txt member, found {z.namelist()}")
         text = z.read(members[0]).decode("utf-8", errors="replace")
     lines = text.splitlines()
-    cols = [c.strip() for c in lines[0].split("\t")]
+    sep = gazetteer_delimiter(lines[0])
+    cols = [c.strip() for c in lines[0].split(sep)]
     _require(cols, ["USPS", "GEOID", "NAME", "ALAND", "AWATER", "ALAND_SQMI"], members[0])
     if len(lines) - 1 < MIN_COUNTY_ROWS:
         raise SchemaError(f"{members[0]}: only {len(lines) - 1} rows")
-    return {"member": members[0], "rows": len(lines) - 1}
+    return {"member": members[0], "rows": len(lines) - 1, "delimiter": "pipe" if sep == "|" else "tab"}
 
 
 def check_boundaries(path) -> dict:

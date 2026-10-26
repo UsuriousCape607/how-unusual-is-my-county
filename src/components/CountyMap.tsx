@@ -17,6 +17,8 @@ interface Props {
 const NAVY = "#13294b";
 const PEER_FILL = "#8fcbcc";
 const PEER_STROKE = "#1f6f71";
+// Record markers are fixed-size rings; below this zoom they pile up and hide the county itself.
+const MARKER_MIN_ZOOM = 6;
 const LOWER_48: L.LatLngBoundsExpression = [[24.4, -125], [49.5, -66.9]];
 export const BINS: { min: number; label: string; color: string }[] = [
   { min: 0, label: "0", color: "#ffffff" },
@@ -42,9 +44,12 @@ export default function CountyMap({ counties, states, byGeoid, selected, peerGeo
   const countyLayer = useRef<L.GeoJSON | null>(null);
   const layers = useRef(new Map<string, L.Polygon>());
   const markers = useRef<L.LayerGroup | null>(null);
+  // One shared canvas: a second canvas (e.g. for markers) would sit on top and swallow county hover/clicks.
+  const renderer = useRef<L.Canvas | null>(null);
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
   const [choropleth, setChoropleth] = useState(false);
+  const [markersVisible, setMarkersVisible] = useState(false);
   const view = useRef({ selected, peers: new Set(peerGeoids), choropleth });
   const lastFitted = useRef<string | null>(null);
 
@@ -66,15 +71,16 @@ export default function CountyMap({ counties, states, byGeoid, selected, peerGeo
   // Create the map once.
   useEffect(() => {
     if (!container.current) return;
-    const map = L.map(container.current, { preferCanvas: true, zoomSnap: 0.25, minZoom: 2, maxZoom: 11 });
+    // zoomAnimation is off because Leaflet silently drops zoom requests made during an animated zoom.
+    const map = L.map(container.current, { preferCanvas: true, zoomAnimation: false, zoomSnap: 0.25, minZoom: 2, maxZoom: 11 });
     map.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
     map.attributionControl.addAttribution(
-      'County boundaries: U.S. Census Bureau 2025 · Records: <a href="https://github.com/ek33450505/compute-atlas">Compute Atlas</a> (CC BY 4.0)',
+      'Census Bureau 2025 · <a href="https://github.com/ek33450505/compute-atlas">Compute Atlas</a> (CC BY 4.0)',
     );
-    const renderer = L.canvas({ padding: 0.5, tolerance: 3 });
+    renderer.current = L.canvas({ padding: 0.5, tolerance: 3 });
     layers.current.clear();
     countyLayer.current = L.geoJSON(counties, {
-      renderer,
+      renderer: renderer.current,
       style: (f) => styleFor(f?.properties?.geoid),
       onEachFeature: (f, lyr) => {
         const geoid: string = f.properties.geoid;
@@ -91,8 +97,15 @@ export default function CountyMap({ counties, states, byGeoid, selected, peerGeo
         );
       },
     } as L.GeoJSONOptions).addTo(map);
-    L.geoJSON(states, { renderer, interactive: false, style: { fill: false, color: "#8592a3", weight: 0.9 } } as L.GeoJSONOptions).addTo(map);
-    markers.current = L.layerGroup().addTo(map);
+    L.geoJSON(states, { renderer: renderer.current, interactive: false, style: { fill: false, color: "#8592a3", weight: 0.9 } } as L.GeoJSONOptions).addTo(map);
+    const group = L.layerGroup();
+    markers.current = group;
+    map.on("zoomend", () => {
+      const show = map.getZoom() >= MARKER_MIN_ZOOM;
+      if (show && !map.hasLayer(group)) group.addTo(map);
+      if (!show && map.hasLayer(group)) map.removeLayer(group);
+      setMarkersVisible(show);
+    });
     map.fitBounds(LOWER_48);
     lastFitted.current = null;
     mapRef.current = map;
@@ -120,6 +133,9 @@ export default function CountyMap({ counties, states, byGeoid, selected, peerGeo
     layer.setStyle(((f: Feature) => styleFor(f.properties?.geoid)) as unknown as L.PathOptions);
     peerGeoids.forEach((g) => layers.current.get(g)?.bringToFront());
     layers.current.get(selected)?.bringToFront();
+    if (markers.current && mapRef.current?.hasLayer(markers.current)) {
+      markers.current.eachLayer((m) => (m as L.CircleMarker).bringToFront());
+    }
     if (lastFitted.current !== selected) {
       lastFitted.current = selected;
       fitSelection(true);
@@ -139,10 +155,10 @@ export default function CountyMap({ counties, states, byGeoid, selected, peerGeo
         f.location_precision === "exact" ? "Exact coordinates" : "Approximate location: a representative point, not a precise site"
       }`;
       if (f.location_precision === "exact") {
-        L.circleMarker(ll, { radius: 5, color: NAVY, weight: 1.5, fillColor: "#ffffff", fillOpacity: 1 }).bindTooltip(tip).addTo(group);
+        L.circleMarker(ll, { renderer: renderer.current ?? undefined, radius: 5, color: NAVY, weight: 1.5, fillColor: "#ffffff", fillOpacity: 1 }).bindTooltip(tip).addTo(group);
       } else {
-        L.circleMarker(ll, { radius: 11, color: NAVY, weight: 3.5, fill: false, interactive: false }).addTo(group);
-        L.circleMarker(ll, { radius: 11, color: "#ffffff", weight: 2, dashArray: "4 3", fillColor: "#ffffff", fillOpacity: 0.12 })
+        L.circleMarker(ll, { renderer: renderer.current ?? undefined, radius: 11, color: NAVY, weight: 3.5, fill: false, interactive: false }).addTo(group);
+        L.circleMarker(ll, { renderer: renderer.current ?? undefined, radius: 11, color: "#ffffff", weight: 2, dashArray: "4 3", fillColor: "#ffffff", fillOpacity: 0.12 })
           .bindTooltip(tip)
           .addTo(group);
       }
@@ -182,6 +198,9 @@ export default function CountyMap({ counties, states, byGeoid, selected, peerGeo
         )}
         {nExact > 0 && <span><i className="dot exact" /> Exact site ({nExact})</span>}
         {nApprox > 0 && <span><i className="dot approx" /> Approximate location ({nApprox})</span>}
+        {nExact + nApprox > 0 && !markersVisible && (
+          <span className="muted">Use “Zoom to county” to see record locations.</span>
+        )}
         <label className="toggle">
           <input type="checkbox" checked={choropleth} onChange={(e) => setChoropleth(e.target.checked)} /> Shade all counties by
           pipeline records

@@ -1,0 +1,38 @@
+{
+  "prompt_version": 1,
+  "examples": [
+    {
+      "geoid": "18097",
+      "label": "Marion County, Indiana",
+      "model": "Anthropic Claude (via Claude Code)",
+      "generated_at": "2026-10-26",
+      "snapshot_date": "2026-10-02",
+      "data_version": "compute-atlas-v1.34.1-asof-2026-10-02_census-v2025",
+      "output": "In the Compute Atlas snapshot of October 2, 2026, Marion County, Indiana has 3 qualifying documented pipeline records: data-center site records listed as proposed, permitted or under construction with confirmed or reported confidence. Among its 40 peer counties, 33 have fewer records, 5 have the same number and 2 have more. The peer median is 1 record, the peer mean is 1.075, and 23 of the 40 peers have at least one record.\n\nThe peers were matched only on population and population density, with populations from 678,179 to 1,636,630, so Marion County is compared with places of similar population and density without using data-center activity to choose them. The comparison does not explain the count or show any effect. The figures are records in one incomplete snapshot, not verified buildings, and the comparison is descriptive, not causal or a test of statistical significance.",
+      "verification_status": "automated checks passed; manually reviewed",
+      "verification_summary": "Every number matched to input.json; no causal, impact or political claims; limitations stated. See verification.md."
+    },
+    {
+      "geoid": "48201",
+      "label": "Harris County, Texas",
+      "model": "Anthropic Claude (via Claude Code)",
+      "generated_at": "2026-10-26",
+      "snapshot_date": "2026-10-02",
+      "data_version": "compute-atlas-v1.34.1-asof-2026-10-02_census-v2025",
+      "output": "No qualifying pipeline records were found in this county in the selected dataset snapshot. For Harris County, Texas, the Compute Atlas snapshot of October 2, 2026 lists no data-center site records that are proposed, permitted or under construction with confirmed or reported confidence. Of its 40 peer counties, 15 share that count and 25 have more. The peer median is 1 record, the peer mean is 2.675, and 25 of the 40 peers have at least one record.\n\nThe peers were chosen only for similar population and density, with populations from 990,911 to 9,694,934, not for data-center activity. This result does not mean that no projects are proposed in Harris County: the inventory is incomplete and this snapshot may miss projects. The comparison is descriptive, not causal, and it is not a test of statistical significance.",
+      "verification_status": "automated checks passed; manually reviewed",
+      "verification_summary": "Every number matched to input.json; no causal, impact or political claims; limitations stated. See verification.md."
+    },
+    {
+      "geoid": "51107",
+      "label": "Loudoun County, Virginia",
+      "model": "Anthropic Claude (via Claude Code)",
+      "generated_at": "2026-10-26",
+      "snapshot_date": "2026-10-02",
+      "data_version": "compute-atlas-v1.34.1-asof-2026-10-02_census-v2025",
+      "output": "In the Compute Atlas snapshot of October 2, 2026, Loudoun County, Virginia has 9 qualifying documented pipeline records: data-center site records listed as proposed, permitted or under construction with confirmed or reported confidence. Compared with its 40 peer counties, Loudoun County has more records than all 40 of them; none has the same count or more. The peer median is 0.5 records, the peer mean is 1.25, and 20 of the 40 peers have at least one record.\n\nWhat makes the comparison informative is that the peers were chosen only for similar population and density, with populations from 324,411 to 611,708, not for data-center activity. It does not show why Loudoun County's count is higher or what effects these projects have. The counts are records in one incomplete snapshot, not verified buildings, and the comparison is descriptive, not causal or a test of statistical significance.",
+      "verification_status": "automated checks passed; manually reviewed",
+      "verification_summary": "Every number matched to input.json; no causal, impact or political claims; limitations stated. See verification.md."
+    }
+  ]
+}

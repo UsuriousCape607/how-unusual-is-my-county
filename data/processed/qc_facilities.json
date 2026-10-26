@@ -1,0 +1,86 @@
+{
+  "total_records": 2328,
+  "records_by_facility_type": {
+    "data_center": 1811,
+    "power_generation": 320,
+    "crypto_mining": 197
+  },
+  "records_by_status": {
+    "operational": 1126,
+    "proposed": 577,
+    "under_construction": 311,
+    "permitted": 186,
+    "cancelled": 128
+  },
+  "records_by_confidence": {
+    "reported": 1295,
+    "confirmed": 1009,
+    "rumored": 24
+  },
+  "records_by_precision": {
+    "approximate": 1573,
+    "exact": 746,
+    "representative_multi_site": 9
+  },
+  "headline_included": 799,
+  "headline_exclusions_by_reason": {
+    "status:operational": 861,
+    "facility_type:power_generation": 320,
+    "facility_type:crypto_mining": 197,
+    "status:cancelled": 103,
+    "confidence:rumored": 19,
+    "assignment:conflict_point_county_vs_source_county": 11,
+    "assignment:approximate_without_source_county": 7,
+    "assignment:unrecognized_source_county_name": 4,
+    "assignment:unresolved_multi_site": 2,
+    "assignment:conflict_point_state_vs_source_state": 2,
+    "assignment:ambiguous_source_county_name": 2,
+    "assignment:point_outside_county_polygons": 1
+  },
+  "pipeline_candidates_before_assignment": 828,
+  "pipeline_candidates_by_precision": {
+    "approximate": 572,
+    "exact": 254,
+    "representative_multi_site": 2
+  },
+  "pipeline_assignment_methods": {
+    "source_name_match": 559,
+    "spatial_join": 240
+  },
+  "pipeline_name_checks": {
+    "approx_point_in_named_county": 547,
+    "match": 240,
+    "approx_point_outside_named_county": 12
+  },
+  "pipeline_assignment_failures": {
+    "conflict_point_county_vs_source_county": 11,
+    "approximate_without_source_county": 7,
+    "unrecognized_source_county_name": 4,
+    "unresolved_multi_site": 2,
+    "conflict_point_state_vs_source_state": 2,
+    "ambiguous_source_county_name": 2,
+    "point_outside_county_polygons": 1
+  },
+  "pipeline_included_by_status": {
+    "proposed": 432,
+    "under_construction": 243,
+    "permitted": 124
+  },
+  "pipeline_included_by_confidence": {
+    "reported": 471,
+    "confirmed": 328
+  },
+  "pipeline_included_by_precision": {
+    "approximate": 559,
+    "exact": 240
+  },
+  "operational_included": 826,
+  "operational_assignment_methods": {
+    "source_name_match": 458,
+    "spatial_join": 368
+  },
+  "pipeline_exact_points_sharing_coordinates": 1,
+  "pipeline_counties_with_records": 458,
+  "nearest_tolerance_m": 1000.0,
+  "review_log_rows": 77
+}

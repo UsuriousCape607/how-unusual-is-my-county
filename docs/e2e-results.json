@@ -1,0 +1,132 @@
+[
+  {
+    "name": "default county shown",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "URL carries default GEOID",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "data-as-of banner shows snapshot date",
+    "ok": true,
+    "detail": "October 2, 2026"
+  },
+  {
+    "name": "summary card shows as-of date",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "attribution visible",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "methodology section present",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "keyboard search selects county by GEOID",
+    "ok": true,
+    "detail": "Santa Clara County, CA"
+  },
+  {
+    "name": "facility list matches pipeline count",
+    "ok": true,
+    "detail": "27 vs 27"
+  },
+  {
+    "name": "source links are http(s)",
+    "ok": true,
+    "detail": "94 links"
+  },
+  {
+    "name": "chart shows 40 peer dots",
+    "ok": true,
+    "detail": "40"
+  },
+  {
+    "name": "summary breakdown matches data",
+    "ok": true,
+    "detail": "40/0/0"
+  },
+  {
+    "name": "map legend counts markers",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "duplicate names listed with states",
+    "ok": true,
+    "detail": "12 options"
+  },
+  {
+    "name": "peer table starts with 10 rows",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "peer table expands to 40",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "selecting a peer refocuses the app",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "map click selects matching GEOID",
+    "ok": true,
+    "detail": "Collier County, FL -> 12021"
+  },
+  {
+    "name": "zero-count wording",
+    "ok": true,
+    "detail": "Autauga County, AL"
+  },
+  {
+    "name": "never claims 'has no proposed data centers'",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "leading-zero GEOID in URL works",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "back button restores county",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "invalid GEOID handled",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "no external network requests (no API keys, tiles or CDNs)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "no console errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "mobile: no horizontal page overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "load failure shows an error message",
+    "ok": true,
+    "detail": ""
+  }
+]

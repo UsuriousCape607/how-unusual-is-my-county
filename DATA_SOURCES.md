@@ -41,6 +41,19 @@ from official copies: each file must pass a schema check (required columns, row/
 components), and its SHA-256 is recorded with `acquired: "supplied_locally"`. No older vintage, synthetic or
 unofficial substitute is used.
 
+**Files used for the 2026-10-26 build.** The project owner downloaded these from the official URLs above and
+supplied them to the build. Anyone can confirm they are identical to the official files by downloading them and
+comparing hashes (`sha256sum`).
+
+| File | SHA-256 | Bytes | Schema check |
+|---|---|---|---|
+| `co-est2025-alldata.csv` | `4f5a499d851e2cb48fd7a5405e5a9235453a8a66933657aacd10df0e264f35d5` | 2,071,735 | 3,144 county rows (`SUMLEV` 050) + 51 state rows; 99 columns incl. `POPESTIMATE2025`; Latin-1 encoded |
+| `2025_Gaz_counties_national.zip` | `4c90d0f805779923b5958ab13d0c1e9b99fe4932b786bfcf75dd739bb2dcb4ea` | 138,993 | 3,222 rows (incl. Puerto Rico). **Pipe-delimited** (earlier vintages were tab-delimited); new `GEOIDFQ` column |
+| `cb_2025_us_county_500k.zip` | `aa976c00b181939755d0da757f4c7c2dc0103c3b3b4530fb2a91c2bb62fc777c` | 11,758,981 | 3,235 polygons (incl. territories), EPSG:4269 |
+
+Reconciliation (`data/processed/qc_counties.json`): all 3,144 in-scope GEOIDs appear in all three files, county
+names agree, and the Gazetteer and boundary land areas are identical.
+
 ## Map display
 The map uses only the local county polygons (coverage-simplified for drawing) and Leaflet. No tile provider,
 API key or external request is involved.

@@ -47,5 +47,53 @@
     "schema_details": {
       "license": "CC BY 4.0"
     }
+  },
+  "census_popest_2025": {
+    "url": "https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/counties/totals/co-est2025-alldata.csv",
+    "file": "co-est2025-alldata.csv",
+    "acquired": "supplied_locally",
+    "retrieved_at": null,
+    "registered_at": "2026-10-26T21:37:25+00:00",
+    "note": "Official file placed in data/raw/ by hand; obtained from the URL above.",
+    "bytes": 2071735,
+    "sha256": "4f5a499d851e2cb48fd7a5405e5a9235453a8a66933657aacd10df0e264f35d5",
+    "schema_check": "passed",
+    "schema_details": {
+      "encoding": "latin-1",
+      "county_rows": 3144,
+      "columns": 99
+    }
+  },
+  "census_cb_counties_2025": {
+    "url": "https://www2.census.gov/geo/tiger/GENZ2025/shp/cb_2025_us_county_500k.zip",
+    "file": "cb_2025_us_county_500k.zip",
+    "acquired": "supplied_locally",
+    "retrieved_at": null,
+    "registered_at": "2026-10-26T21:37:25+00:00",
+    "note": "Official file placed in data/raw/ by hand; obtained from the URL above.",
+    "bytes": 11758981,
+    "sha256": "aa976c00b181939755d0da757f4c7c2dc0103c3b3b4530fb2a91c2bb62fc777c",
+    "schema_check": "passed",
+    "schema_details": {
+      "features": 3235,
+      "crs": "EPSG:4269",
+      "geometry_type": "Polygon"
+    }
+  },
+  "census_gazetteer_2025": {
+    "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2025_Gazetteer/2025_Gaz_counties_national.zip",
+    "file": "2025_Gaz_counties_national.zip",
+    "acquired": "supplied_locally",
+    "retrieved_at": null,
+    "registered_at": "2026-10-26T21:37:43+00:00",
+    "note": "Official file placed in data/raw/ by hand; obtained from the URL above.",
+    "bytes": 138993,
+    "sha256": "4c90d0f805779923b5958ab13d0c1e9b99fe4932b786bfcf75dd739bb2dcb4ea",
+    "schema_check": "passed",
+    "schema_details": {
+      "member": "2025_Gaz_counties_national.txt",
+      "rows": 3222,
+      "delimiter": "pipe"
+    }
   }
 }

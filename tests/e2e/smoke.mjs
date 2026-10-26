@@ -2,7 +2,10 @@
 // Usage: node tests/e2e/smoke.mjs   — starts `vite preview`, drives Chromium, writes screenshots to test-results/.
 import { spawn } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { chromium } from "playwright";
+import { createRequire } from "node:module";
+
+// require() also resolves a globally installed Playwright (NODE_PATH); locally: npm i -D playwright && npx playwright install chromium
+const { chromium } = createRequire(import.meta.url)("playwright");
 
 const PORT = 4179;
 const BASE = `http://127.0.0.1:${PORT}/`;
@@ -23,7 +26,8 @@ function check(name, ok, detail = "") {
   console.log(`[${ok ? "PASS" : "FAIL"}] ${name}${detail ? " — " + detail : ""}`);
 }
 
-const server = spawn("npx", ["vite", "preview", "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"], { stdio: "pipe" });
+// Run Vite directly (not via npx) so server.kill() stops the real server process.
+const server = spawn(process.execPath, ["node_modules/vite/bin/vite.js", "preview", "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"], { stdio: "pipe" });
 await new Promise((resolve, reject) => {
   const t = setTimeout(() => reject(new Error("preview server did not start")), 30000);
   server.stdout.on("data", (d) => { if (String(d).includes(String(PORT))) { clearTimeout(t); resolve(); } });
@@ -62,7 +66,7 @@ try {
   await input.press("Enter");
   await page.waitForFunction((n) => document.querySelector("#summary-title")?.textContent.includes(n), multi.county_name);
   check("keyboard search selects county by GEOID", page.url().includes(`county=${multi.geoid}`), `${multi.county_name}, ${multi.state}`);
-  const items = await page.$$eval("#records-title + .facility-list > li", (els) => els.length);
+  const items = await page.$$eval("#records-title ~ .facility-list > li", (els) => els.length);
   check("facility list matches pipeline count", items === multi.pipeline_count, `${items} vs ${multi.pipeline_count}`);
   const hrefs = await page.$$eval("#records-title ~ .facility-list .sources a", (els) => els.map((a) => a.href));
   check("source links are http(s)", hrefs.length > 0 && hrefs.every((h) => /^https?:\/\//.test(h)), `${hrefs.length} links`);
@@ -96,7 +100,8 @@ try {
   await page.waitForTimeout(700);
   const box = await page.locator(".map").boundingBox();
   const px = box.x + box.width * 0.12, py = box.y + box.height * 0.5;
-  await page.mouse.move(px, py);
+  await page.mouse.move(px - 15, py - 15);
+  await page.mouse.move(px, py, { steps: 5 });
   await page.waitForTimeout(300);
   const tipName = (await page.textContent(".leaflet-tooltip strong").catch(() => null)) ?? "";
   await page.mouse.click(px, py);
@@ -133,7 +138,11 @@ try {
   await mobile.waitForTimeout(600);
   const overflow = await mobile.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   check("mobile: no horizontal page overflow", overflow <= 1, `${overflow}px`);
-  await mobile.screenshot({ path: `${OUT}/mobile.png`, fullPage: true });
+  await mobile.screenshot({ path: `${OUT}/mobile-top.png` });
+  await mobile.locator(".map-card").scrollIntoViewIfNeeded();
+  await mobile.screenshot({ path: `${OUT}/mobile-map.png` });
+  await mobile.locator("#chart-title").scrollIntoViewIfNeeded();
+  await mobile.screenshot({ path: `${OUT}/mobile-chart.png` });
 
   // Error state when data cannot load.
   const broken = await browser.newPage();

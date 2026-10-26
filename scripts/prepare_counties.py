@@ -13,7 +13,9 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 
-from common import PROCESSED, RAW, SOURCES, STATE_FIPS_TO_USPS, norm_name, write_json
+import zipfile
+
+from common import PROCESSED, RAW, SOURCES, STATE_FIPS_TO_USPS, gazetteer_delimiter, norm_name, write_json
 
 POP_COL = "POPESTIMATE2025"
 
@@ -46,7 +48,9 @@ def read_popest() -> tuple[pd.DataFrame, str]:
 
 def read_gazetteer() -> pd.DataFrame:
     path = RAW / SOURCES["census_gazetteer_2025"]["file"]
-    df = pd.read_csv(path, sep="\t", dtype={"GEOID": str}, compression="zip", encoding="utf-8")
+    with zipfile.ZipFile(path) as z:
+        header = z.read(z.namelist()[0]).decode("utf-8").splitlines()[0]
+    df = pd.read_csv(path, sep=gazetteer_delimiter(header), dtype={"GEOID": str}, compression="zip", encoding="utf-8")
     df.columns = [c.strip() for c in df.columns]
     missing = {"GEOID", "USPS", "NAME", "ALAND", "ALAND_SQMI"} - set(df.columns)
     if missing:

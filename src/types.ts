@@ -18,7 +18,6 @@ export interface CountyMetric {
 export interface PeerRecord {
   selected_geoid: string;
   peer_geoids: string[];
-  peer_distances: number[];
   peer_median: number;
   peer_mean: number;
   n_fewer: number;

@@ -43,7 +43,7 @@ describe("county search", () => {
 });
 
 const peer = (o: Partial<PeerRecord>): PeerRecord => ({
-  selected_geoid: "x", peer_geoids: [], peer_distances: [], peer_median: 0, peer_mean: 0, n_fewer: 0, n_equal: 0,
+  selected_geoid: "x", peer_geoids: [], peer_median: 0, peer_mean: 0, n_fewer: 0, n_equal: 0,
   n_greater: 0, n_peers_with_pipeline: 0, pct_peers_with_pipeline: 0, peer_population_min: 0, peer_population_max: 0,
   peer_density_min: 0, peer_density_max: 0, distance_method: "", data_version: "", ...o,
 });

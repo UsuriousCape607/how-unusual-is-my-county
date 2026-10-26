@@ -1,0 +1,86 @@
+{
+  "geoids_are_5_digit_strings": {
+    "pass": true,
+    "detail": ""
+  },
+  "leading_zeros_kept": {
+    "pass": true,
+    "detail": "Autauga County, AL is 01001"
+  },
+  "no_duplicate_county_keys": {
+    "pass": true,
+    "detail": "duplicates: []"
+  },
+  "geojson_matches_metrics": {
+    "pass": true,
+    "detail": "3144 features vs 3144 counties"
+  },
+  "valid_population_and_land_area": {
+    "pass": true,
+    "detail": "invalid: []"
+  },
+  "universe_is_50_states_plus_dc": {
+    "pass": true,
+    "detail": "51 state codes"
+  },
+  "geojson_is_wgs84_lonlat": {
+    "pass": true,
+    "detail": "coordinates within U.S. lon/lat bounds"
+  },
+  "no_facility_counted_twice": {
+    "pass": true,
+    "detail": ""
+  },
+  "included_facilities_traceable": {
+    "pass": true,
+    "detail": "every pipeline record has >=1 http(s) source link"
+  },
+  "facility_counties_in_universe": {
+    "pass": true,
+    "detail": ""
+  },
+  "pipeline_totals_reconcile": {
+    "pass": true,
+    "detail": "mismatched counties: []"
+  },
+  "operational_totals_reconcile": {
+    "pass": true,
+    "detail": "mismatched counties: []"
+  },
+  "headline_total_matches_qc": {
+    "pass": true,
+    "detail": "799"
+  },
+  "pipeline_candidates_included_or_explained": {
+    "pass": true,
+    "detail": ""
+  },
+  "assignment_failures_logged": {
+    "pass": true,
+    "detail": "29 unassigned candidates"
+  },
+  "approximate_never_assigned_by_point": {
+    "pass": true,
+    "detail": ""
+  },
+  "multi_site_excluded": {
+    "pass": true,
+    "detail": ""
+  },
+  "peers_for_every_eligible_county": {
+    "pass": true,
+    "detail": "3144 peer records / 3144 eligible"
+  },
+  "peer_records_internally_consistent": {
+    "pass": true,
+    "detail": ""
+  },
+  "peers_match_independent_recomputation": {
+    "pass": true,
+    "detail": "mismatches: []"
+  },
+  "zero_and_outlier_counties_work": {
+    "pass": true,
+    "detail": "zero example 01001; max 06085 (27)"
+  }
+}
