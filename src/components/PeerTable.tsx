@@ -19,28 +19,28 @@ export default function PeerTable({ county, peer, byGeoid, snapshotDate, onSelec
 
   return (
     <section className="card" aria-labelledby="peers-title">
-      <h3 id="peers-title">Peer counties, most similar first</h3>
+      <h3 id="peers-title">The 40 similar counties, most similar first</h3>
       <p className="muted small">
-        Peers range from {fmtInt(peer.peer_population_min)} to {fmtInt(peer.peer_population_max)} people and from{" "}
-        {fmtDensity(peer.peer_density_min)} to {fmtDensity(peer.peer_density_max)} people per sq mi. Select a county name to make it
-        the focus.
+        They range from {fmtInt(peer.peer_population_min)} to {fmtInt(peer.peer_population_max)} people and from{" "}
+        {fmtDensity(peer.peer_density_min)} to {fmtDensity(peer.peer_density_max)} people per sq mi. Select a name to compare that
+        county instead.
       </p>
       <div className="table-wrap">
         <table>
           <thead>
             <tr>
-              <th scope="col" className="num">#</th>
+              <th scope="col" className="num">Rank</th>
               <th scope="col">County</th>
               <th scope="col">State</th>
               <th scope="col" className="num">Population (2025)</th>
-              <th scope="col" className="num">Density (per sq mi)</th>
-              <th scope="col" className="num">Pipeline records ({fmtDateShort(snapshotDate)})</th>
+              <th scope="col" className="num">People per sq mi</th>
+              <th scope="col" className="num">Sites in development ({fmtDateShort(snapshotDate)})</th>
             </tr>
           </thead>
           <tbody>
             <tr className="selected-row">
               <td className="num">—</td>
-              <td>{county.county_name} <span className="tag">Selected</span></td>
+              <td>{county.county_name} <span className="tag">This county</span></td>
               <td>{county.state}</td>
               <td className="num">{fmtInt(county.population_2025)}</td>
               <td className="num">{fmtDensity(county.density_per_sqmi)}</td>
@@ -65,7 +65,7 @@ export default function PeerTable({ county, peer, byGeoid, snapshotDate, onSelec
       </div>
       {rows.length > INITIAL_ROWS && (
         <button type="button" className="secondary" aria-expanded={expanded} onClick={() => setExpanded((e) => !e)}>
-          {expanded ? `Show the ${INITIAL_ROWS} nearest peers` : `Show all ${rows.length} peers`}
+          {expanded ? `Show only the ${INITIAL_ROWS} most similar` : `Show all ${rows.length} similar counties`}
         </button>
       )}
     </section>

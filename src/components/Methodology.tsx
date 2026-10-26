@@ -93,8 +93,9 @@ export default function Methodology({ metadata }: { metadata: Metadata }) {
       <p className="formula">distance(A, B) = √[(zPop<sub>A</sub> − zPop<sub>B</sub>)² + (zDensity<sub>A</sub> − zDensity<sub>B</sub>)²]</p>
       <p>
         A county is never its own peer, exact ties are broken by county code, and the data-center count is never used to choose
-        peers. We report how many peers have fewer, the same, and more records, plus the peer median and mean. We do not compute
-        ratios, indexes, or significance tests.
+        peers. We report how many similar counties have fewer, the same, and more records, plus their median and mean. The
+        headline restates these counts in words: &ldquo;all&rdquo; means 40 of 40 and &ldquo;most&rdquo; means more than half (21 or more).
+        We do not compute ratios, indexes, or significance tests.
       </p>
 
       <h3>Reading the result</h3>

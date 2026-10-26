@@ -32,6 +32,17 @@
 - Weekly refresh + Pages deploy workflow added (2026-10-26). The owner must make the repo public and set Pages
   source = GitHub Actions; the session's GitHub access cannot change settings.
 
+- UI redesign (2026-10-26), following Apple HIG "charting data" (headline first, simple chart, details on demand),
+  Material/Fluent hierarchy, NN/g progressive disclosure, GOV.UK plain numbers, and the dataviz skill:
+  plain verdict sentence (`summary.verdict`: "all" = 40/40, "most" = more than half), hero count, diverging
+  fewer/same/more bar (validated colours #3d6aa6 / #d3d8de / #b5822e), "What do these numbers mean?" Q&A,
+  example chips, copy-link, UI wording "similar counties" / "sites in development".
+- Map camera rules: map clicks never move the camera; search/table/chart selections glide (interruptible
+  flyTo, instant under reduced motion); views = This county (default) | Similar counties (lower 48; AK/HI peers
+  listed) | All counties (shaded). The map exposes `data-view="lat,lng,zoom"` for the e2e camera checks.
+- The owner's `apple-design` skill was added after this session started and could not be loaded here; apply it in
+  a new session (or from pasted content).
+
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.
 2. (Done 2026-10-26) Repo public, Pages source = GitHub Actions. Live at

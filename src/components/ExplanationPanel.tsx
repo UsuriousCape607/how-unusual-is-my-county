@@ -16,7 +16,7 @@ export default function ExplanationPanel({ county, peer, snapshotDate, examples,
   const paragraphs = templateSummary(county, peer, snapshotDate);
   return (
     <section className="card" aria-labelledby="explain-title">
-      <h3 id="explain-title">What this comparison shows</h3>
+      <h3 id="explain-title">Summary</h3>
 
       {ai && (
         <div className="ai-block">

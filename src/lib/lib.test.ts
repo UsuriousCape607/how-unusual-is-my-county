@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { CountyMetric, PeerRecord } from "../types";
 import { buildIndex, searchCounties } from "./search";
-import { templateSummary } from "./summary";
+import { templateSummary, typicalPhrase, verdict } from "./summary";
 import { daysSince, fmtAgo, fmtDateShort } from "./format";
 
 // Small hand-made inputs for logic tests only (not app data).
@@ -53,13 +53,14 @@ describe("template summary", () => {
     const text = templateSummary(metrics[1], peer({ n_equal: 30, n_greater: 10, n_peers_with_pipeline: 10, pct_peers_with_pipeline: 25, peer_mean: 0.4 }), "2026-10-02").join(" ");
     expect(text).toContain("No qualifying pipeline records were found in Fairfax County, VA in the selected dataset snapshot");
     expect(text).not.toMatch(/has no (proposed )?data centers/i);
-    expect(text).toContain("10 of the 40 peers (25%)");
+    expect(text).toContain("10 of the 40 similar counties (25%)");
   });
   it("states fewer/equal/greater from the record", () => {
     const text = templateSummary(metrics[0], peer({ n_fewer: 31, n_equal: 4, n_greater: 5, peer_median: 1.5, peer_mean: 2.125, n_peers_with_pipeline: 22, pct_peers_with_pipeline: 55 }), "2026-10-02").join(" ");
     expect(text).toContain("12 qualifying documented data-center pipeline records");
-    expect(text).toContain("more than 31 of its 40 peer counties, the same as 4, and fewer than 5");
-    expect(text).toContain("peer median is 1.5");
+    expect(text).toContain("more than 31 of its 40 similar counties, the same as 4, and fewer than 5");
+    expect(text).toContain("median 1.5");
+    expect(text).toContain("typical similar county has 1 to 2 sites");
     expect(text).toContain("does not show causes");
   });
 });
@@ -74,5 +75,25 @@ describe("data-date helpers", () => {
     expect(fmtAgo(24)).toBe("24 days ago");
     expect(fmtAgo(120)).toBe("about 4 months ago");
     expect(fmtDateShort("2026-10-02")).toBe("Oct 2, 2026");
+  });
+});
+
+describe("plain-language verdict", () => {
+  const c0 = metrics[1]; // pipeline_count 0
+  const c12 = metrics[0]; // pipeline_count 12
+  it("restates fewer/equal/greater in words; 'most' means more than half", () => {
+    expect(verdict(c12, peer({ n_fewer: 40 })).headline).toBe("More documented data-center development than all 40 similar counties");
+    expect(verdict(c12, peer({ n_fewer: 33, n_equal: 5, n_greater: 2 })).headline).toBe("More documented data-center development than most similar counties");
+    expect(verdict(c12, peer({ n_fewer: 20, n_equal: 0, n_greater: 20 })).tone).toBe("middle"); // exactly half is not "most"
+    expect(verdict(c0, peer({ n_equal: 15, n_greater: 25 })).headline).toBe("Less documented data-center development than most similar counties");
+    expect(verdict(c0, peer({ n_greater: 40 })).headline).toBe("Less documented data-center development than all 40 similar counties");
+    expect(verdict(c0, peer({ n_equal: 34, n_greater: 6 })).headline).toBe("Like most similar counties, no documented data-center sites in development");
+    expect(verdict(c12, peer({ n_fewer: 10, n_equal: 25, n_greater: 5 })).tone).toBe("same");
+  });
+  it("puts the median into words", () => {
+    expect(typicalPhrase(0)).toBe("none");
+    expect(typicalPhrase(1)).toBe("1 site");
+    expect(typicalPhrase(3)).toBe("3 sites");
+    expect(typicalPhrase(0.5)).toBe("0 to 1 sites");
   });
 });

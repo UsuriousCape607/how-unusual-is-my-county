@@ -15,7 +15,17 @@
     "detail": "October 2, 2026"
   },
   {
-    "name": "summary card shows as-of date",
+    "name": "answer card shows as-of date next to the count",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "plain-language verdict shown",
+    "ok": true,
+    "detail": "More documented data-center development than all 40 similar counties"
+  },
+  {
+    "name": "share button present",
     "ok": true,
     "detail": ""
   },
@@ -33,6 +43,11 @@
     "name": "keyboard search selects county by GEOID",
     "ok": true,
     "detail": "Santa Clara County, CA"
+  },
+  {
+    "name": "search selection moves the map to the county",
+    "ok": true,
+    "detail": "view 37.189,-121.706 vs county 37.19,-121.71"
   },
   {
     "name": "facility list matches pipeline count",
@@ -53,6 +68,16 @@
     "name": "summary breakdown matches data",
     "ok": true,
     "detail": "40/0/0"
+  },
+  {
+    "name": "verdict restates the counts",
+    "ok": true,
+    "detail": "than all 40 similar counties"
+  },
+  {
+    "name": "explanations open on demand",
+    "ok": true,
+    "detail": ""
   },
   {
     "name": "map legend counts markers",
@@ -82,7 +107,17 @@
   {
     "name": "map click selects matching GEOID",
     "ok": true,
-    "detail": "Collier County, FL -> 12021"
+    "detail": "Tucker County, WV -> 54093"
+  },
+  {
+    "name": "map click does not move the camera",
+    "ok": true,
+    "detail": "39.0855,-77.6450,7 vs 39.0855,-77.6450,7"
+  },
+  {
+    "name": "example chip selects county",
+    "ok": true,
+    "detail": ""
   },
   {
     "name": "zero-count wording",

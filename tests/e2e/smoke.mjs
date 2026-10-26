@@ -50,7 +50,10 @@ try {
   check("URL carries default GEOID", page.url().includes(`county=${meta.default_geoid}`));
   const asOf = new Date(`${meta.snapshot_date}T12:00:00Z`).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
   check("data-as-of banner shows snapshot date", (await page.textContent(".freshness")).includes(`Data as of ${asOf}`), asOf);
-  check("summary card shows as-of date", (await page.textContent(".summary .eyebrow")).includes(asOf));
+  const asOfShort = new Date(`${meta.snapshot_date}T12:00:00Z`).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
+  check("answer card shows as-of date next to the count", (await page.textContent(".answer .hero-label")).includes(asOfShort));
+  check("plain-language verdict shown", (await page.textContent(".verdict")).includes("similar counties"), await page.textContent(".verdict"));
+  check("share button present", await page.isVisible("text=Copy link to this county"));
   check("attribution visible", (await page.textContent(".site-footer")).includes("Compute Atlas"));
   check("methodology section present", await page.isVisible("#methodology"));
   await page.waitForTimeout(600);
@@ -66,15 +69,30 @@ try {
   await input.press("Enter");
   await page.waitForFunction((n) => document.querySelector("#summary-title")?.textContent.includes(n), multi.county_name);
   check("keyboard search selects county by GEOID", page.url().includes(`county=${multi.geoid}`), `${multi.county_name}, ${multi.state}`);
+  // Choosing from search should glide the map to the new county (Santa Clara is near 37.2 N, 121.7 W).
+  await page.waitForTimeout(1500);
+  const [vlat, vlng] = ((await page.getAttribute(".map", "data-view")) ?? "0,0").split(",").map(Number);
+  const target = await page.evaluate(async (g) => {
+    const fc = await (await fetch("data/counties.geojson")).json();
+    const f = fc.features.find((x) => x.properties.geoid === g);
+    const pts = JSON.stringify(f.geometry.coordinates).match(/-?\d+\.?\d*,-?\d+\.?\d*/g).map((s) => s.split(",").map(Number));
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    return [(Math.min(...ys) + Math.max(...ys)) / 2, (Math.min(...xs) + Math.max(...xs)) / 2];
+  }, multi.geoid);
+  check("search selection moves the map to the county", Math.abs(vlat - target[0]) < 1 && Math.abs(vlng - target[1]) < 1, `view ${vlat},${vlng} vs county ${target.map((x) => x.toFixed(2))}`);
   const items = await page.$$eval("#records-title ~ .facility-list > li", (els) => els.length);
   check("facility list matches pipeline count", items === multi.pipeline_count, `${items} vs ${multi.pipeline_count}`);
   const hrefs = await page.$$eval("#records-title ~ .facility-list .sources a", (els) => els.map((a) => a.href));
   check("source links are http(s)", hrefs.length > 0 && hrefs.every((h) => /^https?:\/\//.test(h)), `${hrefs.length} links`);
-  const dots = await page.$$eval(".chart svg circle[fill='#2b8a8c']", (els) => els.length);
+  const dots = await page.$$eval(".chart svg circle[fill='#8fcbcc']", (els) => els.length);
   check("chart shows 40 peer dots", dots === 40, `${dots}`);
-  const summaryNums = await page.$$eval(".breakdown strong", (els) => els.map((e) => Number(e.textContent)));
+  const summaryNums = await page.$$eval(".compare-labels strong", (els) => els.map((e) => Number(e.textContent)));
   const p = peers[multi.geoid];
   check("summary breakdown matches data", JSON.stringify(summaryNums) === JSON.stringify([p.n_fewer, p.n_equal, p.n_greater]), summaryNums.join("/"));
+  const expectedVerdict = p.n_fewer === 40 ? "than all 40 similar counties" : p.n_fewer > 20 ? "than most similar counties" : "";
+  check("verdict restates the counts", (await page.textContent(".verdict")).includes(expectedVerdict), expectedVerdict);
+  await page.click("text=What is counted as a “site in development”?");
+  check("explanations open on demand", await page.isVisible("text=Operating data centers are counted separately"));
   const nMarkers = facilities.filter((f) => f.county_geoid === multi.geoid && f.metric === "pipeline").length;
   check("map legend counts markers", (await page.textContent(".legend")).match(/\((\d+)\)/g)?.map((s) => Number(s.slice(1, -1))).reduce((a, b) => a + b, 0) === nMarkers);
 
@@ -88,27 +106,38 @@ try {
 
   // Peer table: expand to 40 and select a peer.
   check("peer table starts with 10 rows", (await page.$$eval("#peers-title ~ .table-wrap tbody tr", (r) => r.length)) === 11);
-  await page.getByRole("button", { name: /Show all 40 peers/ }).click();
+  await page.getByRole("button", { name: /Show all 40 similar counties/ }).click();
   check("peer table expands to 40", (await page.$$eval("#peers-title ~ .table-wrap tbody tr", (r) => r.length)) === 41);
   const firstPeer = byGeoid.get(p.peer_geoids[0]);
   await page.click("#peers-title ~ .table-wrap tbody tr:nth-child(2) button");
   await page.waitForFunction((n) => document.querySelector("#summary-title")?.textContent.includes(n), firstPeer.county_name);
   check("selecting a peer refocuses the app", page.url().includes(`county=${firstPeer.geoid}`));
 
-  // Map click selects the county under the cursor (tooltip name == selected county by GEOID).
-  await page.getByRole("button", { name: "Zoom to county" }).click();
-  await page.waitForTimeout(700);
+  // Map click selects the county under the cursor (tooltip name == selected county by GEOID) without moving the camera.
+  // Start from an inland county so the probe point is always over land.
+  await page.goto(`${BASE}?county=51107`);
+  await page.waitForSelector("#summary-title");
+  await page.waitForTimeout(1200);
   const box = await page.locator(".map").boundingBox();
   const px = box.x + box.width * 0.12, py = box.y + box.height * 0.5;
   await page.mouse.move(px - 15, py - 15);
   await page.mouse.move(px, py, { steps: 5 });
   await page.waitForTimeout(300);
   const tipName = (await page.textContent(".leaflet-tooltip strong").catch(() => null)) ?? "";
+  // The map is drawn on a canvas; its pan offset lives on the map pane and changes whenever the camera moves.
+  const viewBefore = await page.getAttribute(".map", "data-view");
   await page.mouse.click(px, py);
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(1200);
   const g = new URL(page.url()).searchParams.get("county");
   const clicked = byGeoid.get(g);
   check("map click selects matching GEOID", tipName && clicked && tipName === `${clicked.county_name}, ${clicked.state}`, `${tipName} -> ${g}`);
+  const viewAfter = await page.getAttribute(".map", "data-view");
+  check("map click does not move the camera", viewBefore && viewBefore === viewAfter, `${viewBefore} vs ${viewAfter}`);
+
+  // Example chips select counties.
+  await page.locator(".examples").getByRole("button", { name: "Harris County, TX" }).click();
+  await page.waitForFunction(() => document.querySelector("#summary-title")?.textContent.includes("Harris County"));
+  check("example chip selects county", page.url().includes("county=48201"));
 
   // Zero-count county wording.
   await page.goto(`${BASE}?county=${zero.geoid}`);

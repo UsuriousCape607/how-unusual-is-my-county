@@ -1,20 +1,26 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AppData } from "./types";
 import { loadAppData, readGeoidFromUrl, writeGeoidToUrl } from "./lib/data";
+import { verdict } from "./lib/summary";
 import CountySearch from "./components/CountySearch";
 import CountySummary from "./components/CountySummary";
+import NumbersExplained from "./components/NumbersExplained";
 import ComparisonChart from "./components/ComparisonChart";
-import CountyMap from "./components/CountyMap";
+import CountyMap, { type SelectionSource } from "./components/CountyMap";
 import PeerTable from "./components/PeerTable";
 import FacilityList from "./components/FacilityList";
 import ExplanationPanel from "./components/ExplanationPanel";
 import Methodology from "./components/Methodology";
 import DataFreshness from "./components/DataFreshness";
 
+// Example counties offered under the search box: a high count, the highest, a zero, and a typical case.
+const EXAMPLE_GEOIDS = ["51107", "06085", "48201", "18097"];
+
 export default function App() {
   const [data, setData] = useState<AppData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [geoid, setGeoid] = useState<string | null>(null);
+  const [source, setSource] = useState<SelectionSource>("other");
   const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,7 +31,7 @@ export default function App() {
         if (requested && d.peers.peers[requested]) {
           setGeoid(requested);
         } else {
-          if (requested) setNotice(`County code ${requested} was not found, so a demonstration county is shown instead.`);
+          if (requested) setNotice(`County code ${requested} was not found, so an example county is shown instead.`);
           setGeoid(d.metadata.default_geoid);
           writeGeoidToUrl(d.metadata.default_geoid, true);
         }
@@ -36,16 +42,20 @@ export default function App() {
   useEffect(() => {
     const onPop = () => {
       const g = readGeoidFromUrl();
-      if (g && data?.peers.peers[g]) setGeoid(g);
+      if (g && data?.peers.peers[g]) {
+        setSource("other");
+        setGeoid(g);
+      }
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, [data]);
 
   const select = useCallback(
-    (g: string) => {
+    (g: string, from: SelectionSource = "other") => {
       if (!data?.peers.peers[g] || g === geoid) return;
       setNotice(null);
+      setSource(from);
       setGeoid(g);
       writeGeoidToUrl(g);
     },
@@ -86,8 +96,8 @@ export default function App() {
           </div>
         )}
         {!data && !error && (
-          <div className="state-box" role="status" aria-live="polite">
-            Loading county data…
+          <div className="state-box loading" role="status" aria-live="polite">
+            <span className="spinner" aria-hidden="true" /> Loading data for 3,144 counties…
           </div>
         )}
 
@@ -95,13 +105,48 @@ export default function App() {
           <>
             <section className="search-row" aria-label="Choose a county">
               <CountySearch metrics={data.metrics} onSelect={select} />
+              <p className="examples small">
+                <span className="muted">Try:</span>
+                {EXAMPLE_GEOIDS.filter((g) => data.byGeoid.has(g)).map((g) => {
+                  const c = data.byGeoid.get(g)!;
+                  return (
+                    <button key={g} type="button" className="chip" aria-pressed={g === geoid} onClick={() => select(g)}>
+                      {c.county_name}, {c.state}
+                    </button>
+                  );
+                })}
+              </p>
               {notice && <p className="notice">{notice}</p>}
             </section>
 
-            <div className="grid">
-              <div className="col-main">
-                <CountySummary county={county} peer={peer} metadata={data.metadata} />
+            {/* Announce changes for screen-reader users. */}
+            <p className="sr-only" aria-live="polite">
+              Showing {county.county_name}, {county.state_name}: {verdict(county, peer).headline}.
+            </p>
+
+            <div className="layout">
+              <div className="area-summary">
+                <CountySummary county={county} peer={peer} metadata={data.metadata} byGeoid={data.byGeoid} onSelect={select} />
+              </div>
+              <aside className="area-map">
+                <div className="sticky">
+                  <CountyMap
+                    counties={data.counties}
+                    states={data.states}
+                    byGeoid={data.byGeoid}
+                    selected={county.geoid}
+                    peerGeoids={peer.peer_geoids}
+                    facilities={facilities}
+                    selectionSource={source}
+                    onSelect={select}
+                  />
+                </div>
+              </aside>
+              <div className="area-rest">
+                <NumbersExplained county={county} peer={peer} metadata={data.metadata} />
                 <ComparisonChart county={county} peer={peer} byGeoid={data.byGeoid} snapshotDate={data.metadata.snapshot_date} onSelect={select} />
+                <FacilityList county={county} facilities={facilities} snapshotDate={data.metadata.snapshot_date} />
+                <PeerTable county={county} peer={peer} byGeoid={data.byGeoid} snapshotDate={data.metadata.snapshot_date} onSelect={select} />
                 <ExplanationPanel
                   county={county}
                   peer={peer}
@@ -111,21 +156,7 @@ export default function App() {
                   onSelect={select}
                 />
               </div>
-              <div className="col-side">
-                <CountyMap
-                  counties={data.counties}
-                  states={data.states}
-                  byGeoid={data.byGeoid}
-                  selected={county.geoid}
-                  peerGeoids={peer.peer_geoids}
-                  facilities={facilities}
-                  onSelect={select}
-                />
-              </div>
             </div>
-
-            <PeerTable county={county} peer={peer} byGeoid={data.byGeoid} snapshotDate={data.metadata.snapshot_date} onSelect={select} />
-            <FacilityList county={county} facilities={facilities} snapshotDate={data.metadata.snapshot_date} />
           </>
         )}
 

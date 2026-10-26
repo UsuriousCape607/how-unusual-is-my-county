@@ -53,11 +53,12 @@ export default function FacilityList({ county, facilities, snapshotDate }: Props
   return (
     <section className="card" aria-labelledby="records-title">
       <h3 id="records-title">
-        Qualifying pipeline records in {county.county_name}, {county.state} ({pipeline.length})
+        Sites in development on record in {county.county_name}, {county.state} ({pipeline.length})
       </h3>
       <p className="muted small">
-        As documented in the Compute Atlas snapshot of {fmtDateShort(snapshotDate)}. Each record&apos;s own &ldquo;Last updated&rdquo; date
-        shows when its source information was last revised.
+        Proposed, permitted, or under-construction data-center sites documented in the Compute Atlas snapshot of{" "}
+        {fmtDateShort(snapshotDate)}, with links to the original sources. A record&apos;s &ldquo;Last updated&rdquo; date shows when its
+        source information was last revised.
       </p>
       {pipeline.length === 0 ? (
         <p>No qualifying pipeline records were found in this county in the selected dataset snapshot.</p>
@@ -71,7 +72,7 @@ export default function FacilityList({ county, facilities, snapshotDate }: Props
       {operational.length > 0 && (
         <details className="operational">
           <summary>
-            {operational.length} operational {plural(operational.length, "record", "records")} (context only, not in the pipeline count)
+            {operational.length} operating data-center {plural(operational.length, "site", "sites")} (context only, not counted above)
           </summary>
           <ul className="facility-list">
             {operational.map((f) => (

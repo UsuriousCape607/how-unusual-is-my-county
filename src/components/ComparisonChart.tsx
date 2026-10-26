@@ -3,7 +3,9 @@ import {
   CartesianGrid, ReferenceLine, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis,
 } from "recharts";
 import type { CountyMetric, PeerRecord } from "../types";
-import { countyLabel, fmtDateShort, fmtDensity, fmtInt, fmtStat } from "../lib/format";
+import { countyLabel, fmtDateShort, fmtDensity, fmtInt } from "../lib/format";
+import { typicalPhrase } from "../lib/summary";
+import { NAVY, PEER_FILL, PEER_STROKE } from "./CountyMap";
 
 interface Props {
   county: CountyMetric;
@@ -23,8 +25,7 @@ interface Pt {
   selected: boolean;
 }
 
-const NAVY = "#13294b";
-const TEAL = "#2b8a8c";
+const INK_2 = "#3d4f68";
 
 function TooltipBody({ active, payload }: { active?: boolean; payload?: { payload: Pt }[] }) {
   if (!active || !payload?.length) return null;
@@ -32,10 +33,11 @@ function TooltipBody({ active, payload }: { active?: boolean; payload?: { payloa
   return (
     <div className="chart-tip">
       <strong>{p.label}</strong>
-      {p.selected && <span className="tag">Selected</span>}
-      <div>Pipeline records: {p.x}</div>
+      {p.selected && <span className="tag">This county</span>}
+      <div>Sites in development: {p.x}</div>
       <div>Population: {fmtInt(p.population)}</div>
-      <div>Density: {fmtDensity(p.density)} per sq mi</div>
+      <div>People per sq mi: {fmtDensity(p.density)}</div>
+      {!p.selected && <div className="muted">Click to compare this county</div>}
     </div>
   );
 }
@@ -66,24 +68,27 @@ export default function ComparisonChart({ county, peer, byGeoid, snapshotDate, o
     };
   }, [county, peer, byGeoid]);
 
-  const height = Math.min(440, Math.max(220, 90 + maxStack * 9));
+  const height = Math.min(460, Math.max(240, 110 + maxStack * 9));
+  // Keep the selected county's label inside the plot near either end of the axis.
+  const pos = county.pipeline_count / (maxX + 1);
+  const labelAnchor = pos < 0.2 ? "start" : pos > 0.75 ? "end" : "middle";
   const ticks = maxX <= 15 ? Array.from({ length: maxX + 2 }, (_, i) => i) : undefined;
 
   return (
     <section className="card" aria-labelledby="chart-title">
-      <h3 id="chart-title">Pipeline records as of {fmtDateShort(snapshotDate)}: this county vs. its 40 peers</h3>
+      <h3 id="chart-title">Where {county.county_name} falls among its 40 similar counties</h3>
       <p className="muted small">
-        Each teal dot is one peer county; dots with the same count are stacked. The navy diamond is {countyLabel(county)}. The dashed
-        line marks the peer median ({fmtStat(peer.peer_median)}). Select a dot to switch counties. The peer table below lists the same
-        values.
+        Each teal dot is one similar county, placed by its number of sites in development on record ({fmtDateShort(snapshotDate)}).
+        Counties with the same number are stacked. Hover or tap a dot for details; click one to compare it instead. The table below
+        lists the same numbers.
       </p>
       <figure
         className="chart"
-        aria-label={`Dot plot: ${countyLabel(county)} has ${county.pipeline_count} records; ${peer.n_fewer} peers have fewer, ${peer.n_equal} the same, ${peer.n_greater} more.`}
+        aria-label={`Dot plot: ${countyLabel(county)} has ${county.pipeline_count}; ${peer.n_fewer} similar counties have fewer, ${peer.n_equal} the same, ${peer.n_greater} more.`}
       >
         <ResponsiveContainer width="100%" height={height}>
-          <ScatterChart margin={{ top: 12, right: 16, bottom: 28, left: 8 }}>
-            <CartesianGrid horizontal={false} stroke="#e3e8ee" />
+          <ScatterChart margin={{ top: 28, right: 24, bottom: 30, left: 8 }}>
+            <CartesianGrid horizontal={false} stroke="#e6eaef" />
             <XAxis
               type="number"
               dataKey="x"
@@ -91,35 +96,42 @@ export default function ComparisonChart({ county, peer, byGeoid, snapshotDate, o
               ticks={ticks}
               allowDecimals={false}
               tick={{ fill: "#4a5a70", fontSize: 12 }}
-              label={{ value: "Qualifying pipeline records", position: "bottom", offset: 10, fill: "#4a5a70", fontSize: 12 }}
+              stroke="#c5ced8"
+              label={{ value: "Data-center sites in development on record", position: "bottom", offset: 12, fill: "#4a5a70", fontSize: 12 }}
             />
-            <YAxis type="number" dataKey="y" hide domain={[-1, maxStack + 1]} />
+            <YAxis type="number" dataKey="y" hide domain={[-1.5, maxStack + 1]} />
             <Tooltip content={<TooltipBody />} cursor={false} isAnimationActive={false} />
-            <ReferenceLine x={peer.peer_median} stroke={NAVY} strokeDasharray="4 4" strokeOpacity={0.6} />
+            <ReferenceLine
+              x={peer.peer_median}
+              stroke={INK_2}
+              strokeDasharray="4 4"
+              strokeOpacity={0.7}
+              label={{ value: `Typical: ${typicalPhrase(peer.peer_median)}`, position: "top", fill: INK_2, fontSize: 12 }}
+            />
             <Scatter
               data={peers}
               isAnimationActive={false}
               shape={(props: { cx?: number; cy?: number; payload?: Pt }) => (
-                <circle
-                  cx={props.cx}
-                  cy={props.cy}
-                  r={4.5}
-                  fill={TEAL}
-                  fillOpacity={0.85}
-                  stroke="#fff"
-                  strokeWidth={1}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => props.payload && onSelect(props.payload.geoid)}
-                />
+                <g style={{ cursor: "pointer" }} onClick={() => props.payload && onSelect(props.payload.geoid)}>
+                  <circle cx={props.cx} cy={props.cy} r={10} fill="transparent" />
+                  <circle cx={props.cx} cy={props.cy} r={4.5} fill={PEER_FILL} stroke={PEER_STROKE} strokeWidth={1.2} />
+                </g>
               )}
             />
             <Scatter
               data={selected}
               isAnimationActive={false}
-              shape={(props: { cx?: number; cy?: number }) => {
+              shape={(props: { cx?: number; cy?: number; payload?: Pt }) => {
                 const cx = props.cx ?? 0;
                 const cy = props.cy ?? 0;
-                return <path d={`M${cx},${cy - 8} L${cx + 8},${cy} L${cx},${cy + 8} L${cx - 8},${cy} Z`} fill={NAVY} stroke="#fff" strokeWidth={1.5} />;
+                return (
+                  <g>
+                    <path d={`M${cx},${cy - 8} L${cx + 8},${cy} L${cx},${cy + 8} L${cx - 8},${cy} Z`} fill={NAVY} stroke="#fff" strokeWidth={2} />
+                    <text x={cx} y={cy + 22} textAnchor={labelAnchor} fontSize={12} fontWeight={600} fill={NAVY}>
+                      {county.county_name}: {county.pipeline_count}
+                    </text>
+                  </g>
+                );
               }}
             />
           </ScatterChart>
