@@ -103,8 +103,14 @@ export default function App() {
 
         {data && county && peer && (
           <>
-            <section className="search-row" aria-label="Choose a county">
+            {/* Floating search stays reachable while scrolling and always shows where you are (wayfinding). */}
+            <div className="search-bar">
               <CountySearch metrics={data.metrics} onSelect={select} />
+              <p className="comparing" aria-hidden="true">
+                Comparing <strong>{county.county_name}, {county.state}</strong>
+              </p>
+            </div>
+            <section className="search-row" aria-label="Example counties">
               <p className="examples small">
                 <span className="muted">Try:</span>
                 {EXAMPLE_GEOIDS.filter((g) => data.byGeoid.has(g)).map((g) => {

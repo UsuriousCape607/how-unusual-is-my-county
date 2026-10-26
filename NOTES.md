@@ -40,8 +40,10 @@
 - Map camera rules: map clicks never move the camera; search/table/chart selections glide (interruptible
   flyTo, instant under reduced motion); views = This county (default) | Similar counties (lower 48; AK/HI peers
   listed) | All counties (shaded). The map exposes `data-view="lat,lng,zoom"` for the e2e camera checks.
-- The owner's `apple-design` skill was added after this session started and could not be loaded here; apply it in
-  a new session (or from pasted content).
+- Owner's `apple-design` skill applied: instant press feedback on controls; floating translucent search bar
+  (sticky, blur, solid under reduced transparency) that always shows "Comparing <county>"; verdict/hero cross-fade
+  and a morphing comparison bar (all three segments always rendered); system font with size-specific tracking;
+  reduced-motion/transparency/contrast media queries. Map motion was already interruptible.
 
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.

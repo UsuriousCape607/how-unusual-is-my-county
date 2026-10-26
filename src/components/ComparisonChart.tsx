@@ -99,14 +99,24 @@ export default function ComparisonChart({ county, peer, byGeoid, snapshotDate, o
               stroke="#c5ced8"
               label={{ value: "Data-center sites in development on record", position: "bottom", offset: 12, fill: "#4a5a70", fontSize: 12 }}
             />
-            <YAxis type="number" dataKey="y" hide domain={[-1.5, maxStack + 1]} />
+            <YAxis type="number" dataKey="y" hide domain={[-2.6, maxStack + 1]} />
             <Tooltip content={<TooltipBody />} cursor={false} isAnimationActive={false} />
             <ReferenceLine
               x={peer.peer_median}
               stroke={INK_2}
               strokeDasharray="4 4"
               strokeOpacity={0.7}
-              label={{ value: `Typical: ${typicalPhrase(peer.peer_median)}`, position: "top", fill: INK_2, fontSize: 12 }}
+              label={({ viewBox }: { viewBox?: { x: number; y: number } }) => {
+                // Anchor the label away from the plot edge so it is never clipped.
+                const medPos = peer.peer_median / (maxX + 1);
+                const anchor = medPos < 0.25 ? "start" : medPos > 0.75 ? "end" : "middle";
+                const dx = anchor === "start" ? -4 : anchor === "end" ? 4 : 0;
+                return (
+                  <text x={(viewBox?.x ?? 0) + dx} y={(viewBox?.y ?? 0) - 8} textAnchor={anchor} fontSize={12} fill={INK_2}>
+                    Typical: {typicalPhrase(peer.peer_median)}
+                  </text>
+                );
+              }}
             />
             <Scatter
               data={peers}
@@ -127,7 +137,7 @@ export default function ComparisonChart({ county, peer, byGeoid, snapshotDate, o
                 return (
                   <g>
                     <path d={`M${cx},${cy - 8} L${cx + 8},${cy} L${cx},${cy + 8} L${cx - 8},${cy} Z`} fill={NAVY} stroke="#fff" strokeWidth={2} />
-                    <text x={cx} y={cy + 22} textAnchor={labelAnchor} fontSize={12} fontWeight={600} fill={NAVY}>
+                    <text x={cx} y={cy + 20} textAnchor={labelAnchor} fontSize={12} fontWeight={600} fill={NAVY}>
                       {county.county_name}: {county.pipeline_count}
                     </text>
                   </g>

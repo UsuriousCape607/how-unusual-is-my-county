@@ -30,11 +30,14 @@ function ComparisonBar({ peer, name }: { peer: PeerRecord; name: string }) {
         role="img"
         aria-label={`Of ${total} similar counties, ${peer.n_fewer} have fewer sites on record than ${name}, ${peer.n_equal} have the same number, and ${peer.n_greater} have more.`}
       >
-        {parts
-          .filter((x) => x.n > 0)
-          .map((x) => (
-            <span key={x.key} style={{ flexGrow: x.n, background: x.color }} />
-          ))}
+        {/* All three segments always render so a change of county morphs the split (zero-width when empty). */}
+        {parts.map((x, i) => (
+          <span
+            key={x.key}
+            className={x.n === 0 ? "empty" : undefined}
+            style={{ flexGrow: x.n, background: x.color, marginLeft: x.n > 0 && parts.slice(0, i).some((y) => y.n > 0) ? 2 : 0 }}
+          />
+        ))}
       </div>
       <ul className="compare-labels" aria-hidden="true">
         {parts.map((x) => (
@@ -91,9 +94,9 @@ export default function CountySummary({ county, peer, metadata, byGeoid, onSelec
         <ShareButton />
       </div>
 
-      <p className={`verdict tone-${v.tone}`}>{v.headline}</p>
+      <p key={`v-${county.geoid}`} className={`verdict tone-${v.tone} fade-in`}>{v.headline}</p>
 
-      <div className="hero-row">
+      <div key={`h-${county.geoid}`} className="hero-row fade-in">
         <div className="hero">
           <span className="hero-value">{n}</span>
           <span className="hero-label">
