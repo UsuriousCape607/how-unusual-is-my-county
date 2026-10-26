@@ -158,3 +158,14 @@ def test_peer_stats_sum_and_zero_case():
 def test_zscore_uses_population_sd():
     x = np.array([1.0, 2.0, 3.0, 4.0])
     assert np.isclose(zscore(x).std(ddof=0), 1.0)
+
+
+def test_release_pin_only_accepts_version_tags():
+    from check_compute_atlas_release import bump_pin, parse
+    text = 'X = 1\nCOMPUTE_ATLAS_TAG = "v1.34.1"\nY = 2\n'
+    assert 'COMPUTE_ATLAS_TAG = "v1.35.0"' in bump_pin(text, "v1.35.0")
+    assert parse("v1.35.0") > parse("v1.34.1") and parse("v1.10.0") > parse("v1.9.9")
+    for bad in ("main", "v1.35", "v1.35.0; rm -rf /", "1.35.0"):
+        assert parse(bad) is None
+        with pytest.raises(ValueError):
+            bump_pin(text, bad)

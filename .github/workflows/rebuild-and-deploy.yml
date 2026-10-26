@@ -1,0 +1,162 @@
+# Weekly data refresh + GitHub Pages deploy.
+#
+#   schedule (weekly)  : if Compute Atlas has a newer release, rebuild all data from the official sources, run every
+#                        check, commit the new data to main, and deploy. If nothing is new, do nothing.
+#   push to main       : test and deploy the committed data and code (no data download).
+#   manual run         : like push; tick "rebuild_data" to force a full data rebuild.
+#
+# Nothing is deployed unless every check passes, so a failed refresh leaves the last good site online.
+name: Rebuild and deploy
+
+on:
+  schedule:
+    - cron: "17 13 * * 1" # Mondays 13:17 UTC
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      rebuild_data:
+        description: "Rebuild all data from the sources even if Compute Atlas has no new release"
+        type: boolean
+        default: false
+
+concurrency:
+  group: rebuild-and-deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write # commit refreshed data back to main
+    outputs:
+      deploy: ${{ steps.plan.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Check for a newer Compute Atlas release
+        id: release
+        if: github.event_name != 'push'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/check_compute_atlas_release.py --apply
+
+      - name: Decide what to do
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          NEW_RELEASE: ${{ steps.release.outputs.changed }}
+          FORCE: ${{ inputs.rebuild_data }}
+        run: |
+          refresh=false
+          if [ "$NEW_RELEASE" = "true" ] || [ "$FORCE" = "true" ]; then refresh=true; fi
+          deploy=true
+          if [ "$EVENT" = "schedule" ] && [ "$refresh" = "false" ]; then deploy=false; fi
+          echo "refresh=$refresh" >> "$GITHUB_OUTPUT"
+          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
+          echo "event=$EVENT new_release=$NEW_RELEASE force=$FORCE -> refresh=$refresh deploy=$deploy"
+
+      # Census files change once a year; keep them between runs instead of re-downloading weekly.
+      - name: Restore Census source files
+        if: steps.plan.outputs.refresh == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/raw/co-est2025-alldata.csv
+            data/raw/2025_Gaz_counties_national.zip
+            data/raw/cb_2025_us_county_500k.zip
+          key: census-vintage-2025-v1
+
+      - name: Rebuild data (download, verify, assign, compare, validate)
+        if: steps.plan.outputs.refresh == 'true'
+        run: python scripts/build_all.py
+
+      - name: Python tests
+        if: steps.plan.outputs.deploy == 'true'
+        run: python -m pytest -q
+
+      - uses: actions/setup-node@v4
+        if: steps.plan.outputs.deploy == 'true'
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Build site and run frontend tests
+        if: steps.plan.outputs.deploy == 'true'
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+      - name: End-to-end test (Playwright, Chromium)
+        if: steps.plan.outputs.deploy == 'true'
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+      - name: Keep e2e screenshots
+        if: always() && steps.plan.outputs.deploy == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results
+          path: test-results/
+          if-no-files-found: ignore
+
+      - name: Report AI example status
+        if: steps.plan.outputs.refresh == 'true'
+        run: |
+          if python scripts/build_ai_examples.py check; then
+            echo "AI examples match the new data." >> "$GITHUB_STEP_SUMMARY"
+          else
+            msg="The data changed, so the three AI examples are stale and the site hides them. Regenerate and review them (see AI_EVALUATION.md)."
+            echo "::warning::$msg"
+            echo "$msg" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Commit refreshed data to main
+        if: steps.plan.outputs.refresh == 'true'
+        env:
+          OLD_TAG: ${{ steps.release.outputs.current_tag }}
+          NEW_TAG: ${{ steps.release.outputs.latest_tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/common.py public/data data/raw/manifest.json data/processed
+          if git diff --cached --quiet; then
+            echo "No data changes to commit."
+            exit 0
+          fi
+          if [ "$OLD_TAG" != "$NEW_TAG" ]; then
+            msg="Data refresh: Compute Atlas $OLD_TAG -> $NEW_TAG"
+          else
+            msg="Data rebuild (Compute Atlas $NEW_TAG)"
+          fi
+          git commit -m "$msg" -m "Automated by the Rebuild and deploy workflow after all checks passed."
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "$msg" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.plan.outputs.deploy == 'true'
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

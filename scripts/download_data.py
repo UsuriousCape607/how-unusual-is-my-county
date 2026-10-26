@@ -128,7 +128,8 @@ CHECKS = {
 def download(url, dest) -> dict:
     import requests
 
-    with requests.get(url, stream=True, timeout=120) as r:
+    headers = {"User-Agent": "how-unusual-is-my-county data pipeline (+https://github.com/UsuriousCape607/how-unusual-is-my-county)"}
+    with requests.get(url, stream=True, timeout=120, headers=headers) as r:
         r.raise_for_status()
         tmp = dest.with_suffix(dest.suffix + ".part")
         with open(tmp, "wb") as f:
