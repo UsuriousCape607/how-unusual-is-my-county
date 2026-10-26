@@ -22,6 +22,11 @@ There is no backend, database, auth, paid tiles, or live LLM.
   `representative_multi_site` ⇒ excluded. Never guess; log to `data/processed/assignment_review.csv`.
 - Peers: z-scores (population SD, ddof=0) of ln(pop) and ln(density) over the eligible universe; Euclidean distance;
   40 nearest, self excluded, ties broken by GEOID ascending. The data-center count is never used for matching.
+- Data dates must be unmissable: the "Data as of" banner (`DataFreshness.tsx`) under the header, as-of dates next to
+  every count, a Data dates table in Methodology, and a neutral notice when the snapshot is > 45 days old.
+- No live fetching in the browser. Owner-approved post-MVP extension (2026-10-26): a scheduled GitHub Actions rebuild
+  (weekly and/or on a new Compute Atlas release) that runs the full pipeline + validation and deploys to GitHub Pages
+  only if every check passes. AI examples are shown only when their `data_version` matches the site's.
 - AI: three pre-generated explanations only (`public/data/ai_examples.json`, `ai/`); everything else uses a
   deterministic template. No API key needed. Do not write model identifiers into repo files.
 

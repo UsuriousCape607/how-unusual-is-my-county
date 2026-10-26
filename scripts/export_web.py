@@ -97,12 +97,22 @@ def main() -> int:
         print(f"ERROR: default county {DEFAULT_GEOID} is not in the eligible universe", file=sys.stderr)
         return 1
 
+    generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     metadata = {
         "title": "How Unusual Is My County?",
         "data_version": data_version(),
-        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_at": generated_at,
         "snapshot_date": ca_meta["asOf"][:10],
         "default_geoid": DEFAULT_GEOID,
+        # Every date a visitor needs to judge how current the figures are; all shown on the site.
+        "data_dates": {
+            "facility_snapshot_as_of": ca_meta["asOf"],
+            "facility_file_retrieved_at": manifest["compute_atlas_facilities"].get("retrieved_at"),
+            "population_reference_date": "2025-07-01",
+            "population_vintage": "Vintage 2025 estimates",
+            "geography_vintage": "2025",
+            "site_data_built_at": generated_at,
+        },
         "sources": {k: {kk: v.get(kk) for kk in ("url", "retrieved_at", "sha256", "bytes", "note") if v.get(kk) is not None}
                     for k, v in manifest.items()},
         "compute_atlas": {

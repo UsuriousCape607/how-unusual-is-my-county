@@ -147,6 +147,8 @@ def main() -> int:
                 "label": f"{inp['county']['name']}, {inp['county']['state']}",
                 "model": meta.get("model", MODEL_LABEL),
                 "generated_at": meta.get("generated_at", ""),
+                "snapshot_date": inp["snapshot_date"],
+                "data_version": inp["data_version"],
                 "output": (f / "output.md").read_text(encoding="utf-8").strip(),
                 "verification_status": "automated checks passed; manually reviewed",
                 "verification_summary": meta.get("verification_summary", ""),

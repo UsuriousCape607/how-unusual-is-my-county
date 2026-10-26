@@ -1,9 +1,10 @@
 import type { CountyMetric, Facility } from "../types";
-import { assignmentLabel, fmtDate, plural, precisionLabel, statusLabel } from "../lib/format";
+import { assignmentLabel, fmtDate, fmtDateShort, plural, precisionLabel, statusLabel } from "../lib/format";
 
 interface Props {
   county: CountyMetric;
   facilities: Facility[];
+  snapshotDate: string;
 }
 
 function FacilityItem({ f }: { f: Facility }) {
@@ -46,7 +47,7 @@ function FacilityItem({ f }: { f: Facility }) {
   );
 }
 
-export default function FacilityList({ county, facilities }: Props) {
+export default function FacilityList({ county, facilities, snapshotDate }: Props) {
   const pipeline = facilities.filter((f) => f.metric === "pipeline");
   const operational = facilities.filter((f) => f.metric === "operational");
   return (
@@ -54,6 +55,10 @@ export default function FacilityList({ county, facilities }: Props) {
       <h3 id="records-title">
         Qualifying pipeline records in {county.county_name}, {county.state} ({pipeline.length})
       </h3>
+      <p className="muted small">
+        As documented in the Compute Atlas snapshot of {fmtDateShort(snapshotDate)}. Each record&apos;s own &ldquo;Last updated&rdquo; date
+        shows when its source information was last revised.
+      </p>
       {pipeline.length === 0 ? (
         <p>No qualifying pipeline records were found in this county in the selected dataset snapshot.</p>
       ) : (

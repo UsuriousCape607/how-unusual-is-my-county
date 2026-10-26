@@ -44,8 +44,10 @@ try {
   const def = byGeoid.get(meta.default_geoid);
   check("default county shown", (await page.textContent("#summary-title")).includes(def.county_name));
   check("URL carries default GEOID", page.url().includes(`county=${meta.default_geoid}`));
-  check("snapshot date and attribution visible",
-    (await page.textContent(".header-meta")).includes("Data snapshot") && (await page.textContent(".site-footer")).includes("Compute Atlas"));
+  const asOf = new Date(`${meta.snapshot_date}T12:00:00Z`).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+  check("data-as-of banner shows snapshot date", (await page.textContent(".freshness")).includes(`Data as of ${asOf}`), asOf);
+  check("summary card shows as-of date", (await page.textContent(".summary .eyebrow")).includes(asOf));
+  check("attribution visible", (await page.textContent(".site-footer")).includes("Compute Atlas"));
   check("methodology section present", await page.isVisible("#methodology"));
   await page.waitForTimeout(600);
   await page.screenshot({ path: `${OUT}/desktop-default.png`, fullPage: false });

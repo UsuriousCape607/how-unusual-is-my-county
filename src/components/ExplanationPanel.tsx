@@ -1,5 +1,6 @@
 import type { AIExample, CountyMetric, PeerRecord } from "../types";
 import { templateSummary } from "../lib/summary";
+import { fmtDate } from "../lib/format";
 
 interface Props {
   county: CountyMetric;
@@ -24,8 +25,8 @@ export default function ExplanationPanel({ county, peer, snapshotDate, examples,
             <p key={i}>{p}</p>
           ))}
           <p className="muted small">
-            Written once by {ai.model} from this county's structured figures, then checked number by number ({ai.verification_status}).
-            It is not generated live. Prompt, input, and checks are in AI_EVALUATION.md.
+            Written once by {ai.model} from this county's figures in the {fmtDate(ai.snapshot_date)} snapshot, then checked number by
+            number ({ai.verification_status}). It is not generated live. Prompt, input, and checks are in AI_EVALUATION.md.
           </p>
         </div>
       )}

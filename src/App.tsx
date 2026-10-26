@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AppData } from "./types";
 import { loadAppData, readGeoidFromUrl, writeGeoidToUrl } from "./lib/data";
-import { fmtDate } from "./lib/format";
 import CountySearch from "./components/CountySearch";
 import CountySummary from "./components/CountySummary";
 import ComparisonChart from "./components/ComparisonChart";
@@ -10,6 +9,7 @@ import PeerTable from "./components/PeerTable";
 import FacilityList from "./components/FacilityList";
 import ExplanationPanel from "./components/ExplanationPanel";
 import Methodology from "./components/Methodology";
+import DataFreshness from "./components/DataFreshness";
 
 export default function App() {
   const [data, setData] = useState<AppData | null>(null);
@@ -54,6 +54,10 @@ export default function App() {
 
   const county = geoid && data ? data.byGeoid.get(geoid) : undefined;
   const peer = geoid && data ? data.peers.peers[geoid] : undefined;
+  const currentExamples = useMemo(
+    () => (data ? data.aiExamples.filter((e) => e.data_version === data.metadata.data_version) : []),
+    [data],
+  );
   const facilities = useMemo(
     () => (data && geoid ? data.facilities.filter((f) => f.county_geoid === geoid) : []),
     [data, geoid],
@@ -68,15 +72,11 @@ export default function App() {
             <p className="subtitle">Compare documented data-center development with similar counties across the United States.</p>
           </div>
           <div className="header-meta">
-            {data && (
-              <span>
-                Data snapshot: {fmtDate(data.metadata.snapshot_date)} · Compute Atlas {data.metadata.compute_atlas.tag}
-              </span>
-            )}
             <a href="#methodology">Methodology &amp; sources</a>
           </div>
         </div>
       </header>
+      {data && <DataFreshness metadata={data.metadata} />}
 
       <main className="wrap">
         {error && (
@@ -101,12 +101,12 @@ export default function App() {
             <div className="grid">
               <div className="col-main">
                 <CountySummary county={county} peer={peer} metadata={data.metadata} />
-                <ComparisonChart county={county} peer={peer} byGeoid={data.byGeoid} onSelect={select} />
+                <ComparisonChart county={county} peer={peer} byGeoid={data.byGeoid} snapshotDate={data.metadata.snapshot_date} onSelect={select} />
                 <ExplanationPanel
                   county={county}
                   peer={peer}
                   snapshotDate={data.metadata.snapshot_date}
-                  examples={data.aiExamples}
+                  examples={currentExamples}
                   byGeoid={data.byGeoid}
                   onSelect={select}
                 />
@@ -124,8 +124,8 @@ export default function App() {
               </div>
             </div>
 
-            <PeerTable county={county} peer={peer} byGeoid={data.byGeoid} onSelect={select} />
-            <FacilityList county={county} facilities={facilities} />
+            <PeerTable county={county} peer={peer} byGeoid={data.byGeoid} snapshotDate={data.metadata.snapshot_date} onSelect={select} />
+            <FacilityList county={county} facilities={facilities} snapshotDate={data.metadata.snapshot_date} />
           </>
         )}
 

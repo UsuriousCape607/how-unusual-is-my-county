@@ -22,6 +22,25 @@ export function fmtDate(iso: string): string {
   return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
 }
 
+/** "Oct 2, 2026" — compact form used next to counts. */
+export function fmtDateShort(iso: string): string {
+  const d = new Date(iso.length === 10 ? `${iso}T12:00:00Z` : iso);
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
+}
+
+/** Whole days from a date (YYYY-MM-DD or ISO timestamp) to `now`. Display only. */
+export function daysSince(iso: string, now: Date = new Date()): number {
+  const d = new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso);
+  return Math.floor((now.getTime() - d.getTime()) / 86_400_000);
+}
+
+export function fmtAgo(days: number): string {
+  if (days <= 0) return "today";
+  if (days === 1) return "1 day ago";
+  if (days < 60) return `${days} days ago`;
+  return `about ${Math.round(days / 30.44)} months ago`;
+}
+
 export function plural(n: number, one: string, many: string): string {
   return n === 1 ? one : many;
 }

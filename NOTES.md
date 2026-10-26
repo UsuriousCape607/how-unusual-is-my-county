@@ -34,9 +34,16 @@
 - Display polygons use `shapely.coverage_simplify` (tolerance 0.004°) so neighbours share edges; Aleutian parts
   east of 180° are shifted −360° for display only.
 - Default demo county: Loudoun County, VA (51107), to be confirmed once real counts exist.
+- Owner decision (2026-10-26): no live data fetching; keep dated snapshots and make dates very prominent (done:
+  freshness banner, as-of dates on summary/chart/table/records, Data dates table, >45-day stale notice).
+  Approved post-MVP: scheduled rebuild + GitHub Pages deploy. Spec lists continuous ingestion as a non-goal, so
+  document it as an owner-approved extension.
 
 ## Next steps
 1. Obtain Census files → `python scripts/build_all.py --offline` → review `data/processed/qc_*.json` and
    `assignment_review.csv`.
 2. Finish components, build, run Playwright smoke test (`npm run test:e2e`).
 3. Generate the three AI examples from real input JSON, verify, write docs.
+4. After the MVP passes: `.github/workflows/rebuild.yml` (schedule + manual trigger; Python + Node; build_all →
+   pytest → npm build → e2e → deploy Pages only on success; cache Census files, which change yearly). Bump
+   `COMPUTE_ATLAS_TAG` automatically only to a newer release tag, recorded in the manifest.

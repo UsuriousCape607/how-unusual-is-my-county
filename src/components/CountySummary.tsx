@@ -1,5 +1,5 @@
 import type { CountyMetric, Metadata, PeerRecord } from "../types";
-import { fmtDate, fmtDensity, fmtInt, fmtStat, plural } from "../lib/format";
+import { fmtDate, fmtDateShort, fmtDensity, fmtInt, fmtStat, plural } from "../lib/format";
 
 interface Props {
   county: CountyMetric;
@@ -12,7 +12,7 @@ export default function CountySummary({ county, peer, metadata }: Props) {
   const total = peer.n_fewer + peer.n_equal + peer.n_greater;
   return (
     <section className="card summary" aria-labelledby="summary-title">
-      <p className="eyebrow">Selected county</p>
+      <p className="eyebrow">Selected county · data as of {fmtDate(metadata.snapshot_date)}</p>
       <h2 id="summary-title">
         {county.county_name}, {county.state_name}
       </h2>
@@ -24,7 +24,7 @@ export default function CountySummary({ county, peer, metadata }: Props) {
       <div className="stat-row">
         <div className="stat stat-primary">
           <span className="stat-value">{n}</span>
-          <span className="stat-label">qualifying pipeline {plural(n, "record", "records")}</span>
+          <span className="stat-label">qualifying pipeline {plural(n, "record", "records")} as of {fmtDateShort(metadata.snapshot_date)}</span>
         </div>
         <div className="stat">
           <span className="stat-value">{fmtStat(peer.peer_median)}</span>

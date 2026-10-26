@@ -1,5 +1,6 @@
 import type { Metadata } from "../types";
 import { fmtDate, fmtInt } from "../lib/format";
+import { STALE_DAYS } from "./DataFreshness";
 
 const REASON_LABELS: Record<string, string> = {
   "status:operational": "Operational (shown separately as context)",
@@ -104,6 +105,23 @@ export default function Methodology({ metadata }: { metadata: Metadata }) {
         <li>{metadata.geographic_scope}</li>
       </ul>
 
+      <h3>Data dates</h3>
+      <table className="compact dates">
+        <tbody>
+          <tr><td>Facility records (Compute Atlas snapshot {ca.tag})</td><td>as of {fmtDate(metadata.data_dates.facility_snapshot_as_of)}</td></tr>
+          {metadata.data_dates.facility_file_retrieved_at && (
+            <tr><td>Snapshot file downloaded</td><td>{fmtDate(metadata.data_dates.facility_file_retrieved_at)}</td></tr>
+          )}
+          <tr><td>Population ({metadata.data_dates.population_vintage})</td><td>{fmtDate(metadata.data_dates.population_reference_date)}</td></tr>
+          <tr><td>Land area and county boundaries</td><td>{metadata.data_dates.geography_vintage} Census vintage</td></tr>
+          <tr><td>Site data last rebuilt</td><td>{fmtDate(metadata.data_dates.site_data_built_at)}</td></tr>
+        </tbody>
+      </table>
+      <p className="small">
+        Records are not fetched live: the site shows one dated snapshot so every figure can be traced and reproduced. The banner at
+        the top of the page flags any snapshot older than {STALE_DAYS} days.
+      </p>
+
       <h3>Sources and attribution</h3>
       <ul className="sources-list">
         <li>
@@ -133,8 +151,9 @@ export default function Methodology({ metadata }: { metadata: Metadata }) {
       <h3>About the AI explanations</h3>
       <p>
         Every county gets the fixed-template summary, computed from the figures above. Three counties also show a short explanation
-        that an AI model wrote once from the same structured figures; each number in it was checked against its input. The AI never
-        calculates figures, and the site makes no live AI calls.
+        that an AI model wrote once from the same structured figures; each number in it was checked against its input. An AI
+        explanation is shown only if it was written from the snapshot currently on the site. The AI never calculates figures, and
+        the site makes no live AI calls.
       </p>
     </section>
   );

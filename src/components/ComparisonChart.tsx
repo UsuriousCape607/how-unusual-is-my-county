@@ -3,12 +3,13 @@ import {
   CartesianGrid, ReferenceLine, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis,
 } from "recharts";
 import type { CountyMetric, PeerRecord } from "../types";
-import { countyLabel, fmtDensity, fmtInt, fmtStat } from "../lib/format";
+import { countyLabel, fmtDateShort, fmtDensity, fmtInt, fmtStat } from "../lib/format";
 
 interface Props {
   county: CountyMetric;
   peer: PeerRecord;
   byGeoid: Map<string, CountyMetric>;
+  snapshotDate: string;
   onSelect: (geoid: string) => void;
 }
 
@@ -39,7 +40,7 @@ function TooltipBody({ active, payload }: { active?: boolean; payload?: { payloa
   );
 }
 
-export default function ComparisonChart({ county, peer, byGeoid, onSelect }: Props) {
+export default function ComparisonChart({ county, peer, byGeoid, snapshotDate, onSelect }: Props) {
   const { peers, selected, maxX, maxStack } = useMemo(() => {
     const stacks = new Map<number, number>();
     const pts: Pt[] = peer.peer_geoids
@@ -70,7 +71,7 @@ export default function ComparisonChart({ county, peer, byGeoid, onSelect }: Pro
 
   return (
     <section className="card" aria-labelledby="chart-title">
-      <h3 id="chart-title">Pipeline records: this county vs. its 40 peers</h3>
+      <h3 id="chart-title">Pipeline records as of {fmtDateShort(snapshotDate)}: this county vs. its 40 peers</h3>
       <p className="muted small">
         Each teal dot is one peer county; dots with the same count are stacked. The navy diamond is {countyLabel(county)}. The dashed
         line marks the peer median ({fmtStat(peer.peer_median)}). Select a dot to switch counties. The peer table below lists the same

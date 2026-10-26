@@ -37,6 +37,16 @@ code { font-size: 0.88em; background: #eef1f4; padding: 0 0.25em; border-radius:
 .subtitle { color: var(--ink-2); font-style: italic; margin: 0; }
 .header-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 0.875rem; color: var(--muted); }
 
+.freshness { background: #eaf2f6; border-bottom: 1px solid #cddde6; padding: 10px 0; }
+.freshness p { margin: 0; }
+.freshness-main { font-size: 0.95rem; }
+.freshness-label { text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem; font-weight: 600; color: var(--ink-2); }
+.freshness-main strong { font-size: 1.05rem; }
+.freshness-detail { color: var(--ink-2); }
+.freshness-sub { font-size: 0.82rem; color: var(--muted); margin-top: 2px !important; }
+.freshness-stale { margin-top: 6px !important; font-size: 0.875rem; background: #fff8e6; border: 1px solid #ecd9a6; border-radius: 6px; padding: 6px 10px; }
+table.dates { max-width: 640px; margin-bottom: 8px; }
+
 main.wrap { padding-top: 20px; padding-bottom: 32px; }
 .state-box { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; margin: 24px 0; }
 .state-box.error { border-color: #c9a227; background: #fffaf0; }

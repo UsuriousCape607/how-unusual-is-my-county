@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { CountyMetric, PeerRecord } from "../types";
 import { buildIndex, searchCounties } from "./search";
 import { templateSummary } from "./summary";
+import { daysSince, fmtAgo, fmtDateShort } from "./format";
 
 // Small hand-made inputs for logic tests only (not app data).
 const m = (geoid: string, county_name: string, state: string, state_name: string, pipeline_count = 0): CountyMetric => ({
@@ -60,5 +61,18 @@ describe("template summary", () => {
     expect(text).toContain("more than 31 of its 40 peer counties, the same as 4, and fewer than 5");
     expect(text).toContain("peer median is 1.5");
     expect(text).toContain("does not show causes");
+  });
+});
+
+describe("data-date helpers", () => {
+  it("counts whole days since the snapshot and formats them", () => {
+    const now = new Date("2026-10-26T15:00:00Z");
+    expect(daysSince("2026-10-02", now)).toBe(24);
+    expect(daysSince("2026-10-02T18:14:01.267Z", now)).toBe(23);
+    expect(fmtAgo(0)).toBe("today");
+    expect(fmtAgo(1)).toBe("1 day ago");
+    expect(fmtAgo(24)).toBe("24 days ago");
+    expect(fmtAgo(120)).toBe("about 4 months ago");
+    expect(fmtDateShort("2026-10-02")).toBe("Oct 2, 2026");
   });
 });

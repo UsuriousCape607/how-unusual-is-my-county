@@ -1,17 +1,18 @@
 import { useState } from "react";
 import type { CountyMetric, PeerRecord } from "../types";
-import { fmtDensity, fmtInt } from "../lib/format";
+import { fmtDateShort, fmtDensity, fmtInt } from "../lib/format";
 
 interface Props {
   county: CountyMetric;
   peer: PeerRecord;
   byGeoid: Map<string, CountyMetric>;
+  snapshotDate: string;
   onSelect: (geoid: string) => void;
 }
 
 const INITIAL_ROWS = 10;
 
-export default function PeerTable({ county, peer, byGeoid, onSelect }: Props) {
+export default function PeerTable({ county, peer, byGeoid, snapshotDate, onSelect }: Props) {
   const [expanded, setExpanded] = useState(false);
   const rows = peer.peer_geoids.map((g) => byGeoid.get(g)!);
   const shown = expanded ? rows : rows.slice(0, INITIAL_ROWS);
@@ -31,9 +32,9 @@ export default function PeerTable({ county, peer, byGeoid, onSelect }: Props) {
               <th scope="col" className="num">#</th>
               <th scope="col">County</th>
               <th scope="col">State</th>
-              <th scope="col" className="num">Population</th>
+              <th scope="col" className="num">Population (2025)</th>
               <th scope="col" className="num">Density (per sq mi)</th>
-              <th scope="col" className="num">Pipeline records</th>
+              <th scope="col" className="num">Pipeline records ({fmtDateShort(snapshotDate)})</th>
             </tr>
           </thead>
           <tbody>

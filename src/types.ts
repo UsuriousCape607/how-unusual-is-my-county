@@ -71,6 +71,14 @@ export interface Metadata {
   generated_at: string;
   snapshot_date: string;
   default_geoid: string;
+  data_dates: {
+    facility_snapshot_as_of: string;
+    facility_file_retrieved_at: string | null;
+    population_reference_date: string;
+    population_vintage: string;
+    geography_vintage: string;
+    site_data_built_at: string;
+  };
   sources: Record<string, { url: string; retrieved_at?: string; sha256?: string; bytes?: number; note?: string }>;
   compute_atlas: {
     repository: string;
@@ -106,6 +114,8 @@ export interface AIExample {
   label: string;
   model: string;
   generated_at: string;
+  snapshot_date: string;
+  data_version: string;
   output: string;
   verification_status: string;
   verification_summary: string;
