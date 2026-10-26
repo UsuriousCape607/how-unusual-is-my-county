@@ -1,0 +1,35 @@
+{
+  "compute_atlas_facilities": {
+    "url": "https://raw.githubusercontent.com/ek33450505/compute-atlas/v1.34.1/data/facilities.json",
+    "file": "compute_atlas_facilities.json",
+    "retrieved_at": "2026-10-26T21:08:40+00:00",
+    "bytes": 6313373,
+    "sha256": "f0b2b2d2160fc9e63e9424967a82f6a5b8f1ce5344a9d4e7e9bfbf9789a8969c",
+    "response_headers": {
+      "ETag": "W/\"90471c2fd61e282efa7d56ef055656e95a282523e35c7c458e215f4df191876f\"",
+      "Content-Type": "text/plain; charset=utf-8"
+    }
+  },
+  "compute_atlas_meta": {
+    "url": "https://raw.githubusercontent.com/ek33450505/compute-atlas/v1.34.1/data/facilities.meta.json",
+    "file": "compute_atlas_facilities.meta.json",
+    "retrieved_at": "2026-10-26T21:08:40+00:00",
+    "bytes": 115,
+    "sha256": "93c5d9ec00fdfab912b689510158f00afb00ab667d1a169c489ebfa86311e56d",
+    "response_headers": {
+      "ETag": "W/\"71a79a5ad2ae227001940c5364c25c9451d070b1fcde893e8cc2023f246951ed\"",
+      "Content-Type": "text/plain; charset=utf-8"
+    }
+  },
+  "compute_atlas_data_license": {
+    "url": "https://raw.githubusercontent.com/ek33450505/compute-atlas/v1.34.1/LICENSE-DATA",
+    "file": "compute_atlas_LICENSE-DATA.txt",
+    "retrieved_at": "2026-10-26T21:08:40+00:00",
+    "bytes": 3590,
+    "sha256": "8bab56d143e35be8d17737283e83f762f8a4c82ba77fe2a6fab67fb3d3ca6728",
+    "response_headers": {
+      "ETag": "W/\"1342e5f55115ed46c05c522dc624ce131c8776882fe583ed0b3dd39329771d48\"",
+      "Content-Type": "text/plain; charset=utf-8"
+    }
+  }
+}
