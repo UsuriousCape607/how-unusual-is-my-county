@@ -49,9 +49,9 @@ Date: 2026-10-26 · Data version `compute-atlas-v1.34.1-asof-2026-10-02_census-v
   (notes for agents), and screenshots in `docs/screenshots/`.
 
 ## Not shipped / deviations
-- **Deployment:** the GitHub Actions workflow (weekly refresh + GitHub Pages deploy, publishing only if every check
-  passes) is in place. It goes live once the owner makes the repo public and sets the Pages source to GitHub
-  Actions. The spec lists continuous ingestion as a non-goal, so the weekly refresh is documented as an
+- **Deployment:** live at https://usuriouscape607.github.io/how-unusual-is-my-county/ through the GitHub Actions
+  workflow (weekly refresh + GitHub Pages deploy, publishing only if every check passes). The first CI run passed
+  every check on GitHub's runners, including the Playwright end-to-end test. The spec lists continuous ingestion as a non-goal, so the weekly refresh is documented as an
   owner-approved extension.
 - **Census download in the cloud sandbox:** blocked by network policy, so the owner supplied the official files and
   the hashes are recorded. On a normal network, `build_all.py` downloads them itself.

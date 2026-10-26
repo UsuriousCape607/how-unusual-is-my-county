@@ -6,6 +6,8 @@ Pick any county in the 50 states or DC. The site shows how many qualifying data-
 (proposed, permitted or under construction) are documented there in a pinned
 [Compute Atlas](https://github.com/ek33450505/compute-atlas) snapshot. It compares that count with the
 40 counties most similar in population and population density, and explains the result in plain language.
+**Live site:** https://usuriouscape607.github.io/how-unusual-is-my-county/
+
 Everything is precomputed in Python and served as static files: there is no backend, database, API key or
 live AI.
 

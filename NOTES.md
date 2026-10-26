@@ -34,7 +34,9 @@
 
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.
-2. Owner: repo → public; Settings → Pages → Source: GitHub Actions; then run the workflow and check the site.
+2. (Done 2026-10-26) Repo public, Pages source = GitHub Actions. Live at
+   https://usuriouscape607.github.io/how-unusual-is-my-county/ (first CI build + deploy succeeded).
+   Still to do: one manual run with rebuild_data ticked, to exercise the weekly refresh path.
 3. (Done) Post-MVP (approved): `.github/workflows/rebuild.yml` (schedule + manual trigger; Python + Node; build_all →
    pytest → npm build → e2e → deploy Pages only on success; cache Census files, which change yearly). Bump
    `COMPUTE_ATLAS_TAG` automatically only to a newer release tag, recorded in the manifest.
