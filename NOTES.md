@@ -21,8 +21,7 @@
 - [x] AI tooling (`ai/prompt.md`, `scripts/build_ai_examples.py inputs|check|assemble`), README, METHODOLOGY,
   DATA_SOURCES, Playwright smoke test (`tests/e2e/smoke.mjs`).
 - [ ] Pending real data: pipeline run, 3 AI examples + AI_EVALUATION.md, TEST_RESULTS.md, e2e run, screenshots.
-- [ ] No git remote yet: owner to create `UsuriousCape607/how-unusual-is-my-county` (this session cannot create
-  repos), then attach with add_repo (push) and push `main`.
+- [x] Remote: https://github.com/UsuriousCape607/how-unusual-is-my-county (`main`). Commit and push after each step.
 
 ## Decisions made during implementation
 - Exact points whose source county name is *unrecognised* (not a different real county) keep the spatial result
