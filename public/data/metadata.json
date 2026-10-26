@@ -1,7 +1,7 @@
 {
   "title": "How Unusual Is My County?",
   "data_version": "compute-atlas-v1.34.1-asof-2026-10-02_census-v2025",
-  "generated_at": "2026-10-26T22:15:33+00:00",
+  "generated_at": "2026-10-26T23:45:14+00:00",
   "snapshot_date": "2026-10-02",
   "default_geoid": "51107",
   "data_dates": {
@@ -10,7 +10,7 @@
     "population_reference_date": "2025-07-01",
     "population_vintage": "Vintage 2025 estimates",
     "geography_vintage": "2025",
-    "site_data_built_at": "2026-10-26T22:15:33+00:00"
+    "site_data_built_at": "2026-10-26T23:45:14+00:00"
   },
   "sources": {
     "compute_atlas_facilities": {

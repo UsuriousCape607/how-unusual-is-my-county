@@ -45,6 +45,17 @@
   and a morphing comparison bar (all three segments always rendered); system font with size-specific tracking;
   reduced-motion/transparency/contrast media queries. Map motion was already interruptible.
 
+- Apple visual pass 2 (2026-10-26): one colour system in `src/lib/theme.ts` mirrored by `styles.css :root` —
+  blue #0071e3 = this county; purple #8944ab / grey #8e8e93 / orange #c96e00 = similar counties with fewer / same /
+  more (validated: all-pairs CVD ΔE ≥ 9, contrast ≥ 3:1). Same meanings in bar, dot plot and map. Borderless cards
+  on #f5f5f7, Apple segmented control, filled search field, chevron disclosures, no callout bars/italics/caps labels.
+- Map pass 2: `county_borders.geojson` (each edge once) + `states.geojson` as border lines on the same snapped edges
+  (fills have no stroke) → even, crisp borders. Translucent highlights; exact site = blue dot, approximate =
+  accuracy halo. Hover info in a frosted card inside `.map-frame` (Leaflet tooltips were clipped by the map edge).
+  Large reframes (e.g. Similar counties) cross-fade instead of flying (Leaflet scales the old canvas during flights,
+  so big zoom-outs showed blank map); small moves glide. Zoom control bottom-right; soft maxBounds; map 5:4.
+  Focus ring on the map only for keyboard users (`.kbd` class set on Tab).
+
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.
 2. (Done 2026-10-26) Repo public, Pages source = GitHub Actions. Live at

@@ -138,6 +138,7 @@ export default function App() {
                 <div className="sticky">
                   <CountyMap
                     counties={data.counties}
+                    countyBorders={data.countyBorders}
                     states={data.states}
                     byGeoid={data.byGeoid}
                     selected={county.geoid}

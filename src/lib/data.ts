@@ -8,12 +8,13 @@ async function getJSON<T>(file: string): Promise<T> {
 }
 
 export async function loadAppData(): Promise<AppData> {
-  const [metrics, peers, facilities, metadata, counties, states, ai] = await Promise.all([
+  const [metrics, peers, facilities, metadata, counties, countyBorders, states, ai] = await Promise.all([
     getJSON<CountyMetric[]>("county_metrics.json"),
     getJSON<PeersFile>("county_peers.json"),
     getJSON<Facility[]>("facilities.json"),
     getJSON<Metadata>("metadata.json"),
     getJSON<FeatureCollection>("counties.geojson"),
+    getJSON<FeatureCollection>("county_borders.geojson"),
     getJSON<FeatureCollection>("states.geojson"),
     getJSON<{ examples: AIExample[] }>("ai_examples.json").catch(() => ({ examples: [] as AIExample[] })),
   ]);
@@ -25,6 +26,7 @@ export async function loadAppData(): Promise<AppData> {
     metadata,
     aiExamples: ai.examples,
     counties,
+    countyBorders,
     states,
   };
 }

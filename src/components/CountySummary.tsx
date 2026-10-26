@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { CountyMetric, Metadata, PeerRecord } from "../types";
 import { fmtDateShort, fmtDensity, fmtInt, fmtStat, plural } from "../lib/format";
 import { typicalPhrase, verdict } from "../lib/summary";
+import { COLOR } from "../lib/theme";
 
 interface Props {
   county: CountyMetric;
@@ -11,17 +12,13 @@ interface Props {
   onSelect: (geoid: string) => void;
 }
 
-// Diverging pair validated with the dataviz palette checker (CVD ΔE 22, contrast ≥ 3:1); grey is the neutral middle.
-export const FEWER_COLOR = "#3d6aa6";
-export const SAME_COLOR = "#d3d8de";
-export const MORE_COLOR = "#b5822e";
 
 function ComparisonBar({ peer, name }: { peer: PeerRecord; name: string }) {
   const total = peer.n_fewer + peer.n_equal + peer.n_greater;
   const parts = [
-    { key: "fewer", n: peer.n_fewer, color: FEWER_COLOR, label: "have fewer" },
-    { key: "same", n: peer.n_equal, color: SAME_COLOR, label: "the same" },
-    { key: "more", n: peer.n_greater, color: MORE_COLOR, label: "have more" },
+    { key: "fewer", n: peer.n_fewer, color: COLOR.fewer, label: "have fewer" },
+    { key: "same", n: peer.n_equal, color: COLOR.same, label: "the same" },
+    { key: "more", n: peer.n_greater, color: COLOR.more, label: "have more" },
   ];
   return (
     <div className="compare">
@@ -94,7 +91,8 @@ export default function CountySummary({ county, peer, metadata, byGeoid, onSelec
         <ShareButton />
       </div>
 
-      <p key={`v-${county.geoid}`} className={`verdict tone-${v.tone} fade-in`}>{v.headline}</p>
+      <p className="eyebrow">The short answer</p>
+      <p key={`v-${county.geoid}`} className="verdict fade-in">{v.headline}</p>
 
       <div key={`h-${county.geoid}`} className="hero-row fade-in">
         <div className="hero">

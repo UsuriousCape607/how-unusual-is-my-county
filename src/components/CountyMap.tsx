@@ -1,14 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 import type { Feature, FeatureCollection } from "geojson";
 import type { CountyMetric, Facility } from "../types";
 import { plural, statusLabel } from "../lib/format";
+import { COLOR, MAP, RAMP, comparisonOf, type Comparison } from "../lib/theme";
 
 export type SelectionSource = "map" | "other";
 type MapView = "county" | "similar" | "shaded";
 
 interface Props {
   counties: FeatureCollection;
+  countyBorders: FeatureCollection;
   states: FeatureCollection;
   byGeoid: Map<string, CountyMetric>;
   selected: string;
@@ -18,80 +20,74 @@ interface Props {
   onSelect: (geoid: string, source: SelectionSource) => void;
 }
 
-export const NAVY = "#13294b";
-export const PEER_FILL = "#8fcbcc";
-export const PEER_STROKE = "#1f6f71";
-// Record markers are fixed-size rings; below this zoom they pile up and hide the county itself.
+interface HoverInfo {
+  title: string;
+  lines: string[];
+}
+
+// Site markers are fixed-size; below this zoom they pile up and hide the county itself.
 const MARKER_MIN_ZOOM = 6;
 const LOWER_48 = L.latLngBounds([24.4, -125], [49.5, -66.9]);
 const OFF_MAINLAND = new Set(["02", "15"]); // Alaska, Hawaii
-export const BINS: { min: number; label: string; color: string }[] = [
-  { min: 0, label: "0", color: "#ffffff" },
-  { min: 1, label: "1", color: "#d3ebeb" },
-  { min: 2, label: "2–3", color: "#a0d2d3" },
-  { min: 4, label: "4–9", color: "#5cafb1" },
-  { min: 10, label: "10+", color: "#217d80" },
-];
 const VIEWS: { id: MapView; label: string }[] = [
   { id: "county", label: "This county" },
   { id: "similar", label: "Similar counties" },
   { id: "shaded", label: "All counties" },
 ];
+const CMP_COLOR: Record<Comparison, string> = { fewer: COLOR.fewer, same: COLOR.same, more: COLOR.more };
+const CMP_LABEL: Record<Comparison, string> = { fewer: "fewer", same: "the same", more: "more" };
 
-function binColor(n: number): string {
-  let c = BINS[0].color;
-  for (const b of BINS) if (n >= b.min) c = b.color;
+function rampColor(n: number): string {
+  let c = RAMP[0].color;
+  for (const b of RAMP) if (n >= b.min) c = b.color;
   return c;
-}
-
-function esc(s: string): string {
-  return s.replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]!);
 }
 
 const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 
-/** Move the camera smoothly (or instantly), never dropping the request. */
-function moveCamera(map: L.Map, bounds: L.LatLngBounds, maxZoom: number, zoomOut: number, animate: boolean) {
-  const go = () => {
-    map.stop();
-    const fit = map.getBoundsZoom(bounds, false, L.point(56, 56));
-    const zoom = Math.max(map.getMinZoom(), Math.min(fit, maxZoom) - zoomOut);
-    if (animate) map.flyTo(bounds.getCenter(), zoom, { duration: 0.8 });
-    else map.setView(bounds.getCenter(), zoom, { animate: false });
-  };
-  // Leaflet ignores new zoom requests while a wheel/pinch zoom animation is running, so wait for it to end.
-  if ((map as unknown as { _animatingZoom?: boolean })._animatingZoom) map.once("zoomend", go);
-  else go();
-}
-
-export default function CountyMap({ counties, states, byGeoid, selected, peerGeoids, facilities, selectionSource, onSelect }: Props) {
+export default function CountyMap(props: Props) {
+  const { counties, countyBorders, states, byGeoid, selected, peerGeoids, facilities, selectionSource, onSelect } = props;
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
-  const countyLayer = useRef<L.GeoJSON | null>(null);
-  const layers = useRef(new Map<string, L.Polygon>());
+  const base = useRef<L.GeoJSON | null>(null);
+  const highlight = useRef<L.LayerGroup | null>(null);
+  const hoverLayer = useRef<L.LayerGroup | null>(null);
   const markers = useRef<L.LayerGroup | null>(null);
-  // One shared canvas: a second canvas (e.g. for markers) would sit on top and swallow county hover/clicks.
+  const layers = useRef(new Map<string, L.Polygon>());
+  // One shared canvas: a second canvas would sit on top and swallow county hover/clicks.
   const renderer = useRef<L.Canvas | null>(null);
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
   const [view, setView] = useState<MapView>("county");
   const [markersVisible, setMarkersVisible] = useState(false);
-  const styleState = useRef({ selected, peers: new Set(peerGeoids), shaded: false });
+  const [hover, setHover] = useState<HoverInfo | null>(null);
   const camera = useRef<{ sel: string | null; view: MapView }>({ sel: null, view });
+  const moveToken = useRef(0);
+  const shadedRef = useRef(false);
 
-  const styleFor = (geoid: string): L.PathOptions => {
-    const { selected: sel, peers, shaded } = styleState.current;
-    const isSel = geoid === sel;
-    const isPeer = peers.has(geoid);
-    let fillColor = shaded ? binColor(byGeoid.get(geoid)?.pipeline_count ?? 0) : "#ffffff";
-    if (!shaded && isPeer) fillColor = PEER_FILL;
-    if (!shaded && isSel) fillColor = NAVY;
-    return {
-      color: isSel ? NAVY : isPeer ? PEER_STROKE : "#c5ced8",
-      weight: isSel ? 2.6 : isPeer ? 1.4 : 0.35,
-      fillColor,
-      fillOpacity: 1,
-    };
+  const featureById = useMemo(() => new Map(counties.features.map((f) => [f.properties?.geoid as string, f])), [counties]);
+  const own = byGeoid.get(selected)?.pipeline_count ?? 0;
+  const peerCmp = useMemo(
+    () => new Map(peerGeoids.map((g) => [g, comparisonOf(byGeoid.get(g)?.pipeline_count ?? 0, own)])),
+    [peerGeoids, byGeoid, own],
+  );
+  const cmpCounts = useMemo(() => {
+    const c: Record<Comparison, number> = { fewer: 0, same: 0, more: 0 };
+    peerCmp.forEach((v) => c[v]++);
+    return c;
+  }, [peerCmp]);
+
+  // Kept in a ref so Leaflet event handlers (bound once) always describe the current selection.
+  const describe = useRef<(geoid: string) => HoverInfo | null>(() => null);
+  describe.current = (geoid: string) => {
+    const c = byGeoid.get(geoid);
+    if (!c) return null;
+    const n = c.pipeline_count;
+    const lines = [`${n} ${plural(n, "site", "sites")} in development`];
+    if (geoid === selected) lines.push("This county");
+    else if (peerCmp.has(geoid)) lines.push(`Similar county · ${CMP_LABEL[peerCmp.get(geoid)!]} than ${byGeoid.get(selected)?.county_name}`);
+    else lines.push("Click to compare");
+    return { title: `${c.county_name}, ${c.state}`, lines };
   };
 
   /** Similar counties outside the lower 48 are listed instead of zooming the map out to include them. */
@@ -113,53 +109,101 @@ export default function CountyMap({ counties, states, byGeoid, selected, peerGeo
     return [selectedOffMainland ? L.latLngBounds(LOWER_48.getSouthWest(), LOWER_48.getNorthEast()).extend(sel.getBounds()) : LOWER_48, 5, 0];
   };
 
+  /**
+   * Short moves glide. Large reframes cross-fade instead of flying: Leaflet scales the old canvas during a flight,
+   * so a big zoom-out shows blank map until it redraws. Fading the map out, jumping, and fading back in avoids that
+   * (apple-design: fade large surfaces during a large reposition). Every move cancels the previous one.
+   */
   const go = (v: MapView, animate: boolean) => {
     const map = mapRef.current;
     const t = target(v);
-    if (map && t) moveCamera(map, t[0], t[1], t[2], animate && !reducedMotion());
+    if (!map || !t) return;
+    const token = ++moveToken.current;
+    const pane = map.getPane("mapPane")!;
+    const run = () => {
+      if (token !== moveToken.current) return;
+      map.stop();
+      const fit = map.getBoundsZoom(t[0], false, L.point(48, 48));
+      const zoom = Math.max(map.getMinZoom(), Math.min(fit, t[1]) - t[2]);
+      const center = t[0].getCenter();
+      const large = Math.abs(zoom - map.getZoom()) > 1.25 || !map.getBounds().contains(center);
+      if (!animate) {
+        pane.style.opacity = "1";
+        map.setView(center, zoom, { animate: false });
+      } else if (large || reducedMotion()) {
+        pane.style.transition = "opacity 140ms ease-out";
+        pane.style.opacity = "0";
+        window.setTimeout(() => {
+          if (token !== moveToken.current) return;
+          map.setView(center, zoom, { animate: false });
+          requestAnimationFrame(() => {
+            pane.style.transition = "opacity 240ms ease-out";
+            pane.style.opacity = "1";
+          });
+        }, 140);
+      } else {
+        pane.style.opacity = "1";
+        map.flyTo(center, zoom, { duration: 0.45 });
+      }
+    };
+    // Leaflet ignores new zoom requests while a wheel/pinch zoom animation runs, so wait for it to end.
+    if ((map as unknown as { _animatingZoom?: boolean })._animatingZoom) map.once("zoomend", run);
+    else run();
   };
 
   // Create the map once.
   useEffect(() => {
     if (!container.current) return;
-    const map = L.map(container.current, { preferCanvas: true, zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 90, minZoom: 2, maxZoom: 11 });
+    const map = L.map(container.current, {
+      preferCanvas: true, zoomControl: false, zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 90,
+      minZoom: 2.5, maxZoom: 11, maxBounds: L.latLngBounds([5, -200], [76, -40]), maxBoundsViscosity: 0.85,
+    });
+    L.control.zoom({ position: "bottomright" }).addTo(map);
     map.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
     map.attributionControl.addAttribution(
       'Census Bureau 2025 · <a href="https://github.com/ek33450505/compute-atlas">Compute Atlas</a> (CC BY 4.0)',
     );
-    renderer.current = L.canvas({ padding: 0.5, tolerance: 3 });
+    const r = L.canvas({ padding: 0.5, tolerance: 3 });
+    renderer.current = r;
     layers.current.clear();
-    countyLayer.current = L.geoJSON(counties, {
-      renderer: renderer.current,
-      style: (f) => styleFor(f?.properties?.geoid),
+    base.current = L.geoJSON(counties, {
+      renderer: r,
+      style: { stroke: false, fillColor: MAP.land, fillOpacity: 1 },
       onEachFeature: (f, lyr) => {
         const geoid: string = f.properties.geoid;
         layers.current.set(geoid, lyr as L.Polygon);
         lyr.on("click", () => onSelectRef.current(geoid, "map"));
-        lyr.bindTooltip(
-          () => {
-            const c = byGeoid.get(geoid);
-            if (!c) return geoid;
-            const n = c.pipeline_count;
-            return `<strong>${esc(c.county_name)}, ${c.state}</strong><br>${n} ${plural(n, "site", "sites")} in development`;
-          },
-          { sticky: true, direction: "top", opacity: 0.95 },
-        );
+        lyr.on("mouseover", () => {
+          setHover(describe.current(geoid));
+          hoverLayer.current?.clearLayers();
+          if (hoverLayer.current) {
+            L.polygon((lyr as L.Polygon).getLatLngs() as L.LatLngExpression[][], {
+              renderer: r, interactive: false, fill: false, color: MAP.hover, weight: 1.5, opacity: 0.9,
+            }).addTo(hoverLayer.current);
+          }
+        });
+        lyr.on("mouseout", () => {
+          setHover(null);
+          hoverLayer.current?.clearLayers();
+        });
       },
     } as L.GeoJSONOptions).addTo(map);
-    L.geoJSON(states, { renderer: renderer.current, interactive: false, style: { fill: false, color: "#8592a3", weight: 0.9 } } as L.GeoJSONOptions).addTo(map);
+    L.geoJSON(countyBorders, { renderer: r, interactive: false, style: { color: MAP.countyLine, weight: 0.7, opacity: 1 } } as L.GeoJSONOptions).addTo(map);
+    L.geoJSON(states, { renderer: r, interactive: false, style: { color: MAP.stateLine, weight: 1.3, opacity: 1 } } as L.GeoJSONOptions).addTo(map);
+    highlight.current = L.layerGroup().addTo(map);
+    hoverLayer.current = L.layerGroup().addTo(map);
     const group = L.layerGroup();
     markers.current = group;
-    // Current camera as a plain attribute, so tests can check when the view moves.
-    map.on("moveend", () => {
-      const c = map.getCenter();
-      container.current?.setAttribute("data-view", `${c.lat.toFixed(4)},${c.lng.toFixed(4)},${map.getZoom()}`);
-    });
     map.on("zoomend", () => {
       const show = map.getZoom() >= MARKER_MIN_ZOOM;
       if (show && !map.hasLayer(group)) group.addTo(map);
       if (!show && map.hasLayer(group)) map.removeLayer(group);
       setMarkersVisible(show);
+    });
+    // Current camera as a plain attribute, so tests can check when the view moves.
+    map.on("moveend", () => {
+      const c = map.getCenter();
+      container.current?.setAttribute("data-view", `${c.lat.toFixed(4)},${c.lng.toFixed(4)},${map.getZoom()}`);
     });
     map.fitBounds(LOWER_48);
     camera.current = { sel: null, view: camera.current.view };
@@ -169,16 +213,41 @@ export default function CountyMap({ counties, states, byGeoid, selected, peerGeo
       mapRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [counties, states]);
+  }, [counties, countyBorders, states]);
 
-  // Restyle on any change; move the camera only when it helps (see METHODOLOGY / NOTES: no jumps on map clicks).
+  // Shading of the base layer changes only when entering or leaving the "All counties" view.
   useEffect(() => {
-    styleState.current = { selected, peers: new Set(peerGeoids), shaded: view === "shaded" };
-    const layer = countyLayer.current;
-    if (!layer) return;
-    layer.setStyle(((f: Feature) => styleFor(f.properties?.geoid)) as unknown as L.PathOptions);
-    peerGeoids.forEach((g) => layers.current.get(g)?.bringToFront());
-    layers.current.get(selected)?.bringToFront();
+    const shaded = view === "shaded";
+    if (!base.current || shadedRef.current === shaded) return;
+    shadedRef.current = shaded;
+    base.current.setStyle(((f: Feature) => ({
+      stroke: false,
+      fillOpacity: 1,
+      fillColor: shaded ? rampColor(byGeoid.get(f.properties?.geoid)?.pipeline_count ?? 0) : MAP.land,
+    })) as unknown as L.PathOptions);
+  }, [view, byGeoid]);
+
+  // Highlights (this county + similar counties, translucent so borders and markers show through) and camera.
+  useEffect(() => {
+    const group = highlight.current;
+    const r = renderer.current;
+    if (!group || !r) return;
+    group.clearLayers();
+    const shaded = view === "shaded";
+    if (!shaded) {
+      peerGeoids.forEach((g) => {
+        const f = featureById.get(g);
+        const c = CMP_COLOR[peerCmp.get(g) ?? "same"];
+        if (f) L.geoJSON(f, { renderer: r, interactive: false, style: { color: c, weight: 1.3, fillColor: c, fillOpacity: 0.28 } } as L.GeoJSONOptions).addTo(group);
+      });
+    }
+    const sf = featureById.get(selected);
+    if (sf) {
+      L.geoJSON(sf, {
+        renderer: r, interactive: false,
+        style: shaded ? { color: COLOR.ink, weight: 2.4, fill: false } : { color: COLOR.blue, weight: 2.4, fillColor: COLOR.blue, fillOpacity: 0.22 },
+      } as L.GeoJSONOptions).addTo(group);
+    }
     if (markers.current && mapRef.current?.hasLayer(markers.current)) {
       markers.current.eachLayer((m) => (m as L.CircleMarker).bringToFront());
     }
@@ -190,39 +259,42 @@ export default function CountyMap({ counties, states, byGeoid, selected, peerGeo
     else if (viewChanged) go(view, true);
     else if (selChanged && selectionSource !== "map" && view !== "shaded") go(view, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, peerGeoids, view, selectionSource]);
+  }, [selected, peerGeoids, view, selectionSource, featureById, peerCmp]);
 
-  // Site markers for the selected county (pipeline records only).
+  // Site markers for the selected county: a solid dot for exact locations, a translucent halo for approximate
+  // ones (the familiar "location accuracy" circle). Nearby approximate points share one halo.
   useEffect(() => {
     const group = markers.current;
+    const r = renderer.current ?? undefined;
     if (!group) return;
     group.clearLayers();
+    const show = (info: HoverInfo) => () => setHover(info);
+    const hide = () => setHover(null);
     const approx = new Map<string, Facility[]>();
     for (const f of facilities) {
       if (f.metric !== "pipeline" || f.latitude === undefined || f.longitude === undefined) continue;
       if (f.location_precision === "exact") {
-        const tip = `<strong>${esc(f.name ?? f.source_id)}</strong><br>${statusLabel(f.status) ?? ""}<br>Exact location`;
-        L.circleMarker([f.latitude, f.longitude], { renderer: renderer.current ?? undefined, radius: 5, color: NAVY, weight: 1.5, fillColor: "#ffffff", fillOpacity: 1 })
-          .bindTooltip(tip)
+        L.circleMarker([f.latitude, f.longitude], { renderer: r, radius: 5.5, color: "#ffffff", weight: 2, fillColor: COLOR.blue, fillOpacity: 1 })
+          .on("mouseover", show({ title: f.name ?? f.source_id, lines: [statusLabel(f.status) ?? "", "Exact location"] }))
+          .on("mouseout", hide)
           .addTo(group);
       } else {
-        // Approximate points are city-level stand-ins, so group those within ~0.1° (about 10 km) into one ring placed on
-        // the first record's own coordinate, rather than drawing an unreadable pile of overlapping rings.
+        // Approximate points are city-level stand-ins: group those within ~0.1° (about 10 km).
         const key = `${f.latitude.toFixed(1)},${f.longitude.toFixed(1)}`;
         approx.set(key, [...(approx.get(key) ?? []), f]);
       }
     }
     for (const recs of approx.values()) {
-      const ll: L.LatLngExpression = [recs[0].latitude!, recs[0].longitude!];
-      const names = recs.slice(0, 5).map((f) => esc(f.name ?? f.source_id)).join("<br>");
-      const more = recs.length > 5 ? `<br>and ${recs.length - 5} more` : "";
-      const tip = recs.length === 1
-        ? `<strong>${names}</strong><br>${statusLabel(recs[0].status) ?? ""}<br>Approximate location: a representative point, not the actual site`
-        : `<strong>${recs.length} records in this approximate area</strong><br>${names}${more}<br><em>Representative points, not the actual sites</em>`;
-      const radius = Math.min(18, 10 + 2 * Math.log2(recs.length));
-      L.circleMarker(ll, { renderer: renderer.current ?? undefined, radius, color: NAVY, weight: 3.5, fill: false, interactive: false }).addTo(group);
-      L.circleMarker(ll, { renderer: renderer.current ?? undefined, radius, color: "#ffffff", weight: 2, dashArray: "4 3", fillColor: "#ffffff", fillOpacity: 0.12 })
-        .bindTooltip(tip)
+      const names = recs.slice(0, 4).map((f) => f.name ?? f.source_id);
+      const info: HoverInfo = recs.length === 1
+        ? { title: names[0], lines: [statusLabel(recs[0].status) ?? "", "Approximate location, not the actual site"] }
+        : { title: `${recs.length} sites in this approximate area`, lines: [...names, ...(recs.length > 4 ? [`and ${recs.length - 4} more`] : []), "Approximate locations, not the actual sites"] };
+      L.circleMarker([recs[0].latitude!, recs[0].longitude!], {
+        renderer: r, radius: Math.min(22, 13 + 2.5 * Math.log2(recs.length)),
+        color: COLOR.blue, weight: 1, opacity: 0.55, fillColor: COLOR.blue, fillOpacity: 0.14,
+      })
+        .on("mouseover", show(info))
+        .on("mouseout", hide)
         .addTo(group);
     }
   }, [facilities]);
@@ -243,35 +315,49 @@ export default function CountyMap({ counties, states, byGeoid, selected, peerGeo
           ))}
         </div>
       </div>
-      <div ref={container} className="map" role="region" aria-label="County map. Select a county to compare it." />
+      <div className="map-frame">
+        <div ref={container} className="map" role="region" aria-label="County map. Select a county to compare it." />
+        {/* Hover details live in a card pinned inside the frame, so they are never clipped by the map edge. */}
+        <div className={`map-hover${hover ? " on" : ""}`} aria-hidden="true">
+          {hover && (
+            <>
+              <strong>{hover.title}</strong>
+              {hover.lines.filter(Boolean).map((l) => (
+                <span key={l}>{l}</span>
+              ))}
+            </>
+          )}
+        </div>
+      </div>
       <div className="legend">
         {view !== "shaded" ? (
           <>
-            <span><i className="sw" style={{ background: NAVY }} /> This county</span>
-            <span><i className="sw" style={{ background: PEER_FILL, borderColor: PEER_STROKE }} /> 40 similar counties</span>
+            <span><i className="sw" style={{ background: COLOR.blue }} /> This county</span>
+            <span className="legend-group">
+              Similar counties with
+              <span><i className="sw" style={{ background: COLOR.fewer }} /> fewer ({cmpCounts.fewer})</span>
+              <span><i className="sw" style={{ background: COLOR.same }} /> the same ({cmpCounts.same})</span>
+              <span><i className="sw" style={{ background: COLOR.more }} /> more ({cmpCounts.more})</span>
+            </span>
           </>
         ) : (
-          <span className="bins">
-            Shaded by sites in development:
-            {BINS.map((b) => (
+          <span className="legend-group">
+            Sites in development
+            {RAMP.map((b) => (
               <span key={b.label}><i className="sw" style={{ background: b.color }} /> {b.label}</span>
             ))}
-            <span><i className="sw outline" style={{ borderColor: NAVY }} /> this county</span>
-            <span><i className="sw outline" style={{ borderColor: PEER_STROKE }} /> similar</span>
+            <span><i className="sw outline" /> this county</span>
           </span>
         )}
         {nExact > 0 && <span><i className="dot exact" /> Exact location ({nExact})</span>}
-        {nApprox > 0 && <span><i className="dot approx" /> Approximate location ({nApprox})</span>}
+        {nApprox > 0 && <span><i className="dot approx" /> Approximate area ({nApprox})</span>}
         {nExact + nApprox > 0 && !markersVisible && <span className="muted">Zoom in to see where the sites are.</span>}
       </div>
       {view === "similar" && offMap.length > 0 && (
         <p className="muted small">
-          Also similar, outside the map view: {offMap.map((g) => `${byGeoid.get(g)?.county_name}, ${byGeoid.get(g)?.state}`).join("; ")}.
+          Also similar, outside this view: {offMap.map((g) => `${byGeoid.get(g)?.county_name}, ${byGeoid.get(g)?.state}`).join("; ")}.
         </p>
       )}
-      <p className="muted small">
-        Click any county to compare it. Dashed rings are approximate locations, not actual sites.
-      </p>
     </section>
   );
 }

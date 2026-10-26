@@ -49,6 +49,10 @@ export default function CountySearch({ metrics, onSelect }: Props) {
       <label htmlFor={`${listId}-input`} className="search-label">
         Find a county
       </label>
+      <svg className="search-icon" viewBox="0 0 16 16" aria-hidden="true">
+        <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M11 11l3.5 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
       <input
         id={`${listId}-input`}
         ref={inputRef}

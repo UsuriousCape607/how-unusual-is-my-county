@@ -128,5 +128,6 @@ export interface AppData {
   metadata: Metadata;
   aiExamples: AIExample[];
   counties: FeatureCollection;
+  countyBorders: FeatureCollection;
   states: FeatureCollection;
 }

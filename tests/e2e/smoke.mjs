@@ -84,7 +84,7 @@ try {
   check("facility list matches pipeline count", items === multi.pipeline_count, `${items} vs ${multi.pipeline_count}`);
   const hrefs = await page.$$eval("#records-title ~ .facility-list .sources a", (els) => els.map((a) => a.href));
   check("source links are http(s)", hrefs.length > 0 && hrefs.every((h) => /^https?:\/\//.test(h)), `${hrefs.length} links`);
-  const dots = await page.$$eval(".chart svg circle[fill='#8fcbcc']", (els) => els.length);
+  const dots = await page.$$eval(".chart svg circle[r='4.5']", (els) => els.length);
   check("chart shows 40 peer dots", dots === 40, `${dots}`);
   const summaryNums = await page.$$eval(".compare-labels strong", (els) => els.map((e) => Number(e.textContent)));
   const p = peers[multi.geoid];
@@ -94,7 +94,12 @@ try {
   await page.click("text=What is counted as a “site in development”?");
   check("explanations open on demand", await page.isVisible("text=Operating data centers are counted separately"));
   const nMarkers = facilities.filter((f) => f.county_geoid === multi.geoid && f.metric === "pipeline").length;
-  check("map legend counts markers", (await page.textContent(".legend")).match(/\((\d+)\)/g)?.map((s) => Number(s.slice(1, -1))).reduce((a, b) => a + b, 0) === nMarkers);
+  const markerCounts = await page.$$eval(".legend > span", (els) => els.filter((e) => /Exact location|Approximate area/.test(e.textContent)).map((e) => Number(e.textContent.match(/\((\d+)\)/)[1])));
+  check("map legend counts markers", markerCounts.reduce((a, b) => a + b, 0) === nMarkers, `${markerCounts} vs ${nMarkers}`);
+  const cmpLegend = await page.textContent(".legend-group");
+  check("map legend shows fewer/same/more counts", cmpLegend.includes(`fewer (${p.n_fewer})`) && cmpLegend.includes(`more (${p.n_greater})`), cmpLegend);
+  const dotColors = await page.$$eval(".chart svg circle[r='4.5']", (els) => els.map((e) => e.getAttribute("fill")));
+  check("chart dots coloured by fewer/same/more", dotColors.filter((c) => c === "#8944ab").length === p.n_fewer && dotColors.filter((c) => c === "#c96e00").length === p.n_greater);
 
   // Duplicate county names are distinguished by state.
   await input.fill("washington");
@@ -123,7 +128,8 @@ try {
   await page.mouse.move(px - 15, py - 15);
   await page.mouse.move(px, py, { steps: 5 });
   await page.waitForTimeout(300);
-  const tipName = (await page.textContent(".leaflet-tooltip strong").catch(() => null)) ?? "";
+  const tipName = (await page.textContent(".map-hover strong").catch(() => null)) ?? "";
+  check("hover card shows inside the map frame", await page.$eval(".map-hover", (el) => el.classList.contains("on")));
   // The map is drawn on a canvas; its pan offset lives on the map pane and changes whenever the camera moves.
   const viewBefore = await page.getAttribute(".map", "data-view");
   await page.mouse.click(px, py);
@@ -133,6 +139,17 @@ try {
   check("map click selects matching GEOID", tipName && clicked && tipName === `${clicked.county_name}, ${clicked.state}`, `${tipName} -> ${g}`);
   const viewAfter = await page.getAttribute(".map", "data-view");
   check("map click does not move the camera", viewBefore && viewBefore === viewAfter, `${viewBefore} vs ${viewAfter}`);
+
+  // "Similar counties" reframes with a cross-fade (no blank-canvas flight) and ends fully visible.
+  const zoomCounty = Number((await page.getAttribute(".map", "data-view")).split(",")[2]);
+  await page.getByRole("button", { name: "Similar counties", exact: true }).click();
+  await page.waitForTimeout(900);
+  const zoomSimilar = Number((await page.getAttribute(".map", "data-view")).split(",")[2]);
+  const paneOpacity = await page.$eval(".leaflet-map-pane", (el) => getComputedStyle(el).opacity);
+  check("similar-counties view zooms out and settles visible", zoomSimilar < zoomCounty && paneOpacity === "1", `zoom ${zoomCounty} -> ${zoomSimilar}, opacity ${paneOpacity}`);
+  await page.screenshot({ path: `${OUT}/desktop-similar.png` });
+  await page.getByRole("button", { name: "This county", exact: true }).click();
+  await page.waitForTimeout(900);
 
   // Example chips select counties.
   await page.locator(".examples").getByRole("button", { name: "Harris County, TX" }).click();

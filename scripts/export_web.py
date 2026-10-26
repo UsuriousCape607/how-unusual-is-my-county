@@ -1,7 +1,8 @@
 """Write the static files the website reads (public/data/).
 
-  counties.geojson   display polygons (coverage-simplified so neighbours still share edges), EPSG:4326
-  states.geojson     state outlines dissolved from the same display polygons
+  counties.geojson         display polygons (coverage-simplified so neighbours share edges), EPSG:4326; fills + clicks
+  county_borders.geojson   every county edge exactly once (a line mesh), so borders draw crisp and even
+  states.geojson           state border lines taken from the same snapped edges, so they coincide with county lines
   county_metrics.json, county_peers.json, facilities.json, metadata.json
 
 Display geometry is for drawing only; county assignment used the unsimplified 500k polygons.
@@ -24,7 +25,6 @@ from common import (
 )
 
 DISPLAY_TOLERANCE_DEG = 0.005
-STATE_TOLERANCE_DEG = 0.01
 COORD_DECIMALS = 3  # ~100 m; display only
 # Demonstration county shown on first load. Chosen because it has several qualifying records;
 # its numbers are calculated like every other county's.
@@ -55,18 +55,23 @@ def main() -> int:
     simple = shapely.coverage_simplify(polys.geometry.values, DISPLAY_TOLERANCE_DEG)
     simple = [shapely.make_valid(g) if not g.is_valid else g for g in simple]
     simple = [shift_antimeridian(g) if gid.startswith("02") else g for g, gid in zip(simple, polys["geoid"])]
+    # Snap once; every layer below is derived from these exact coordinates so lines and fills coincide.
+    simple = list(shapely.set_precision(simple, 10 ** -COORD_DECIMALS))
     county_features = [rounded_feature(g, {"geoid": gid}) for g, gid in zip(simple, polys["geoid"])]
     write_json(PUBLIC_DATA / "counties.geojson", feature_collection(county_features), compact=True)
 
+    # Drawing each polygon's own outline paints shared edges twice and lets later fills cover half of a neighbour's
+    # stroke, which makes borders look uneven. A mesh with each edge once draws evenly.
+    county_mesh = shapely.line_merge(shapely.union_all(shapely.boundary(simple)))
+    write_json(PUBLIC_DATA / "county_borders.geojson", feature_collection([rounded_feature(county_mesh, {})]), compact=True)
+
     sgdf = gpd.GeoDataFrame({"state_fips": polys["geoid"].str[:2]}, geometry=simple, crs=4326)
-    fips_list, state_geoms = [], []
-    for fips, grp in sgdf.groupby("state_fips"):
-        g = shapely.coverage_union_all(grp.geometry.values)
-        fips_list.append(fips)
+    state_geoms = []
+    for _, grp in sgdf.groupby("state_fips"):
+        g = shapely.union_all(grp.geometry.values)  # robust union; snapping can upset the faster coverage union
         state_geoms.append(g if isinstance(g, (Polygon, MultiPolygon)) else shapely.make_valid(g))
-    state_geoms = shapely.coverage_simplify(state_geoms, STATE_TOLERANCE_DEG)
-    state_features = [rounded_feature(g, {"state_fips": f}) for g, f in zip(state_geoms, fips_list)]
-    write_json(PUBLIC_DATA / "states.geojson", feature_collection(state_features), compact=True)
+    state_mesh = shapely.line_merge(shapely.union_all(shapely.boundary(state_geoms)))
+    write_json(PUBLIC_DATA / "states.geojson", feature_collection([rounded_feature(state_mesh, {})]), compact=True)
 
     m = pd.read_csv(PROCESSED / "county_metrics.csv", dtype={"geoid": str, "state_fips": str})
     metrics = []

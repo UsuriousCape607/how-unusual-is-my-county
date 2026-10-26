@@ -82,6 +82,16 @@
   {
     "name": "map legend counts markers",
     "ok": true,
+    "detail": "6,21 vs 27"
+  },
+  {
+    "name": "map legend shows fewer/same/more counts",
+    "ok": true,
+    "detail": "Similar counties with fewer (40) the same (0) more (0)"
+  },
+  {
+    "name": "chart dots coloured by fewer/same/more",
+    "ok": true,
     "detail": ""
   },
   {
@@ -105,6 +115,11 @@
     "detail": ""
   },
   {
+    "name": "hover card shows inside the map frame",
+    "ok": true,
+    "detail": ""
+  },
+  {
     "name": "map click selects matching GEOID",
     "ok": true,
     "detail": "Tucker County, WV -> 54093"
@@ -113,6 +128,11 @@
     "name": "map click does not move the camera",
     "ok": true,
     "detail": "39.0855,-77.6450,7 vs 39.0855,-77.6450,7"
+  },
+  {
+    "name": "similar-counties view zooms out and settles visible",
+    "ok": true,
+    "detail": "zoom 7 -> 4.5, opacity 1"
   },
   {
     "name": "example chip selects county",
