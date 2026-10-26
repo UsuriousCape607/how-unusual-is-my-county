@@ -16,8 +16,13 @@
     - `co-est2025-alldata.csv` ← https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/counties/totals/co-est2025-alldata.csv
     - `2025_Gaz_counties_national.zip` ← https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2025_Gazetteer/2025_Gaz_counties_national.zip
     - `cb_2025_us_county_500k.zip` ← https://www2.census.gov/geo/tiger/GENZ2025/shp/cb_2025_us_county_500k.zip
-- [ ] Frontend (React/Vite/Leaflet/Recharts) — lib + tests done; components in progress.
-- [ ] AI examples (3, pre-generated, verified), docs (README, METHODOLOGY, DATA_SOURCES, AI_EVALUATION), E2E tests.
+- [x] Frontend (React/Vite/Leaflet/Recharts): all components written, `tsc -b` clean, vitest 5/5. Not yet run
+  against real data.
+- [x] AI tooling (`ai/prompt.md`, `scripts/build_ai_examples.py inputs|check|assemble`), README, METHODOLOGY,
+  DATA_SOURCES, Playwright smoke test (`tests/e2e/smoke.mjs`).
+- [ ] Pending real data: pipeline run, 3 AI examples + AI_EVALUATION.md, TEST_RESULTS.md, e2e run, screenshots.
+- [ ] No git remote yet: owner to create `UsuriousCape607/how-unusual-is-my-county` (this session cannot create
+  repos), then attach with add_repo (push) and push `main`.
 
 ## Decisions made during implementation
 - Exact points whose source county name is *unrecognised* (not a different real county) keep the spatial result
