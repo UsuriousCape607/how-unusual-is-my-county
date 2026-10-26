@@ -29,8 +29,12 @@
   requests mid-animation); record markers only at zoom >= 6.
 - Web export drops `peer_distances` (kept in data/processed) and rounds display coords to 3 decimals (~2 MB gzip total).
 
+- Weekly refresh + Pages deploy workflow added (2026-10-26). The owner must make the repo public and set Pages
+  source = GitHub Actions; the session's GitHub access cannot change settings.
+
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.
-2. Post-MVP (approved): `.github/workflows/rebuild.yml` (schedule + manual trigger; Python + Node; build_all →
+2. Owner: repo → public; Settings → Pages → Source: GitHub Actions; then run the workflow and check the site.
+3. (Done) Post-MVP (approved): `.github/workflows/rebuild.yml` (schedule + manual trigger; Python + Node; build_all →
    pytest → npm build → e2e → deploy Pages only on success; cache Census files, which change yearly). Bump
    `COMPUTE_ATLAS_TAG` automatically only to a newer release tag, recorded in the manifest.

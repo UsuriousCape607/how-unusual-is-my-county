@@ -52,9 +52,23 @@ npm run build && npm run test:e2e   # Playwright smoke test (desktop + mobile)
 The end-to-end test needs Playwright with Chromium. If it is not installed globally:
 `npm i -D playwright && npx playwright install chromium`.
 
-## Deploy (any static host)
-`npm run build` produces a self-contained `dist/` folder (relative paths, data included). Upload it to GitHub
-Pages, Netlify, Cloudflare Pages, S3 or any web server. No environment variables or credentials are needed.
+## Deployment and weekly data refresh
+The site is deployed to GitHub Pages by `.github/workflows/rebuild-and-deploy.yml`:
+- **Every Monday:** checks for a newer Compute Atlas release. If there is one, it rebuilds all data from the
+  official sources, runs every check (pytest, validation, frontend tests, Playwright), commits the new data to
+  `main` and deploys. If nothing is new, it does nothing.
+- **Every push to `main`:** tests and deploys the committed data and code.
+- **Manual run** (Actions → Rebuild and deploy → Run workflow): tick *rebuild_data* to force a full rebuild.
+
+Nothing deploys unless every check passes, so a failed refresh leaves the last good site online. After a data
+change, the three AI examples no longer match the data. The site hides them (the template summary still appears)
+and the run shows a warning until they are regenerated (see AI_EVALUATION.md).
+
+One-time setup: repository **Settings → Pages → Build and deployment → Source: GitHub Actions** (the repository
+must be public, or on a paid plan).
+
+To use another static host instead, run `npm run build` and upload the self-contained `dist/` folder (relative
+paths, data included). No environment variables or credentials are needed.
 
 ## Repository layout
 ```

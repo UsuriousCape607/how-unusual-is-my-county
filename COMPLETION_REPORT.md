@@ -49,10 +49,10 @@ Date: 2026-10-26 · Data version `compute-atlas-v1.34.1-asof-2026-10-02_census-v
   (notes for agents), and screenshots in `docs/screenshots/`.
 
 ## Not shipped / deviations
-- **Deployment:** not deployed yet. `npm run build` produces a static `dist/` for any host (README). The owner has
-  approved, as a post-MVP extension, a scheduled GitHub Actions rebuild + GitHub Pages deploy that publishes only if
-  every check passes. The spec lists continuous ingestion as a non-goal, so this is documented as an owner-approved
-  extension.
+- **Deployment:** the GitHub Actions workflow (weekly refresh + GitHub Pages deploy, publishing only if every check
+  passes) is in place. It goes live once the owner makes the repo public and sets the Pages source to GitHub
+  Actions. The spec lists continuous ingestion as a non-goal, so the weekly refresh is documented as an
+  owner-approved extension.
 - **Census download in the cloud sandbox:** blocked by network policy, so the owner supplied the official files and
   the hashes are recorded. On a normal network, `build_all.py` downloads them itself.
 - **Compute Atlas API/schema endpoints** (`compute-atlas.com`) were unreachable; the pinned GitHub release file and

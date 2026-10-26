@@ -30,9 +30,15 @@ There is no backend, database, auth, paid tiles, or live LLM.
 - AI: three pre-generated explanations only (`public/data/ai_examples.json`, `ai/`); everything else uses a
   deterministic template. No API key needed. Do not write model identifiers into repo files.
 
+## Deployment
+`.github/workflows/rebuild-and-deploy.yml`: weekly check for a newer Compute Atlas release
+(`scripts/check_compute_atlas_release.py --apply` moves the pin forward only), full rebuild + all tests, commit data
+to main, deploy to GitHub Pages. Push to main = test + deploy committed data. Census files are cached in Actions.
+
 ## Environment gotchas
 - Cloud sessions may block `www2.census.gov`; `download_data.py` fails loudly rather than substituting data.
-- GitHub `raw.githubusercontent.com` worked; `github.com`/`api.github.com` did not.
+- GitHub `raw.githubusercontent.com` worked; `github.com`/`api.github.com` did not. The session can push but cannot
+  change repository settings (visibility, Pages); the owner does those.
 
 ## Progress
 See `NOTES.md` for the running implementation log and next steps.
