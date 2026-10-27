@@ -271,7 +271,8 @@ try {
   await mobile.goto(`${BASE}?county=${multi.geoid}`);
   await mobile.waitForSelector("#summary-title");
   await mobile.waitForTimeout(600);
-  const overflow = await mobile.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  // Against the device width: a phone widens the page to fit anything that sticks out, so scrollWidth − innerWidth stays 0.
+  const overflow = await mobile.evaluate(() => Math.max(document.documentElement.scrollWidth, window.innerWidth) - 390);
   check("mobile: no horizontal page overflow", overflow <= 1, `${overflow}px`);
   await mobile.screenshot({ path: `${OUT}/mobile-top.png` });
   await mobile.locator(".map-card").scrollIntoViewIfNeeded();
@@ -439,15 +440,26 @@ try {
   await mp.waitForFunction(() => document.documentElement.lang === "pl");
   const sheetClosed = await mp.waitForFunction(() => !document.querySelector(".lang-panel").open, null, { timeout: 2000 }).then(() => true, () => false);
   check("phone: choosing a language slides the sheet away and applies it", sheetClosed && (await mp.textContent("h1")).includes("hrabstwo"));
+  // Every language at 390 px, also with a wide fallback font (Linux CI renders system-ui as DejaVu Sans, which is wider).
   const overflow390 = [];
-  for (const l of ["es", "ko", "ko-Kore", "zh-TW", "zh-CN", "ja", "hu", "pl", "sv"]) {
-    await mp.goto(`${BASE}c/${multi.geoid}/?lang=${l}`);
-    await mp.waitForSelector("#summary-title");
-    await mp.waitForTimeout(250);
-    const o = await mp.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-    if (o > 1) overflow390.push(`${l}:${o}px`);
+  const wide = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  await wide.addInitScript(() => document.addEventListener("DOMContentLoaded", () => {
+    const s = document.createElement("style");
+    s.textContent = '* { font-family: "DejaVu Sans", sans-serif !important; }';
+    document.head.append(s);
+  }));
+  for (const [ctxName, c] of [["system", mctx], ["wide font", wide]]) {
+    const wp = await c.newPage();
+    for (const l of ["en", "es", "ko", "ko-Kore", "zh-TW", "zh-CN", "ja", "hu", "pl", "sv"]) {
+      await wp.goto(`${BASE}c/${multi.geoid}/?lang=${l}`);
+      await wp.waitForFunction((x) => document.documentElement.lang.startsWith(x.slice(0, 2)) && document.querySelector("#summary-title"), l);
+      await wp.waitForTimeout(250);
+      const o = await wp.evaluate(() => Math.max(document.documentElement.scrollWidth, innerWidth) - 390);
+      if (o > 0) overflow390.push(`${ctxName}/${l}:+${o}px`);
+    }
+    await wp.close();
   }
-  check("phone: no language overflows 390 px", overflow390.length === 0, overflow390.join(" "));
+  check("phone: no language overflows 390 px (system and wide fonts)", overflow390.length === 0, overflow390.join(" "));
 } finally {
   await browser.close();
   server.kill();

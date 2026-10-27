@@ -232,6 +232,8 @@ th { font-size: 0.8125rem; font-weight: 600; color: var(--muted); }
 .template-block { margin-bottom: 8px; }
 
 /* ---- Methodology + footer ---- */
+/* Source credits include long URLs and identifiers; let them wrap instead of widening the page on phones. */
+.methodology, .site-footer { overflow-wrap: anywhere; }
 .methodology h2 { margin-bottom: 12px; }
 .methodology h3 { margin-top: 1.75rem; }
 .methodology ul { padding-left: 20px; }
@@ -273,7 +275,8 @@ table.dates { max-width: 640px; margin-bottom: 8px; }
   .share { align-items: flex-start; }
   .search-bar { margin: 0 -8px 12px; padding: 10px; border-radius: 14px; }
   .segmented { display: flex; width: 100%; }
-  .segmented button { flex: 1; padding: 6px 4px; font-size: 0.78rem; }
+  /* Equal segments; a long (translated) label wraps onto two balanced lines instead of widening the page. */
+  .segmented button { flex: 1 1 0; min-width: 0; padding: 6px 4px; font-size: 0.78rem; line-height: 1.2; white-space: normal; text-wrap: balance; }
   .map-head h3 { width: 100%; }
   th, td { padding: 8px 6px; }
 }

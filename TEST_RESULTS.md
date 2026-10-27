@@ -49,7 +49,8 @@ sentence is used; limitations are present; the inputs match the current data (st
   methodology in English (marked), still finds counties typed in English, copies links that open in Japanese, is
   remembered on the next visit, and switching back to English removes `?lang=`; a Korean browser gets Korean by
   default; embeds follow `?lang=`. On a 390 px phone the menu is a full-width bottom sheet with ≥ 48 px rows that
-  closes on a downward swipe and after a choice, and no language overflows the screen. Unit tests: every translation
+  closes on a downward swipe and after a choice, and no language overflows the screen, also with a wide fallback
+  font (DejaVu Sans, as on Linux CI); overflow is measured against the device width, not the page width. Unit tests: every translation
   covers every message and keeps every number/name passed in (a deliberately broken string is caught), markup is
   balanced, and dates/numbers/relative times use each language's conventions.
 - The chart shows 40 peer dots; the summary breakdown, facility list and legend counts match the data.

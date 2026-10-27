@@ -111,6 +111,11 @@
   (`dialog.show()`) ≥ 521 px, bottom sheet (`showModal()`) on phones with grabber, Done, backdrop tap, Escape, swipe-down
   (1:1 tracking, momentum projection, rubber-band). Methodology + AI examples stay English with a note. Translations
   are AI-written and unreviewed: worth a native-speaker pass. Also fixed: map hover said "the same than".
+  CI caught a 2 px phone overflow that local runs missed: Linux CI renders system-ui as DejaVu Sans (wider than the
+  Inter installed here), and a long source URL in Methodology widened the page. Phones widen the layout viewport to fit
+  overflow, so `scrollWidth - innerWidth` stays 0; e2e now measures against the device width (390) and repeats the
+  390 px check for every language with DejaVu forced. Fixes: `overflow-wrap: anywhere` on methodology/footer; on
+  phones the map's segmented control lets long labels wrap (balanced) instead of widening the page.
 
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.
