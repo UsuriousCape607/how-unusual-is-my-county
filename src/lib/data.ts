@@ -1,5 +1,5 @@
 import type { FeatureCollection } from "geojson";
-import type { AIExample, AppData, CountyMetric, Facility, Metadata, PeersFile } from "../types";
+import type { AIExample, AppData, CountyMetric, Facility, Metadata, PeersFile, Project } from "../types";
 
 async function getJSON<T>(file: string): Promise<T> {
   const res = await fetch(`${import.meta.env.BASE_URL}data/${file}`);
@@ -7,15 +7,19 @@ async function getJSON<T>(file: string): Promise<T> {
   return (await res.json()) as T;
 }
 
-export async function loadAppData(): Promise<AppData> {
+const EMPTY: FeatureCollection = { type: "FeatureCollection", features: [] };
+
+/** Load everything the page shows. Embeds skip the map geometry, which they do not display. */
+export async function loadAppData(opts: { geometry?: boolean } = {}): Promise<AppData> {
+  const geo = opts.geometry ?? true;
   const [metrics, peers, facilities, metadata, counties, countyBorders, states, ai] = await Promise.all([
     getJSON<CountyMetric[]>("county_metrics.json"),
     getJSON<PeersFile>("county_peers.json"),
     getJSON<Facility[]>("facilities.json"),
     getJSON<Metadata>("metadata.json"),
-    getJSON<FeatureCollection>("counties.geojson"),
-    getJSON<FeatureCollection>("county_borders.geojson"),
-    getJSON<FeatureCollection>("states.geojson"),
+    geo ? getJSON<FeatureCollection>("counties.geojson") : EMPTY,
+    geo ? getJSON<FeatureCollection>("county_borders.geojson") : EMPTY,
+    geo ? getJSON<FeatureCollection>("states.geojson") : EMPTY,
     getJSON<{ examples: AIExample[] }>("ai_examples.json").catch(() => ({ examples: [] as AIExample[] })),
   ]);
   return {
@@ -29,6 +33,31 @@ export async function loadAppData(): Promise<AppData> {
     countyBorders,
     states,
   };
+}
+
+let projectsPromise: Promise<Project[]> | null = null;
+
+/** The "Find a project" index is fetched only the first time someone searches for a project. */
+export function loadProjects(): Promise<Project[]> {
+  projectsPromise ??= getJSON<Project[]>("projects.json").catch((e) => {
+    projectsPromise = null; // allow a retry
+    throw e;
+  });
+  return projectsPromise;
+}
+
+export function isEmbed(): boolean {
+  return new URLSearchParams(window.location.search).get("embed") === "1";
+}
+
+/** Shareable address of the full site for a county (never includes the embed flag). */
+export function countyUrl(geoid: string, embed = false): string {
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.hash = "";
+  url.searchParams.set("county", geoid);
+  if (embed) url.searchParams.set("embed", "1");
+  return url.toString();
 }
 
 export function readGeoidFromUrl(): string | null {

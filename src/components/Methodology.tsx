@@ -1,23 +1,8 @@
 import type { Metadata } from "../types";
 import { fmtDate, fmtInt } from "../lib/format";
 import { STALE_DAYS } from "./DataFreshness";
+import { REASON_LABELS } from "../lib/reasons";
 
-const REASON_LABELS: Record<string, string> = {
-  "status:operational": "Operational (shown separately as context)",
-  "status:cancelled": "Cancelled",
-  "facility_type:power_generation": "Power-generation record",
-  "facility_type:crypto_mining": "Crypto-mining record",
-  "confidence:rumored": "Rumored / low confidence",
-  "assignment:outside_geographic_scope": "Outside the 50 states + DC",
-  "assignment:unresolved_multi_site": "Multi-site aggregate without one county",
-  "assignment:approximate_without_source_county": "Approximate location with no county named",
-  "assignment:ambiguous_source_county_name": "County name matches more than one county",
-  "assignment:unrecognized_source_county_name": "County name not found in 2025 Census counties",
-  "assignment:conflict_point_county_vs_source_county": "Coordinates and named county disagree",
-  "assignment:conflict_point_state_vs_source_state": "Coordinates and named state disagree",
-  "assignment:point_outside_county_polygons": "Coordinates outside every county",
-  "assignment:point_on_county_boundary_ambiguous": "Point on a county boundary",
-};
 
 const METHOD_LABELS: Record<string, string> = {
   spatial_join: "Exact coordinates inside a county polygon",

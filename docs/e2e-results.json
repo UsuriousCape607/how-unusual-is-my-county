@@ -40,6 +40,71 @@
     "detail": ""
   },
   {
+    "name": "status breakdown shown for a multi-record county",
+    "ok": true,
+    "detail": "3 under construction · 3 permitted · 3 proposed"
+  },
+  {
+    "name": "state context line",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "share menu lists its actions",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Escape closes the share menu",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "copy link puts the county URL on the clipboard",
+    "ok": true,
+    "detail": "http://127.0.0.1:4179/?county=51107"
+  },
+  {
+    "name": "similar-counties CSV has the county and its 40 peers",
+    "ok": true,
+    "detail": "42 lines; loudoun-county-va-similar-counties-2026-10-02.csv"
+  },
+  {
+    "name": "embed dialog gives iframe code",
+    "ok": true,
+    "detail": "<iframe src=\"http://127.0.0.1:4179/?county=51107&embed=1\" title=\"How Unusual Is "
+  },
+  {
+    "name": "find: counted here",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "find: operating shown as context",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "find: excluded project explains why",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "report link points to Compute Atlas",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "find: counted elsewhere switches to that county",
+    "ok": true,
+    "detail": "http://127.0.0.1:4179/?county=56009"
+  },
+  {
+    "name": "print layout hides search and map, keeps the answer",
+    "ok": true,
+    "detail": ""
+  },
+  {
     "name": "keyboard search selects county by GEOID",
     "ok": true,
     "detail": "Santa Clara County, CA"
@@ -193,6 +258,21 @@
     "name": "mobile: no horizontal page overflow",
     "ok": true,
     "detail": "0px"
+  },
+  {
+    "name": "embed mode shows the compact answer only",
+    "ok": true,
+    "detail": "More documented data-center development than all 40 similar counties"
+  },
+  {
+    "name": "embed links to the full comparison",
+    "ok": true,
+    "detail": "http://127.0.0.1:4179/?county=06085"
+  },
+  {
+    "name": "no status line for a single-record county",
+    "ok": true,
+    "detail": "Houston County, AL"
   },
   {
     "name": "load failure shows an error message",

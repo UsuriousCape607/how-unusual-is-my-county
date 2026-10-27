@@ -1,7 +1,7 @@
 {
   "title": "How Unusual Is My County?",
   "data_version": "compute-atlas-v1.34.1-asof-2026-10-02_census-v2025",
-  "generated_at": "2026-10-27T00:03:59+00:00",
+  "generated_at": "2026-10-27T00:33:52+00:00",
   "snapshot_date": "2026-10-02",
   "default_geoid": "51107",
   "data_dates": {
@@ -10,7 +10,7 @@
     "population_reference_date": "2025-07-01",
     "population_vintage": "Vintage 2025 estimates",
     "geography_vintage": "2025",
-    "site_data_built_at": "2026-10-27T00:03:59+00:00"
+    "site_data_built_at": "2026-10-27T00:33:52+00:00"
   },
   "sources": {
     "compute_atlas_facilities": {
@@ -99,6 +99,314 @@
     "universe": 3144,
     "eligible": 3144,
     "with_pipeline_records": 458
+  },
+  "state_context": {
+    "AK": {
+      "state_name": "Alaska",
+      "counties": 30,
+      "with_pipeline": 2,
+      "pipeline_total": 2
+    },
+    "AL": {
+      "state_name": "Alabama",
+      "counties": 67,
+      "with_pipeline": 9,
+      "pipeline_total": 16
+    },
+    "AR": {
+      "state_name": "Arkansas",
+      "counties": 75,
+      "with_pipeline": 5,
+      "pipeline_total": 6
+    },
+    "AZ": {
+      "state_name": "Arizona",
+      "counties": 15,
+      "with_pipeline": 3,
+      "pipeline_total": 29
+    },
+    "CA": {
+      "state_name": "California",
+      "counties": 58,
+      "with_pipeline": 11,
+      "pipeline_total": 48
+    },
+    "CO": {
+      "state_name": "Colorado",
+      "counties": 64,
+      "with_pipeline": 10,
+      "pipeline_total": 11
+    },
+    "CT": {
+      "state_name": "Connecticut",
+      "counties": 9,
+      "with_pipeline": 0,
+      "pipeline_total": 0
+    },
+    "DC": {
+      "state_name": "District of Columbia",
+      "counties": 1,
+      "with_pipeline": 0,
+      "pipeline_total": 0
+    },
+    "DE": {
+      "state_name": "Delaware",
+      "counties": 3,
+      "with_pipeline": 1,
+      "pipeline_total": 3
+    },
+    "FL": {
+      "state_name": "Florida",
+      "counties": 67,
+      "with_pipeline": 10,
+      "pipeline_total": 14
+    },
+    "GA": {
+      "state_name": "Georgia",
+      "counties": 159,
+      "with_pipeline": 26,
+      "pipeline_total": 46
+    },
+    "HI": {
+      "state_name": "Hawaii",
+      "counties": 5,
+      "with_pipeline": 1,
+      "pipeline_total": 3
+    },
+    "IA": {
+      "state_name": "Iowa",
+      "counties": 99,
+      "with_pipeline": 17,
+      "pipeline_total": 26
+    },
+    "ID": {
+      "state_name": "Idaho",
+      "counties": 44,
+      "with_pipeline": 2,
+      "pipeline_total": 3
+    },
+    "IL": {
+      "state_name": "Illinois",
+      "counties": 102,
+      "with_pipeline": 11,
+      "pipeline_total": 30
+    },
+    "IN": {
+      "state_name": "Indiana",
+      "counties": 92,
+      "with_pipeline": 15,
+      "pipeline_total": 25
+    },
+    "KS": {
+      "state_name": "Kansas",
+      "counties": 105,
+      "with_pipeline": 3,
+      "pipeline_total": 5
+    },
+    "KY": {
+      "state_name": "Kentucky",
+      "counties": 120,
+      "with_pipeline": 14,
+      "pipeline_total": 16
+    },
+    "LA": {
+      "state_name": "Louisiana",
+      "counties": 64,
+      "with_pipeline": 5,
+      "pipeline_total": 8
+    },
+    "MA": {
+      "state_name": "Massachusetts",
+      "counties": 14,
+      "with_pipeline": 2,
+      "pipeline_total": 3
+    },
+    "MD": {
+      "state_name": "Maryland",
+      "counties": 24,
+      "with_pipeline": 5,
+      "pipeline_total": 10
+    },
+    "ME": {
+      "state_name": "Maine",
+      "counties": 16,
+      "with_pipeline": 2,
+      "pipeline_total": 2
+    },
+    "MI": {
+      "state_name": "Michigan",
+      "counties": 83,
+      "with_pipeline": 11,
+      "pipeline_total": 18
+    },
+    "MN": {
+      "state_name": "Minnesota",
+      "counties": 87,
+      "with_pipeline": 10,
+      "pipeline_total": 14
+    },
+    "MO": {
+      "state_name": "Missouri",
+      "counties": 115,
+      "with_pipeline": 10,
+      "pipeline_total": 12
+    },
+    "MS": {
+      "state_name": "Mississippi",
+      "counties": 82,
+      "with_pipeline": 5,
+      "pipeline_total": 7
+    },
+    "MT": {
+      "state_name": "Montana",
+      "counties": 56,
+      "with_pipeline": 1,
+      "pipeline_total": 1
+    },
+    "NC": {
+      "state_name": "North Carolina",
+      "counties": 100,
+      "with_pipeline": 14,
+      "pipeline_total": 23
+    },
+    "ND": {
+      "state_name": "North Dakota",
+      "counties": 53,
+      "with_pipeline": 3,
+      "pipeline_total": 3
+    },
+    "NE": {
+      "state_name": "Nebraska",
+      "counties": 93,
+      "with_pipeline": 3,
+      "pipeline_total": 4
+    },
+    "NH": {
+      "state_name": "New Hampshire",
+      "counties": 10,
+      "with_pipeline": 0,
+      "pipeline_total": 0
+    },
+    "NJ": {
+      "state_name": "New Jersey",
+      "counties": 21,
+      "with_pipeline": 7,
+      "pipeline_total": 7
+    },
+    "NM": {
+      "state_name": "New Mexico",
+      "counties": 33,
+      "with_pipeline": 6,
+      "pipeline_total": 7
+    },
+    "NV": {
+      "state_name": "Nevada",
+      "counties": 17,
+      "with_pipeline": 6,
+      "pipeline_total": 22
+    },
+    "NY": {
+      "state_name": "New York",
+      "counties": 62,
+      "with_pipeline": 11,
+      "pipeline_total": 13
+    },
+    "OH": {
+      "state_name": "Ohio",
+      "counties": 88,
+      "with_pipeline": 30,
+      "pipeline_total": 45
+    },
+    "OK": {
+      "state_name": "Oklahoma",
+      "counties": 77,
+      "with_pipeline": 15,
+      "pipeline_total": 22
+    },
+    "OR": {
+      "state_name": "Oregon",
+      "counties": 36,
+      "with_pipeline": 6,
+      "pipeline_total": 14
+    },
+    "PA": {
+      "state_name": "Pennsylvania",
+      "counties": 67,
+      "with_pipeline": 28,
+      "pipeline_total": 46
+    },
+    "RI": {
+      "state_name": "Rhode Island",
+      "counties": 5,
+      "with_pipeline": 1,
+      "pipeline_total": 1
+    },
+    "SC": {
+      "state_name": "South Carolina",
+      "counties": 46,
+      "with_pipeline": 10,
+      "pipeline_total": 14
+    },
+    "SD": {
+      "state_name": "South Dakota",
+      "counties": 66,
+      "with_pipeline": 3,
+      "pipeline_total": 3
+    },
+    "TN": {
+      "state_name": "Tennessee",
+      "counties": 95,
+      "with_pipeline": 8,
+      "pipeline_total": 13
+    },
+    "TX": {
+      "state_name": "Texas",
+      "counties": 254,
+      "with_pipeline": 55,
+      "pipeline_total": 74
+    },
+    "UT": {
+      "state_name": "Utah",
+      "counties": 29,
+      "with_pipeline": 8,
+      "pipeline_total": 17
+    },
+    "VA": {
+      "state_name": "Virginia",
+      "counties": 133,
+      "with_pipeline": 23,
+      "pipeline_total": 72
+    },
+    "VT": {
+      "state_name": "Vermont",
+      "counties": 14,
+      "with_pipeline": 0,
+      "pipeline_total": 0
+    },
+    "WA": {
+      "state_name": "Washington",
+      "counties": 39,
+      "with_pipeline": 5,
+      "pipeline_total": 7
+    },
+    "WI": {
+      "state_name": "Wisconsin",
+      "counties": 72,
+      "with_pipeline": 8,
+      "pipeline_total": 12
+    },
+    "WV": {
+      "state_name": "West Virginia",
+      "counties": 55,
+      "with_pipeline": 12,
+      "pipeline_total": 13
+    },
+    "WY": {
+      "state_name": "Wyoming",
+      "counties": 23,
+      "with_pipeline": 5,
+      "pipeline_total": 9
+    }
   },
   "facility_qc": {
     "total_records": 2328,

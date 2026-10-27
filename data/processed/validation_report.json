@@ -79,6 +79,26 @@
     "pass": true,
     "detail": "mismatches: []"
   },
+  "project_index_covers_all_records": {
+    "pass": true,
+    "detail": "2328 rows vs 2328 records"
+  },
+  "project_index_matches_counted_records": {
+    "pass": true,
+    "detail": "799 vs 799"
+  },
+  "project_index_explains_every_uncounted_record": {
+    "pass": true,
+    "detail": ""
+  },
+  "status_breakdown_sums_to_count": {
+    "pass": true,
+    "detail": ""
+  },
+  "state_context_reconciles": {
+    "pass": true,
+    "detail": "51 states"
+  },
   "zero_and_outlier_counties_work": {
     "pass": true,
     "detail": "zero example 01001; max 06085 (27)"

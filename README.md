@@ -43,7 +43,11 @@ npm run dev        # http://localhost:5173
 npm run build      # static site in dist/
 npm run preview    # serve dist/ locally
 ```
-Share a county with `?county=<GEOID>`, e.g. `?county=51107`.
+Share a county with `?county=<GEOID>`, e.g. `?county=51107`. The **Share** menu also prints a county summary,
+downloads the similar-counties table and the county's records as CSV, and gives iframe code for news sites:
+`?county=<GEOID>&embed=1` shows a compact card with the data date, source credit and a link to the full site.
+**Find a project** searches every Compute Atlas record in the snapshot and says whether it is counted, where, or
+why not (`public/data/projects.json`, loaded only when someone searches).
 
 ## Tests
 ```bash

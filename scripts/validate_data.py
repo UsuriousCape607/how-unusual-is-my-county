@@ -26,6 +26,7 @@ def load():
         "facilities": read_json(PUBLIC_DATA / "facilities.json"),
         "geojson": read_json(PUBLIC_DATA / "counties.geojson"),
         "metadata": read_json(PUBLIC_DATA / "metadata.json"),
+        "projects": read_json(PUBLIC_DATA / "projects.json"),
         "processed": pd.read_csv(PROCESSED / "facilities_processed.csv", dtype=str, keep_default_na=False),
         "review": pd.read_csv(PROCESSED / "assignment_review.csv", dtype=str, keep_default_na=False),
     }
@@ -128,6 +129,22 @@ def run_checks(d) -> dict[str, tuple[bool, str]]:
         if [elig[j] for j in order] != peers[g]["peer_geoids"]:
             mism.append(g)
     res["peers_match_independent_recomputation"] = (not mism, f"mismatches: {mism[:5]}")
+
+    # Project index (for "Find a project") covers every record and agrees with the counted records.
+    proj = d["projects"]
+    res["project_index_covers_all_records"] = (len(proj) == qc["total_records"] and len({x["id"] for x in proj}) == len(proj),
+                                               f"{len(proj)} rows vs {qc['total_records']} records")
+    counted = {x["id"]: x.get("county_geoid") for x in proj if x.get("group") == "pipeline"}
+    fac_pipe = {f["source_id"]: f["county_geoid"] for f in fac if f["metric"] == "pipeline"}
+    res["project_index_matches_counted_records"] = (counted == fac_pipe, f"{len(counted)} vs {len(fac_pipe)}")
+    res["project_index_explains_every_uncounted_record"] = (all(x.get("reason") for x in proj if x.get("group") != "pipeline"), "")
+    res["status_breakdown_sums_to_count"] = (all(sum(m["pipeline_by_status"].values()) == m["pipeline_count"] for m in metrics), "")
+    sc = d["metadata"]["state_context"]
+    res["state_context_reconciles"] = (
+        sum(s["counties"] for s in sc.values()) == len(metrics)
+        and sum(s["pipeline_total"] for s in sc.values()) == n_pipe
+        and all(s["with_pipeline"] == sum(1 for m in metrics if m["state"] == k and m["pipeline_count"] > 0) for k, s in sc.items()),
+        f"{len(sc)} states")
 
     zero = [g for g in elig if by[g]["pipeline_count"] == 0]
     top = max(elig, key=lambda g: (by[g]["pipeline_count"], g))

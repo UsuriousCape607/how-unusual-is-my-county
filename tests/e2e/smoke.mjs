@@ -35,7 +35,7 @@ await new Promise((resolve, reject) => {
 
 const browser = await chromium.launch();
 try {
-  const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 } });
+  const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 }, permissions: ["clipboard-read", "clipboard-write"] });
   const page = await ctx.newPage();
   const consoleErrors = [];
   const external = [];
@@ -53,11 +53,62 @@ try {
   const asOfShort = new Date(`${meta.snapshot_date}T12:00:00Z`).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
   check("answer card shows as-of date next to the count", (await page.textContent(".answer .hero-label")).includes(asOfShort));
   check("plain-language verdict shown", (await page.textContent(".verdict")).includes("similar counties"), await page.textContent(".verdict"));
-  check("share button present", await page.isVisible("text=Copy link to this county"));
+  check("share button present", await page.getByRole("button", { name: "Share" }).isVisible());
   check("attribution visible", (await page.textContent(".site-footer")).includes("Compute Atlas"));
   check("methodology section present", await page.isVisible("#methodology"));
   await page.waitForTimeout(600);
   await page.screenshot({ path: `${OUT}/desktop-default.png`, fullPage: false });
+
+  // What's in the count (2+ records), state context.
+  const sb = def.pipeline_by_status;
+  check("status breakdown shown for a multi-record county", (await page.textContent(".status-line")).includes(`${sb.under_construction} under construction`), await page.textContent(".status-line"));
+  const stc = meta.state_context[def.state];
+  check("state context line", (await page.textContent(".state-line")).includes(`In ${stc.state_name}, ${stc.with_pipeline} of ${stc.counties} counties`));
+
+  // Share menu: one button, keyboard-operable, copy link, CSV download, embed code.
+  await page.getByRole("button", { name: "Share" }).click();
+  check("share menu lists its actions", (await page.$$("[role=menuitem]")).length === 5);
+  await page.keyboard.press("Escape");
+  check("Escape closes the share menu", (await page.$$("[role=menuitem]")).length === 0);
+  await page.getByRole("button", { name: "Share" }).click();
+  await page.getByRole("menuitem", { name: "Copy link" }).click();
+  await page.waitForTimeout(200);
+  const clip = await page.evaluate(() => navigator.clipboard.readText());
+  check("copy link puts the county URL on the clipboard", clip.includes(`county=${meta.default_geoid}`) && !clip.includes("embed"), clip);
+  await page.getByRole("button", { name: "Share" }).click();
+  const [dl] = await Promise.all([page.waitForEvent("download"), page.getByRole("menuitem", { name: "Download similar counties (CSV)" }).click()]);
+  const csv = readFileSync(await dl.path(), "utf8").replace(/^\ufeff/, "").trim().split(/\r?\n/);
+  check("similar-counties CSV has the county and its 40 peers", csv.length === 42 && csv[1].includes(def.county_name), `${csv.length} lines; ${dl.suggestedFilename()}`);
+  await page.getByRole("button", { name: "Share" }).click();
+  await page.getByRole("menuitem", { name: "Embed on a website…" }).click();
+  const code = await page.inputValue(".sheet textarea");
+  check("embed dialog gives iframe code", code.startsWith("<iframe") && code.includes("embed=1"), code.slice(0, 80));
+  await page.getByRole("button", { name: "Done" }).click();
+
+  // Find a project: counted here / counted elsewhere (with compare) / operating / not counted with reason.
+  const find = page.locator("#find-input");
+  await find.fill("Spring Valley Technology Park");
+  await page.waitForSelector(".find-results li");
+  check("find: counted here", (await page.textContent(".find-results li")).includes("Counted here"));
+  await find.fill("Aligned IAD-01");
+  await page.waitForFunction(() => document.querySelector(".find-results li")?.textContent.includes("Aligned IAD-01"));
+  check("find: operating shown as context", (await page.textContent(".find-results li")).includes("Operating"));
+  await find.fill("prometheus");
+  await page.waitForFunction(() => document.querySelectorAll(".find-results li").length >= 2);
+  const promText = await page.textContent(".find-results");
+  check("find: excluded project explains why", promText.includes("Not counted") && promText.includes("map location and named county disagree"));
+  check("report link points to Compute Atlas", (await page.getAttribute(".find-foot a", "href")) === "https://www.compute-atlas.com/contribute");
+  await page.locator(".find-results li", { hasText: "Prometheus Hyperscale Falls Ranch Data Center Campus" }).getByRole("button", { name: /^Compare/ }).click();
+  await page.waitForTimeout(500);
+  check("find: counted elsewhere switches to that county", page.url().includes("county=56009"), page.url());
+
+  // Print layout: the summary, without search, map or menus.
+  await page.emulateMedia({ media: "print" });
+  check("print layout hides search and map, keeps the answer",
+    !(await page.isVisible(".search-bar")) && !(await page.isVisible(".area-map")) && (await page.isVisible(".answer")) && (await page.isVisible(".print-only")));
+  await page.emulateMedia({ media: "screen" });
+  await page.goto(BASE);
+  await page.waitForSelector("#summary-title");
 
   // Search: keyboard selection of a multi-record county.
   const input = page.getByRole("combobox");
@@ -223,6 +274,23 @@ try {
   await mobile.screenshot({ path: `${OUT}/mobile-map.png` });
   await mobile.locator("#chart-title").scrollIntoViewIfNeeded();
   await mobile.screenshot({ path: `${OUT}/mobile-chart.png` });
+
+  // Embed mode: compact card with credit and a link out; no search or map.
+  const emb = await browser.newPage({ viewport: { width: 600, height: 500 } });
+  await emb.goto(`${BASE}?county=${multi.geoid}&embed=1`);
+  await emb.waitForSelector(".embed .verdict");
+  check("embed mode shows the compact answer only",
+    !(await emb.$(".search-bar")) && !(await emb.$(".leaflet-container")) && (await emb.textContent(".embed")).includes("Compute Atlas"),
+    await emb.textContent(".embed .verdict"));
+  const embHref = await emb.getAttribute(".embed-link", "href");
+  check("embed links to the full comparison", embHref.includes(`county=${multi.geoid}`) && !embHref.includes("embed=1"), embHref);
+  await emb.screenshot({ path: `${OUT}/embed.png` });
+
+  // A single-record county shows no status line (the record list already says its status).
+  const one = metrics.find((m) => m.eligible && m.pipeline_count === 1);
+  await page.goto(`${BASE}?county=${one.geoid}`);
+  await page.waitForSelector("#summary-title");
+  check("no status line for a single-record county", !(await page.$(".status-line")), `${one.county_name}, ${one.state}`);
 
   // Error state when data cannot load.
   const broken = await browser.newPage();

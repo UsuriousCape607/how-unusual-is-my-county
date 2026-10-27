@@ -8,6 +8,7 @@ import { daysSince, fmtAgo, fmtDateShort } from "./format";
 const m = (geoid: string, county_name: string, state: string, state_name: string, pipeline_count = 0): CountyMetric => ({
   geoid, county_name, state, state_name, population_2025: 1000, land_area_sqmi: 10, density_per_sqmi: 100,
   pipeline_count, operational_count: 0, eligible: true,
+  pipeline_by_status: { proposed: pipeline_count, permitted: 0, under_construction: 0 },
 });
 const metrics = [
   m("51107", "Loudoun County", "VA", "Virginia", 12),
@@ -95,5 +96,36 @@ describe("plain-language verdict", () => {
     expect(typicalPhrase(1)).toBe("1 site");
     expect(typicalPhrase(3)).toBe("3 sites");
     expect(typicalPhrase(0.5)).toBe("0 to 1 sites");
+  });
+});
+
+import { searchProjects } from "./projects";
+import { toCSV } from "./csv";
+import { reasonLabel } from "./reasons";
+import type { Project } from "../types";
+
+describe("find a project", () => {
+  const idx: Project[] = [
+    { id: "a", name: "Meta Prometheus", operator: "Meta", city: "New Albany", state: "OH", reason: "assignment:conflict_point_county_vs_source_county" },
+    { id: "b", name: "Prometheus Hyperscale", operator: "Prometheus Hyperscale", state: "WY", county_geoid: "56009", group: "pipeline" },
+    { id: "c", name: "Spring Valley Technology Park", operator: "Example Co", city: "Ashburn", state: "VA", county_geoid: "51107", group: "pipeline" },
+  ];
+  it("matches names, companies and places; names first", () => {
+    expect(searchProjects(idx, "prometheus").map((p) => p.id)).toEqual(["b", "a"]);
+    expect(searchProjects(idx, "meta").map((p) => p.id)).toEqual(["a"]);
+    expect(searchProjects(idx, "ashburn").map((p) => p.id)).toEqual(["c"]);
+    expect(searchProjects(idx, "spring va")).toHaveLength(1);
+    expect(searchProjects(idx, "p")).toEqual([]);
+  });
+  it("explains exclusions in plain words", () => {
+    expect(reasonLabel("assignment:conflict_point_county_vs_source_county")).toBe("Its map location and named county disagree");
+    expect(reasonLabel("facility_type:crypto_mining")).toMatch(/crypto-mining/);
+    expect(reasonLabel("something:new")).toBe("something:new");
+  });
+});
+
+describe("CSV export", () => {
+  it("quotes commas, quotes and line breaks", () => {
+    expect(toCSV(["a", "b"], [["Prince George's", 'say "hi"'], ["x,y", null]])).toBe('a,b\r\nPrince George\'s,"say ""hi"""\r\n"x,y",\r\n');
   });
 });

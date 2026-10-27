@@ -62,6 +62,15 @@
   that aborted the next gesture and swallowed camera moves; use internal `_stop()`. Border meshes are grouped into
   2° tiles so small redraws (hover) stay local. e2e covers continuity, repeat gestures and cursor anchoring.
 
+- Feature bundle (2026-10-27, owner-approved): status line under the count (only for 2+ records; precomputed
+  `pipeline_by_status`); state context (`metadata.state_context`); one Share menu (copy link, print summary, CSV of
+  similar counties and of records, embed code in a native <dialog>); `?embed=1` compact card (skips map geometry);
+  "Find a project" over `projects.json` (all records with group/reason from process_facilities; lazy-loaded) with
+  "Counted here / Counted in X / Operating / Not counted: reason"; "Report it to Compute Atlas" →
+  https://www.compute-atlas.com/contribute (documented in their README; not reachable from the sandbox to verify).
+  Print stylesheet: page 1 answer + chart, then records and the 10 most similar counties.
+  Not built (discussed, not approved yet): robustness badge (20/40/80 peers), change-over-time, Spanish.
+
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.
 2. (Done 2026-10-26) Repo public, Pages source = GitHub Actions. Live at

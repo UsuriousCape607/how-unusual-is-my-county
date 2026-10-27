@@ -1,19 +1,20 @@
-import { useState } from "react";
-import type { CountyMetric, Metadata, PeerRecord } from "../types";
+import type { CountyMetric, Facility, Metadata, PeerRecord } from "../types";
 import { fmtDateShort, fmtDensity, fmtInt, fmtStat, plural } from "../lib/format";
 import { typicalPhrase, verdict } from "../lib/summary";
 import { COLOR } from "../lib/theme";
+import ShareMenu from "./ShareMenu";
 
 interface Props {
   county: CountyMetric;
   peer: PeerRecord;
   metadata: Metadata;
   byGeoid: Map<string, CountyMetric>;
+  facilities: Facility[];
   onSelect: (geoid: string) => void;
 }
 
 
-function ComparisonBar({ peer, name }: { peer: PeerRecord; name: string }) {
+export function ComparisonBar({ peer, name }: { peer: PeerRecord; name: string }) {
   const total = peer.n_fewer + peer.n_equal + peer.n_greater;
   const parts = [
     { key: "fewer", n: peer.n_fewer, color: COLOR.fewer, label: "have fewer" },
@@ -48,34 +49,18 @@ function ComparisonBar({ peer, name }: { peer: PeerRecord; name: string }) {
   );
 }
 
-function ShareButton() {
-  const [msg, setMsg] = useState("");
-  const share = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setMsg("Link copied");
-    } catch {
-      setMsg("Copy the address from your browser bar to share");
-    }
-    window.setTimeout(() => setMsg(""), 2500);
-  };
-  return (
-    <span className="share">
-      <button type="button" className="secondary small-btn" onClick={share}>
-        Copy link to this county
-      </button>
-      <span role="status" aria-live="polite" className="muted small">
-        {msg}
-      </span>
-    </span>
-  );
-}
-
-export default function CountySummary({ county, peer, metadata, byGeoid, onSelect }: Props) {
+export default function CountySummary({ county, peer, metadata, byGeoid, facilities, onSelect }: Props) {
   const n = county.pipeline_count;
   const total = peer.n_fewer + peer.n_equal + peer.n_greater;
   const v = verdict(county, peer);
   const closest = peer.peer_geoids.slice(0, 3).map((g) => byGeoid.get(g)!);
+  const st = metadata.state_context[county.state];
+  // What's in the count: statuses as listed in the snapshot (precomputed in Python), only when there is a mix to show.
+  const parts = [
+    { n: county.pipeline_by_status.under_construction, label: "under construction" },
+    { n: county.pipeline_by_status.permitted, label: "permitted" },
+    { n: county.pipeline_by_status.proposed, label: "proposed" },
+  ].filter((x) => x.n > 0);
 
   return (
     <section className="card answer" aria-labelledby="summary-title">
@@ -88,19 +73,31 @@ export default function CountySummary({ county, peer, metadata, byGeoid, onSelec
             {fmtInt(county.population_2025)} people · {fmtDensity(county.density_per_sqmi)} per sq mi · county code {county.geoid}
           </p>
         </div>
-        <ShareButton />
+        <ShareMenu county={county} peer={peer} byGeoid={byGeoid} facilities={facilities} snapshotDate={metadata.snapshot_date} />
       </div>
 
       <p className="eyebrow">The short answer</p>
       <p key={`v-${county.geoid}`} className="verdict fade-in">{v.headline}</p>
 
       <div key={`h-${county.geoid}`} className="hero-row fade-in">
-        <div className="hero">
-          <span className="hero-value">{n}</span>
-          <span className="hero-label">
-            data-center {plural(n, "site", "sites")} in development on record
-            <span className="muted"> as of {fmtDateShort(metadata.snapshot_date)}</span>
-          </span>
+        <div className="hero-block">
+          <div className="hero">
+            <span className="hero-value">{n}</span>
+            <span className="hero-label">
+              data-center {plural(n, "site", "sites")} in development on record
+              <span className="muted"> as of {fmtDateShort(metadata.snapshot_date)}</span>
+            </span>
+          </div>
+          {n >= 2 && (
+            <p className="status-line" aria-label="Status of these sites, as listed in the snapshot">
+              {parts.map((x, i) => (
+                <span key={x.label}>
+                  {i > 0 && <span className="sep"> · </span>}
+                  <strong>{x.n}</strong> {x.label}
+                </span>
+              ))}
+            </p>
+          )}
         </div>
         <dl className="side-facts">
           <div>
@@ -148,6 +145,15 @@ export default function CountySummary({ county, peer, metadata, byGeoid, onSelec
             record here (not counted above).
           </>
         )}
+      </p>
+      {st && (
+        <p className="state-line small">
+          In {st.state_name}, {st.with_pipeline} of {st.counties} {plural(st.counties, "county", "counties")} have at least one site in
+          development on record.
+        </p>
+      )}
+      <p className="small find-link">
+        <a href="#find-project">Heard about a specific project? See whether it’s counted</a>
       </p>
     </section>
   );

@@ -11,6 +11,7 @@ export interface CountyMetric {
   pipeline_count: number;
   operational_count: number;
   eligible: boolean;
+  pipeline_by_status: { proposed: number; permitted: number; under_construction: number };
   z_ln_population?: number;
   z_ln_density?: number;
 }
@@ -95,6 +96,7 @@ export interface Metadata {
   filters: { facility_type: string; pipeline_statuses: string[]; operational_status: string; confidence: string[] };
   peer_method: { n_peers: number; distance_method: string; description: string; standardization: Record<string, number> };
   counties: { universe: number; eligible: number; with_pipeline_records: number };
+  state_context: Record<string, { state_name: string; counties: number; with_pipeline: number; pipeline_total: number }>;
   facility_qc: Record<string, unknown> & {
     total_records: number;
     headline_included: number;
@@ -130,4 +132,21 @@ export interface AppData {
   counties: FeatureCollection;
   countyBorders: FeatureCollection;
   states: FeatureCollection;
+}
+
+/** One Compute Atlas record in the "Find a project" index (public/data/projects.json, loaded on demand). */
+export interface Project {
+  id: string;
+  name?: string;
+  operator?: string;
+  type?: string;
+  status?: string;
+  confidence?: string;
+  state?: string;
+  city?: string;
+  source_county?: string;
+  county_geoid?: string;
+  group?: "pipeline" | "operational";
+  reason?: string;
+  source_url?: string;
 }

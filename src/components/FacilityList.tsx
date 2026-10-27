@@ -1,5 +1,6 @@
 import type { CountyMetric, Facility } from "../types";
 import { assignmentLabel, fmtDate, fmtDateShort, plural, precisionLabel, statusLabel } from "../lib/format";
+import { REPORT_URL } from "./FindProject";
 
 interface Props {
   county: CountyMetric;
@@ -81,6 +82,9 @@ export default function FacilityList({ county, facilities, snapshotDate }: Props
           </ul>
         </details>
       )}
+      <p className="small find-foot">
+        Missing a site, or see an error? <a href={REPORT_URL}>Report it to Compute Atlas</a>, the source this site uses.
+      </p>
     </section>
   );
 }

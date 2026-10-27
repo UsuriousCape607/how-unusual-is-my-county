@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AppData } from "./types";
-import { loadAppData, readGeoidFromUrl, writeGeoidToUrl } from "./lib/data";
+import { countyUrl, isEmbed, loadAppData, readGeoidFromUrl, writeGeoidToUrl } from "./lib/data";
 import { verdict } from "./lib/summary";
 import CountySearch from "./components/CountySearch";
 import CountySummary from "./components/CountySummary";
@@ -12,6 +12,8 @@ import FacilityList from "./components/FacilityList";
 import ExplanationPanel from "./components/ExplanationPanel";
 import Methodology from "./components/Methodology";
 import DataFreshness from "./components/DataFreshness";
+import FindProject from "./components/FindProject";
+import EmbedView from "./components/EmbedView";
 
 // Example counties offered under the search box: a high count, the highest, a zero, and a typical case.
 const EXAMPLE_GEOIDS = ["51107", "06085", "48201", "18097"];
@@ -22,9 +24,10 @@ export default function App() {
   const [geoid, setGeoid] = useState<string | null>(null);
   const [source, setSource] = useState<SelectionSource>("other");
   const [notice, setNotice] = useState<string | null>(null);
+  const embed = useMemo(isEmbed, []);
 
   useEffect(() => {
-    loadAppData()
+    loadAppData({ geometry: !embed })
       .then((d) => {
         setData(d);
         const requested = readGeoidFromUrl();
@@ -33,11 +36,11 @@ export default function App() {
         } else {
           if (requested) setNotice(`County code ${requested} was not found, so an example county is shown instead.`);
           setGeoid(d.metadata.default_geoid);
-          writeGeoidToUrl(d.metadata.default_geoid, true);
+          if (!embed) writeGeoidToUrl(d.metadata.default_geoid, true);
         }
       })
       .catch((e: Error) => setError(e.message));
-  }, []);
+  }, [embed]);
 
   useEffect(() => {
     const onPop = () => {
@@ -73,12 +76,23 @@ export default function App() {
     [data, geoid],
   );
 
+  if (embed) {
+    return data && county && peer ? (
+      <EmbedView county={county} peer={peer} metadata={data.metadata} />
+    ) : (
+      <main className="embed">
+        <p className="muted">{error ? "This comparison could not be loaded." : "Loading…"}</p>
+      </main>
+    );
+  }
+
   return (
     <div className="app">
       <header className="site-header">
         <div className="wrap header-inner">
           <div>
             <h1>How Unusual Is My County?</h1>
+            {geoid && <p className="print-only small">Interactive version: {countyUrl(geoid)}</p>}
             <p className="subtitle">Compare documented data-center development with similar counties across the United States.</p>
           </div>
           <div className="header-meta">
@@ -132,7 +146,7 @@ export default function App() {
 
             <div className="layout">
               <div className="area-summary">
-                <CountySummary county={county} peer={peer} metadata={data.metadata} byGeoid={data.byGeoid} onSelect={select} />
+                <CountySummary county={county} peer={peer} metadata={data.metadata} byGeoid={data.byGeoid} facilities={facilities} onSelect={select} />
               </div>
               <aside className="area-map">
                 <div className="sticky">
@@ -153,6 +167,7 @@ export default function App() {
                 <NumbersExplained county={county} peer={peer} metadata={data.metadata} />
                 <ComparisonChart county={county} peer={peer} byGeoid={data.byGeoid} snapshotDate={data.metadata.snapshot_date} onSelect={select} />
                 <FacilityList county={county} facilities={facilities} snapshotDate={data.metadata.snapshot_date} />
+                <FindProject selected={county.geoid} byGeoid={data.byGeoid} onSelect={select} />
                 <PeerTable county={county} peer={peer} byGeoid={data.byGeoid} snapshotDate={data.metadata.snapshot_date} onSelect={select} />
                 <ExplanationPanel
                   county={county}

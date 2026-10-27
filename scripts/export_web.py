@@ -4,6 +4,8 @@
   county_borders.geojson   every county edge exactly once (a line mesh), so borders draw crisp and even
   states.geojson           state border lines taken from the same snapped edges, so they coincide with county lines
   county_metrics.json, county_peers.json, facilities.json, metadata.json
+  projects.json            every Compute Atlas record with whether (and where) it is counted, or why not
+                           (loaded by the site only when someone searches for a project)
 
 Display geometry is for drawing only; county assignment used the unsimplified 500k polygons.
 """
@@ -59,6 +61,25 @@ def feature_collection(features: list[dict]) -> dict:
     return {"type": "FeatureCollection", "features": features}
 
 
+def project_index() -> list[dict]:
+    """One row per Compute Atlas record: where it is counted, or the pipeline's first reason for not counting it.
+    Lets visitors check a project they heard about. Statuses and reasons come straight from process_facilities."""
+    raw = {r["id"]: r for r in read_json(RAW / SOURCES["compute_atlas_facilities"]["file"])}
+    proc = pd.read_csv(PROCESSED / "facilities_processed.csv", dtype=str, keep_default_na=False)
+    out = []
+    for r in proc.itertuples():
+        rec = raw[r.source_id]
+        src = next((s.get("url") for s in rec.get("sources") or [] if isinstance(s, dict) and str(s.get("url", "")).startswith("http")), None)
+        row = {
+            "id": r.source_id, "name": r.name, "operator": r.operator, "type": r.facility_type, "status": r.status,
+            "confidence": r.confidence, "state": r.state, "city": (rec.get("location") or {}).get("city"),
+            "source_county": r.source_county, "county_geoid": r.county_geoid, "group": r.metric_group,
+            "reason": r.exclusion_reason, "source_url": src,
+        }
+        out.append({k: v for k, v in row.items() if v not in (None, "")})
+    return sorted(out, key=lambda x: x["id"])
+
+
 def main() -> int:
     polys = gpd.read_file(PROCESSED / "counties_500k.gpkg").sort_values("geoid").reset_index(drop=True)
     if polys.crs.to_epsg() != 4326:
@@ -86,6 +107,12 @@ def main() -> int:
     write_json(PUBLIC_DATA / "states.geojson", feature_collection(line_features(state_mesh)), compact=True)
 
     m = pd.read_csv(PROCESSED / "county_metrics.csv", dtype={"geoid": str, "state_fips": str})
+    # Pipeline records per county by status, for the "what's in the count" line (statuses as listed in the snapshot).
+    by_status: dict[str, dict[str, int]] = {}
+    for f in read_json(PROCESSED / "facilities_included.json"):
+        if f["metric"] == "pipeline":
+            s = by_status.setdefault(f["county_geoid"], {k: 0 for k in PIPELINE_STATUSES})
+            s[f["status"]] += 1
     metrics = []
     for r in m.itertuples():
         rec = {
@@ -94,6 +121,7 @@ def main() -> int:
             "density_per_sqmi": round(float(r.density_per_sqmi), 2) if bool(r.eligible) else None,
             "pipeline_count": int(r.pipeline_count), "operational_count": int(r.operational_count),
             "eligible": bool(r.eligible),
+            "pipeline_by_status": by_status.get(r.geoid, {k: 0 for k in PIPELINE_STATUSES}),
         }
         if bool(r.eligible):
             rec["z_ln_population"] = round(float(r.z_ln_population), 4)
@@ -108,6 +136,15 @@ def main() -> int:
 
     facilities = read_json(PROCESSED / "facilities_included.json")
     write_json(PUBLIC_DATA / "facilities.json", facilities, compact=True)
+    write_json(PUBLIC_DATA / "projects.json", project_index(), compact=True)
+
+    # Per-state context ("In Virginia, 22 of 133 counties have at least one"), computed here, not in the browser.
+    state_context: dict[str, dict] = {}
+    for r in metrics:
+        s = state_context.setdefault(r["state"], {"state_name": r["state_name"], "counties": 0, "with_pipeline": 0, "pipeline_total": 0})
+        s["counties"] += 1
+        s["with_pipeline"] += int(r["pipeline_count"] > 0)
+        s["pipeline_total"] += r["pipeline_count"]
 
     manifest = read_json(RAW / "manifest.json")
     ca_meta = read_json(RAW / SOURCES["compute_atlas_meta"]["file"])
@@ -178,6 +215,7 @@ def main() -> int:
             "universe": qc_c["universe_size"], "eligible": qc_c["eligible_size"],
             "with_pipeline_records": int(sum(1 for r in metrics if r["pipeline_count"] > 0)),
         },
+        "state_context": dict(sorted(state_context.items())),
         "facility_qc": qc_f,
         "caveats": [
             "Counts are documented site records in one dataset snapshot, not verified counts of buildings or all real projects.",
