@@ -43,10 +43,11 @@ npm run dev        # http://localhost:5173
 npm run build      # static site in dist/
 npm run preview    # serve dist/ locally
 ```
-Share a county with `?county=<GEOID>`, e.g. `?county=51107`. **Copy link** in the Share menu hands out
-`c/<GEOID>/` instead: a tiny page generated at build time (one per county, `vite.config.ts`) whose Open Graph tags
-state that county's result, so Discord, Slack, iMessage and social sites show a real preview card; visitors are
-forwarded straight to the app. Link previews need absolute URLs; the build uses the GitHub Pages address unless
+Each county has its own address, `c/<GEOID>/` (e.g. `c/51107/`), which is what the address bar and **Copy link**
+show. The build writes the app once per county there (`vite.config.ts`), with that county's result in its Open Graph
+tags, so Discord, Slack, iMessage and social sites show a real preview card (crawlers don't run JavaScript, and a
+static host serves the same page for every `?county=` value). Older `?county=<GEOID>` links still work and switch to
+the county address on load. Link previews need absolute URLs; the build uses the GitHub Pages address unless
 `SITE_URL` is set (e.g. `SITE_URL=https://example.org/county/ npm run build`). The Share menu also prints a county summary,
 downloads the similar-counties table and the county's records as CSV, and gives iframe code for news sites:
 `?county=<GEOID>&embed=1` shows a compact card with the data date, source credit and a link to the full site.

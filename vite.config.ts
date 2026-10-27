@@ -9,63 +9,82 @@ import type { CountyMetric, Metadata, PeersFile } from "./src/types";
 
 // Public address of the deployed site (link previews need absolute URLs). Override with SITE_URL for another host.
 const SITE_URL = (process.env.SITE_URL ?? "https://usuriouscape607.github.io/how-unusual-is-my-county/").replace(/\/?$/, "/");
+const SITE_NAME = "How Unusual Is My County?";
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+const readData = <T,>(f: string): T => JSON.parse(readFileSync(resolve(process.cwd(), "public/data", f), "utf8"));
+
+/** <title>, description and the Open Graph tags that Discord, Slack, iMessage and social sites read for link previews. */
+function previewTags(p: { pageTitle: string; title: string; description: string; path: string }): string {
+  const url = SITE_URL + p.path;
+  return `<!--preview-->
+    <title>${esc(p.pageTitle)}</title>
+    <meta name="description" content="${esc(p.description)}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="${SITE_NAME}" />
+    <meta property="og:title" content="${esc(p.title)}" />
+    <meta property="og:description" content="${esc(p.description)}" />
+    <meta property="og:url" content="${url}" />
+    <meta property="og:image" content="${SITE_URL}favicon.png" />
+    <meta property="og:image:width" content="256" />
+    <meta property="og:image:height" content="256" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#0071e3" />
+    <link rel="canonical" href="${url}" />
+    <!--/preview-->`;
+}
+
+/** Generic preview for the home page. */
+function sitePreview(): Plugin {
+  return {
+    name: "site-preview",
+    transformIndexHtml: (html) => {
+      const date = fmtDateShort(readData<Metadata>("metadata.json").snapshot_date);
+      return html.replace("<!--preview-->", previewTags({
+        pageTitle: SITE_NAME,
+        title: "Is your county unusual for data-center development?",
+        description: `Compare any U.S. county with the 40 counties most like it in population and density, using Compute Atlas records as of ${date}.`,
+        path: "",
+      }));
+    },
+  };
+}
 
 /**
- * Link previews for Discord, Slack, iMessage and social sites. Their crawlers read <meta> tags without running
- * JavaScript, so the single-page app can only offer a generic preview. After each build this writes a tiny page per
- * county at c/<GEOID>/ whose tags state that county's result (wording from the same verdict() the app uses), then
- * forwards visitors to the app. "Copy link" hands out these URLs.
+ * Link-preview crawlers read <meta> tags without running JavaScript, and a static host serves the same page for every
+ * ?county= value. So after each build this writes the app once more per county at c/<GEOID>/ with that county's
+ * result in its tags (wording from the same verdict() the app shows). The app puts these addresses in the address
+ * bar, so a copied link previews properly wherever it is pasted.
  */
-function linkPreviews(): Plugin {
+function countyPages(): Plugin {
   return {
-    name: "link-previews",
+    name: "county-pages",
     apply: "build",
-    transformIndexHtml: (html) => html.replaceAll("%SITE_URL%", SITE_URL),
     closeBundle() {
-      const read = <T,>(f: string): T => JSON.parse(readFileSync(resolve(process.cwd(), "public/data", f), "utf8"));
-      const metrics = read<CountyMetric[]>("county_metrics.json");
-      const peers = read<PeersFile>("county_peers.json").peers;
-      const meta = read<Metadata>("metadata.json");
-      const date = fmtDateShort(meta.snapshot_date);
+      const shell = readFileSync(resolve(process.cwd(), "dist/index.html"), "utf8")
+        .replace(/(href|src)="\.\//g, '$1="../../'); // two folders down from the site root
+      const metrics = readData<CountyMetric[]>("county_metrics.json");
+      const peers = readData<PeersFile>("county_peers.json").peers;
+      const date = fmtDateShort(readData<Metadata>("metadata.json").snapshot_date);
       let written = 0;
       for (const c of metrics) {
         const p = peers[c.geoid];
         if (!p) continue;
-        const v = verdict(c, p).headline;
         const n = c.pipeline_count;
-        const title = `${c.county_name}, ${c.state_name}: ${v.charAt(0).toLowerCase()}${v.slice(1)}`;
-        const desc =
-          `${n} data-center ${plural(n, "site", "sites")} in development on record as of ${date}. ` +
-          `Of its 40 most similar counties by population and density, ${p.n_fewer} have fewer, ${p.n_equal} the same and ${p.n_greater} more.`;
-        const app = `../../?county=${c.geoid}`;
-        const html = `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(`${c.county_name}, ${c.state} · How Unusual Is My County?`)}</title>
-<meta name="description" content="${esc(desc)}">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="How Unusual Is My County?">
-<meta property="og:title" content="${esc(title)}">
-<meta property="og:description" content="${esc(desc)}">
-<meta property="og:url" content="${SITE_URL}c/${c.geoid}/">
-<meta property="og:image" content="${SITE_URL}favicon.png">
-<meta property="og:image:width" content="256"><meta property="og:image:height" content="256">
-<meta name="twitter:card" content="summary">
-<meta name="theme-color" content="#0071e3">
-<link rel="canonical" href="${SITE_URL}?county=${c.geoid}">
-<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32.png">
-<script>location.replace(${JSON.stringify(app)} + location.hash)</script>
-</head><body style="font-family:system-ui,-apple-system,sans-serif;padding:24px">
-<p><a href="${app}">Open the comparison for ${esc(`${c.county_name}, ${c.state}`)}</a></p>
-</body></html>
-`;
+        const tags = previewTags({
+          pageTitle: `${c.county_name}, ${c.state} · ${SITE_NAME}`,
+          title: `${c.county_name}, ${c.state_name}`,
+          description:
+            `${verdict(c, p).headline}. ${n} ${plural(n, "site", "sites")} in development on record as of ${date}. ` +
+            `Of the 40 counties most like it in population and density, ${p.n_fewer} have fewer, ${p.n_equal} the same and ${p.n_greater} more.`,
+          path: `c/${c.geoid}/`,
+        });
         const dir = resolve(process.cwd(), "dist/c", c.geoid);
         mkdirSync(dir, { recursive: true });
-        writeFileSync(resolve(dir, "index.html"), html);
+        writeFileSync(resolve(dir, "index.html"), shell.replace(/<!--preview-->[\s\S]*?<!--\/preview-->/, tags));
         written++;
       }
-      console.log(`link-previews: wrote ${written} county preview pages`);
+      console.log(`county-pages: wrote ${written} county pages`);
     },
   };
 }
@@ -76,6 +95,6 @@ export default defineConfig({
   // A new ID per build. Data files keep fixed names, so requests carry ?v=<id> to stop browsers pairing new code
   // with data cached from an earlier deploy (GitHub Pages lets browsers reuse files for 10 minutes).
   define: { __BUILD_ID__: JSON.stringify(Date.now().toString(36)) },
-  plugins: [react(), linkPreviews()],
+  plugins: [react(), sitePreview(), countyPages()],
   test: { include: ["src/**/*.test.ts"] },
 });

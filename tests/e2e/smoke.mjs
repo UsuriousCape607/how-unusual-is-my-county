@@ -47,7 +47,7 @@ try {
   await page.waitForSelector("#summary-title");
   const def = byGeoid.get(meta.default_geoid);
   check("default county shown", (await page.textContent("#summary-title")).includes(def.county_name));
-  check("URL carries default GEOID", page.url().includes(`county=${meta.default_geoid}`));
+  check("URL carries default GEOID", page.url().includes(`c/${meta.default_geoid}/`));
   const asOf = new Date(`${meta.snapshot_date}T12:00:00Z`).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
   check("data-as-of banner shows snapshot date", (await page.textContent(".freshness")).includes(`Data as of ${asOf}`), asOf);
   const asOfShort = new Date(`${meta.snapshot_date}T12:00:00Z`).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
@@ -100,7 +100,7 @@ try {
   check("report link points to Compute Atlas", (await page.getAttribute(".find-foot a", "href")) === "https://www.compute-atlas.com/contribute");
   await page.locator(".find-results li", { hasText: "Prometheus Hyperscale Falls Ranch Data Center Campus" }).getByRole("button", { name: /^Compare/ }).click();
   await page.waitForTimeout(500);
-  check("find: counted elsewhere switches to that county", page.url().includes("county=56009"), page.url());
+  check("find: counted elsewhere switches to that county", page.url().includes("c/56009/"), page.url());
 
   // Print layout: the summary, without search, map or menus.
   await page.emulateMedia({ media: "print" });
@@ -119,12 +119,12 @@ try {
   for (let i = 0; i < idx; i++) await input.press("ArrowDown");
   await input.press("Enter");
   await page.waitForFunction((n) => document.querySelector("#summary-title")?.textContent.includes(n), multi.county_name);
-  check("keyboard search selects county by GEOID", page.url().includes(`county=${multi.geoid}`), `${multi.county_name}, ${multi.state}`);
+  check("keyboard search selects county by GEOID", page.url().includes(`c/${multi.geoid}/`), `${multi.county_name}, ${multi.state}`);
   // Choosing from search should glide the map to the new county (Santa Clara is near 37.2 N, 121.7 W).
   await page.waitForTimeout(1500);
   const [vlat, vlng] = ((await page.getAttribute(".map", "data-view")) ?? "0,0").split(",").map(Number);
   const target = await page.evaluate(async (g) => {
-    const fc = await (await fetch("data/counties.geojson")).json();
+    const fc = await (await fetch("/data/counties.geojson")).json();
     const f = fc.features.find((x) => x.properties.geoid === g);
     const pts = JSON.stringify(f.geometry.coordinates).match(/-?\d+\.?\d*,-?\d+\.?\d*/g).map((s) => s.split(",").map(Number));
     const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
@@ -167,11 +167,13 @@ try {
   const firstPeer = byGeoid.get(p.peer_geoids[0]);
   await page.click("#peers-title ~ .table-wrap tbody tr:nth-child(2) button");
   await page.waitForFunction((n) => document.querySelector("#summary-title")?.textContent.includes(n), firstPeer.county_name);
-  check("selecting a peer refocuses the app", page.url().includes(`county=${firstPeer.geoid}`));
+  check("selecting a peer refocuses the app", page.url().includes(`c/${firstPeer.geoid}/`));
 
   // Map click selects the county under the cursor (tooltip name == selected county by GEOID) without moving the camera.
   // Start from an inland county so the probe point is always over land.
   await page.goto(`${BASE}?county=51107`);
+  await page.waitForSelector("#summary-title");
+  check("an older ?county= link turns into the county's page address", page.url() === `${BASE}c/51107/`, page.url());
   await page.waitForSelector("#summary-title");
   await page.waitForTimeout(1200);
   const box = await page.locator(".map").boundingBox();
@@ -185,7 +187,7 @@ try {
   const viewBefore = await page.getAttribute(".map", "data-view");
   await page.mouse.click(px, py);
   await page.waitForTimeout(1200);
-  const g = new URL(page.url()).searchParams.get("county");
+  const g = page.url().match(/\/c\/(\d{5})\/$/)?.[1];
   const clicked = byGeoid.get(g);
   check("map click selects matching GEOID", tipName && clicked && tipName === `${clicked.county_name}, ${clicked.state}`, `${tipName} -> ${g}`);
   const viewAfter = await page.getAttribute(".map", "data-view");
@@ -239,7 +241,7 @@ try {
   // Example chips select counties.
   await page.locator(".examples").getByRole("button", { name: "Harris County, TX" }).click();
   await page.waitForFunction(() => document.querySelector("#summary-title")?.textContent.includes("Harris County"));
-  check("example chip selects county", page.url().includes("county=48201"));
+  check("example chip selects county", page.url().includes("c/48201/"));
 
   // Zero-count county wording.
   await page.goto(`${BASE}?county=${zero.geoid}`);
@@ -247,17 +249,19 @@ try {
   const body = await page.textContent("main");
   check("zero-count wording", body.includes("No qualifying pipeline records were found in this county in the selected dataset snapshot"), `${zero.county_name}, ${zero.state}`);
   check("never claims 'has no proposed data centers'", !/has no proposed data centers/i.test(body));
-  check("leading-zero GEOID in URL works", page.url().includes(`county=${zero.geoid}`));
+  check("leading-zero GEOID in URL works", page.url().includes(`c/${zero.geoid}/`));
 
-  // Browser back restores the previous county.
+  // Browser back restores the previous county (in-app history, no page load).
+  await page.locator(".examples").getByRole("button", { name: "Harris County, TX" }).click();
+  await page.waitForFunction(() => document.querySelector("#summary-title")?.textContent.includes("Harris County"));
   await page.goBack();
-  await page.waitForTimeout(300);
-  check("back button restores county", new URL(page.url()).searchParams.get("county") !== zero.geoid);
+  await page.waitForFunction((n) => document.querySelector("#summary-title")?.textContent.includes(n), zero.county_name, { timeout: 5000 }).catch(() => {});
+  check("back button restores county", page.url().endsWith(`c/${zero.geoid}/`) && (await page.textContent("#summary-title")).includes(zero.county_name), page.url());
 
   // Invalid GEOID falls back to the demo county with a notice.
   await page.goto(`${BASE}?county=99999`);
   await page.waitForSelector(".notice");
-  check("invalid GEOID handled", page.url().includes(`county=${meta.default_geoid}`));
+  check("invalid GEOID handled", page.url().includes(`c/${meta.default_geoid}/`));
 
   check("no external network requests (no API keys, tiles or CDNs)", external.length === 0, external.slice(0, 3).join(", "));
   check("no console errors", consoleErrors.length === 0, consoleErrors.slice(0, 2).join(" | "));
@@ -283,16 +287,21 @@ try {
 
   // Link previews (Discord, Slack, iMessage): crawlers read static tags, so each county has its own small page.
   const home = await (await page.request.get(BASE)).text();
-  check("home page has absolute preview tags", !home.includes("%SITE_URL%") && /og:image" content="https:\/\/[^"]+favicon\.png"/.test(home));
+  check("home page has a preview with the data date and an absolute image URL",
+    /og:description" content="[^"]+as of [A-Z][a-z]{2} \d{1,2}, \d{4}\."/.test(home) && /og:image" content="https:\/\/[^"]+favicon\.png"/.test(home));
   check("favicon is served", (await page.request.get(`${BASE}favicon-32.png`)).ok() && (await page.request.get(`${BASE}favicon.png`)).ok());
   const prev = await (await page.request.get(`${BASE}c/${multi.geoid}/`)).text();
-  const ogTitle = prev.match(/og:title" content="([^"]+)"/)?.[1] ?? "";
-  check("county preview page states its result", ogTitle.startsWith(`${multi.county_name}, `) && /similar count/.test(ogTitle)
-    && prev.includes('name="theme-color"') && /og:image" content="https:\/\//.test(prev), ogTitle);
+  const tag = (prop) => prev.match(new RegExp(`${prop}" content="([^"]+)"`))?.[1] ?? "";
+  check("county page preview names the county and states its result",
+    tag("og:title") === `${multi.county_name}, ${multi.state_name}` && /similar counties\. \d+ sites? in development on record as of/.test(tag("og:description"))
+    && prev.includes('name="theme-color"') && /^https:\/\//.test(tag("og:image")) && !prev.includes("og:image:alt"), `${tag("og:title")} | ${tag("og:description")}`);
   const visitor = await browser.newPage();
   await visitor.goto(`${BASE}c/${multi.geoid}/`);
   await visitor.waitForSelector("#summary-title");
-  check("preview link opens the county in the app", visitor.url().includes(`?county=${multi.geoid}`), visitor.url());
+  check("county page is the app itself (no redirect), with the county in the tab title",
+    visitor.url() === `${BASE}c/${multi.geoid}/` && (await visitor.title()).startsWith(`${multi.county_name}, ${multi.state}`), visitor.url());
+  await visitor.reload();
+  check("refreshing a county page keeps the county", (await visitor.waitForSelector("#summary-title").then((h) => h.textContent())).includes(multi.county_name));
 
   // Embed mode: compact card with credit and a link out; no search or map.
   const emb = await browser.newPage({ viewport: { width: 600, height: 500 } });
@@ -302,7 +311,7 @@ try {
     !(await emb.$(".search-bar")) && !(await emb.$(".leaflet-container")) && (await emb.textContent(".embed")).includes("Compute Atlas"),
     await emb.textContent(".embed .verdict"));
   const embHref = await emb.getAttribute(".embed-link", "href");
-  check("embed links to the full comparison", embHref.includes(`county=${multi.geoid}`) && !embHref.includes("embed=1"), embHref);
+  check("embed links to the county page", embHref === `${BASE}c/${multi.geoid}/`, embHref);
   await emb.screenshot({ path: `${OUT}/embed.png` });
 
   // A single-record county shows no status line (the record list already says its status).

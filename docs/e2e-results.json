@@ -97,7 +97,7 @@
   {
     "name": "find: counted elsewhere switches to that county",
     "ok": true,
-    "detail": "http://127.0.0.1:4179/?county=56009"
+    "detail": "http://127.0.0.1:4179/c/56009/"
   },
   {
     "name": "print layout hides search and map, keeps the answer",
@@ -180,6 +180,11 @@
     "detail": ""
   },
   {
+    "name": "an older ?county= link turns into the county's page address",
+    "ok": true,
+    "detail": "http://127.0.0.1:4179/c/51107/"
+  },
+  {
     "name": "hover card shows inside the map frame",
     "ok": true,
     "detail": ""
@@ -197,7 +202,7 @@
   {
     "name": "wheel zoom is continuous with at most 2 redraw freezes",
     "ok": true,
-    "detail": "zoom 7 -> 8.68; map moved in 57/59 frames; 1 long tasks"
+    "detail": "zoom 7 -> 8.68; map moved in 58/59 frames; 1 long tasks"
   },
   {
     "name": "a second wheel gesture works right after the first",
@@ -237,7 +242,7 @@
   {
     "name": "back button restores county",
     "ok": true,
-    "detail": ""
+    "detail": "http://127.0.0.1:4179/c/01001/"
   },
   {
     "name": "invalid GEOID handled",
@@ -265,7 +270,7 @@
     "detail": "36–339px"
   },
   {
-    "name": "home page has absolute preview tags",
+    "name": "home page has a preview with the data date and an absolute image URL",
     "ok": true,
     "detail": ""
   },
@@ -275,14 +280,19 @@
     "detail": ""
   },
   {
-    "name": "county preview page states its result",
+    "name": "county page preview names the county and states its result",
     "ok": true,
-    "detail": "Santa Clara County, California: more documented data-center development than all 40 similar counties"
+    "detail": "Santa Clara County, California | More documented data-center development than all 40 similar counties. 27 sites in development on record as of Oct 2, 2026. Of the 40 counties most like it in population and density, 40 have fewer, 0 the same and 0 more."
   },
   {
-    "name": "preview link opens the county in the app",
+    "name": "county page is the app itself (no redirect), with the county in the tab title",
     "ok": true,
-    "detail": "http://127.0.0.1:4179/?county=06085"
+    "detail": "http://127.0.0.1:4179/c/06085/"
+  },
+  {
+    "name": "refreshing a county page keeps the county",
+    "ok": true,
+    "detail": ""
   },
   {
     "name": "embed mode shows the compact answer only",
@@ -290,9 +300,9 @@
     "detail": "More documented data-center development than all 40 similar counties"
   },
   {
-    "name": "embed links to the full comparison",
+    "name": "embed links to the county page",
     "ok": true,
-    "detail": "http://127.0.0.1:4179/?county=06085"
+    "detail": "http://127.0.0.1:4179/c/06085/"
   },
   {
     "name": "no status line for a single-record county",
@@ -302,7 +312,7 @@
   {
     "name": "data requests carry the build ID (no stale cache after a deploy)",
     "ok": true,
-    "detail": "http://127.0.0.1:4179/data/county_metrics.json?v=mvpz7d6e"
+    "detail": "http://127.0.0.1:4179/data/county_metrics.json?v=mvpzqdaj"
   },
   {
     "name": "page renders even with data from an older deploy",

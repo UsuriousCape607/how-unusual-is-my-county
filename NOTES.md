@@ -78,13 +78,16 @@
   stale data and a render crash.
 
 - Icon + link previews (2026-10-27, owner request): favicon / apple-touch-icon from the owner's image
-  (`public/favicon*.png`, `apple-touch-icon.png`). Discord & co. read <meta> tags without running JS, so the
-  `link-previews` plugin in vite.config.ts (build only) fills `%SITE_URL%` in index.html and writes
-  `dist/c/<GEOID>/index.html` per county: og:title = county + verdict() wording, og:description = count, as-of date
-  and fewer/same/more, theme-color blue, then a JS redirect to `../../?county=<GEOID>` (no meta refresh, which some
-  crawlers follow). `shareUrl()` (data.ts) gives that URL in production builds; dev keeps `?county=`. Absolute URLs
-  come from `SITE_URL` (default: the GitHub Pages address). Embed iframes still use `?county=…&embed=1`.
-  Mobile: the Share menu anchors left at ≤520 px (it was cut off on the right).
+  (`public/favicon*.png`, `apple-touch-icon.png`). Discord & co. read <meta> tags without running JS, and GitHub
+  Pages serves one page for every `?county=`, so a pasted address-bar link showed only the generic card. Now each
+  county's address is `c/<GEOID>/`: the `county-pages` plugin (vite.config.ts, build only) writes the built app
+  again per county with asset paths moved two folders up and that county's tags between `<!--preview-->` markers
+  (og:title = county, og:description = verdict() + count + as-of date + fewer/same/more; theme-color blue for the
+  Discord stripe; no og:image:alt, which Discord shows as an "ALT" badge). `sitePreview` fills the generic tags in
+  index.html (with the data date). `countyUrl()` gives `c/<GEOID>/` in production (dev keeps `?county=`; embeds keep
+  `?county=…&embed=1`), `readGeoidFromUrl()` accepts both, old `?county=` links are rewritten on load, and data
+  is fetched from `siteRoot()` (resolved from the script URL, since pages now sit two folders deep). Absolute URLs
+  come from `SITE_URL` (default: the GitHub Pages address). Mobile: Share menu anchors left at ≤520 px.
 
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.

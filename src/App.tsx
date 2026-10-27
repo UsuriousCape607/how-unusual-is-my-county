@@ -33,6 +33,7 @@ export default function App() {
         const requested = readGeoidFromUrl();
         if (requested && d.peers.peers[requested]) {
           setGeoid(requested);
+          if (!embed) writeGeoidToUrl(requested, true); // older ?county= links become the county's own page address
         } else {
           if (requested) setNotice(`County code ${requested} was not found, so an example county is shown instead.`);
           setGeoid(d.metadata.default_geoid);
@@ -67,6 +68,9 @@ export default function App() {
 
   const county = geoid && data ? data.byGeoid.get(geoid) : undefined;
   const peer = geoid && data ? data.peers.peers[geoid] : undefined;
+  useEffect(() => {
+    if (county && !embed) document.title = `${county.county_name}, ${county.state} · How Unusual Is My County?`;
+  }, [county, embed]);
   const currentExamples = useMemo(
     () => (data ? data.aiExamples.filter((e) => e.data_version === data.metadata.data_version) : []),
     [data],
