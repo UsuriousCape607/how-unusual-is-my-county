@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { CountyMetric, Facility, PeerRecord } from "../types";
-import { countyUrl } from "../lib/data";
+import { countyUrl, shareUrl } from "../lib/data";
 import { downloadCSV, toCSV } from "../lib/csv";
 import { assignmentLabel, precisionLabel, statusLabel } from "../lib/format";
 
@@ -65,7 +65,7 @@ export default function ShareMenu({ county, peer, byGeoid, facilities, snapshotD
   };
 
   const actions: { label: string; run: () => void }[] = [
-    { label: "Copy link", run: () => copy(countyUrl(county.geoid), "Link copied") },
+    { label: "Copy link", run: () => copy(shareUrl(county.geoid), "Link copied") },
     { label: "Print summary", run: () => window.setTimeout(() => window.print(), 50) },
     {
       label: "Download similar counties (CSV)",

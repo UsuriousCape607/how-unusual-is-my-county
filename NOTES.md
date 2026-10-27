@@ -77,6 +77,15 @@
   "Something went wrong / Reload" instead of a blank page; post-v1 fields are read defensively. e2e simulates
   stale data and a render crash.
 
+- Icon + link previews (2026-10-27, owner request): favicon / apple-touch-icon from the owner's image
+  (`public/favicon*.png`, `apple-touch-icon.png`). Discord & co. read <meta> tags without running JS, so the
+  `link-previews` plugin in vite.config.ts (build only) fills `%SITE_URL%` in index.html and writes
+  `dist/c/<GEOID>/index.html` per county: og:title = county + verdict() wording, og:description = count, as-of date
+  and fewer/same/more, theme-color blue, then a JS redirect to `../../?county=<GEOID>` (no meta refresh, which some
+  crawlers follow). `shareUrl()` (data.ts) gives that URL in production builds; dev keeps `?county=`. Absolute URLs
+  come from `SITE_URL` (default: the GitHub Pages address). Embed iframes still use `?county=…&embed=1`.
+  Mobile: the Share menu anchors left at ≤520 px (it was cut off on the right).
+
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.
 2. (Done 2026-10-26) Repo public, Pages source = GitHub Actions. Live at

@@ -63,6 +63,12 @@ export function countyUrl(geoid: string, embed = false): string {
   return url.toString();
 }
 
+/** Link for sharing: the county's preview page (c/<GEOID>/, built for link previews such as Discord) in production. */
+export function shareUrl(geoid: string): string {
+  if (!import.meta.env.PROD) return countyUrl(geoid); // preview pages are generated only by the production build
+  return new URL(`c/${geoid}/`, new URL("./", window.location.href)).toString();
+}
+
 export function readGeoidFromUrl(): string | null {
   const g = new URLSearchParams(window.location.search).get("county");
   return g && /^\d{5}$/.test(g) ? g : null;

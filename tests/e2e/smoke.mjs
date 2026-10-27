@@ -74,7 +74,7 @@ try {
   await page.getByRole("menuitem", { name: "Copy link" }).click();
   await page.waitForTimeout(200);
   const clip = await page.evaluate(() => navigator.clipboard.readText());
-  check("copy link puts the county URL on the clipboard", clip.includes(`county=${meta.default_geoid}`) && !clip.includes("embed"), clip);
+  check("copy link gives the county's link-preview URL", clip === `${BASE}c/${meta.default_geoid}/`, clip);
   await page.getByRole("button", { name: "Share" }).click();
   const [dl] = await Promise.all([page.waitForEvent("download"), page.getByRole("menuitem", { name: "Download similar counties (CSV)" }).click()]);
   const csv = readFileSync(await dl.path(), "utf8").replace(/^\ufeff/, "").trim().split(/\r?\n/);
@@ -274,6 +274,25 @@ try {
   await mobile.screenshot({ path: `${OUT}/mobile-map.png` });
   await mobile.locator("#chart-title").scrollIntoViewIfNeeded();
   await mobile.screenshot({ path: `${OUT}/mobile-chart.png` });
+  await mobile.getByRole("button", { name: "Share" }).scrollIntoViewIfNeeded();
+  await mobile.getByRole("button", { name: "Share" }).tap();
+  await mobile.waitForTimeout(400);
+  const mb = await mobile.locator(".menu").boundingBox();
+  check("mobile: share menu fits on screen", mb && mb.x >= 0 && mb.x + mb.width <= 390, mb && `${Math.round(mb.x)}–${Math.round(mb.x + mb.width)}px`);
+  await mobile.screenshot({ path: `${OUT}/mobile-share.png` });
+
+  // Link previews (Discord, Slack, iMessage): crawlers read static tags, so each county has its own small page.
+  const home = await (await page.request.get(BASE)).text();
+  check("home page has absolute preview tags", !home.includes("%SITE_URL%") && /og:image" content="https:\/\/[^"]+favicon\.png"/.test(home));
+  check("favicon is served", (await page.request.get(`${BASE}favicon-32.png`)).ok() && (await page.request.get(`${BASE}favicon.png`)).ok());
+  const prev = await (await page.request.get(`${BASE}c/${multi.geoid}/`)).text();
+  const ogTitle = prev.match(/og:title" content="([^"]+)"/)?.[1] ?? "";
+  check("county preview page states its result", ogTitle.startsWith(`${multi.county_name}, `) && /similar count/.test(ogTitle)
+    && prev.includes('name="theme-color"') && /og:image" content="https:\/\//.test(prev), ogTitle);
+  const visitor = await browser.newPage();
+  await visitor.goto(`${BASE}c/${multi.geoid}/`);
+  await visitor.waitForSelector("#summary-title");
+  check("preview link opens the county in the app", visitor.url().includes(`?county=${multi.geoid}`), visitor.url());
 
   // Embed mode: compact card with credit and a link out; no search or map.
   const emb = await browser.newPage({ viewport: { width: 600, height: 500 } });

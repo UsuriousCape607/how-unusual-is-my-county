@@ -1,6 +1,6 @@
 # Test results
 
-Run on 2026-10-26 against data version `compute-atlas-v1.34.1-asof-2026-10-02_census-v2025`.
+Run on 2026-10-27 against data version `compute-atlas-v1.34.1-asof-2026-10-02_census-v2025`.
 
 | Suite | Command | Result |
 |---|---|---|
@@ -9,7 +9,7 @@ Run on 2026-10-26 against data version `compute-atlas-v1.34.1-asof-2026-10-02_ce
 | AI explanation checks | `python scripts/build_ai_examples.py check` | **3/3 passed** |
 | Frontend unit tests | `npm test` | **11 passed** |
 | Type check + production build | `npm run build` | **passes** |
-| End-to-end (Playwright, Chromium, desktop + 390 px mobile) | `npm run test:e2e` | **59/59 passed** (`docs/e2e-results.json`) |
+| End-to-end (Playwright, Chromium, desktop + 390 px mobile) | `npm run test:e2e` | **64/64 passed** (`docs/e2e-results.json`) |
 
 ## What is covered (spec section 12)
 **Data:** 5-digit GEOIDs with leading zeros (e.g. `01001`); no duplicate or invalid keys; valid population and land
@@ -40,6 +40,9 @@ sentence is used; limitations are present; the inputs match the current data (st
   here / counted elsewhere (switches county) / operating / not counted with reason; report link. Validation adds:
   project index covers all records and matches the counted set, every uncounted record has a reason, status
   breakdown sums to the count, state context reconciles.
+- Link previews: copy link gives `c/<GEOID>/`; that page's `og:title` states the county's result, its image URL is
+  absolute and it has a theme colour; the home page has no unfilled `%SITE_URL%`; both favicons are served; opening
+  a preview link lands on that county in the app. On a 390 px phone the Share menu stays fully on screen.
 - The chart shows 40 peer dots; the summary breakdown, facility list and legend counts match the data.
 - The peer table expands from 10 to 40 rows, and selecting a peer refocuses the app.
 - Zero-count wording appears and "has no proposed data centers" never does.

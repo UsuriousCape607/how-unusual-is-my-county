@@ -43,7 +43,11 @@ npm run dev        # http://localhost:5173
 npm run build      # static site in dist/
 npm run preview    # serve dist/ locally
 ```
-Share a county with `?county=<GEOID>`, e.g. `?county=51107`. The **Share** menu also prints a county summary,
+Share a county with `?county=<GEOID>`, e.g. `?county=51107`. **Copy link** in the Share menu hands out
+`c/<GEOID>/` instead: a tiny page generated at build time (one per county, `vite.config.ts`) whose Open Graph tags
+state that county's result, so Discord, Slack, iMessage and social sites show a real preview card; visitors are
+forwarded straight to the app. Link previews need absolute URLs; the build uses the GitHub Pages address unless
+`SITE_URL` is set (e.g. `SITE_URL=https://example.org/county/ npm run build`). The Share menu also prints a county summary,
 downloads the similar-counties table and the county's records as CSV, and gives iframe code for news sites:
 `?county=<GEOID>&embed=1` shows a compact card with the data date, source credit and a link to the full site.
 **Find a project** searches every Compute Atlas record in the snapshot and says whether it is counted, where, or

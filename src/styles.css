@@ -427,3 +427,8 @@ button.primary:hover { background: #0077ed; }
 .error-page { max-width: 560px; margin: 64px auto; text-align: center; padding: 36px 32px; }
 .error-page h2 { margin-bottom: 10px; }
 .error-page p { color: var(--ink-2); margin-bottom: 20px; }
+
+@media (max-width: 520px) {
+  .menu { left: 0; right: auto; transform-origin: top left; width: max-content; max-width: calc(100vw - 48px); }
+  .menu [role="menuitem"] { padding: 11px 12px; }
+}
