@@ -292,9 +292,37 @@ try {
   await page.waitForSelector("#summary-title");
   check("no status line for a single-record county", !(await page.$(".status-line")), `${one.county_name}, ${one.state}`);
 
+  // Refresh after a deploy: data requests carry the build ID, so new code never runs on old cached data...
+  const fresh = await browser.newPage();
+  const dataUrls = [];
+  fresh.on("request", (r) => { if (r.url().includes("/data/")) dataUrls.push(r.url()); });
+  await fresh.goto(`${BASE}?county=${meta.default_geoid}`);
+  await fresh.waitForSelector("#summary-title");
+  await fresh.reload();
+  await fresh.waitForSelector("#summary-title");
+  check("data requests carry the build ID (no stale cache after a deploy)", dataUrls.length > 0 && dataUrls.every((u) => /\?v=\w+/.test(u)), dataUrls[0]);
+  // ...and if old-shaped data does arrive, the page still renders (this was a blank page).
+  const stale = await browser.newPage();
+  await stale.route("**/data/county_metrics.json*", async (r) => {
+    const res = await r.fetch(); const j = await res.json(); j.forEach((m) => delete m.pipeline_by_status); r.fulfill({ response: res, json: j });
+  });
+  await stale.route("**/data/metadata.json*", async (r) => {
+    const res = await r.fetch(); const j = await res.json(); delete j.state_context; r.fulfill({ response: res, json: j });
+  });
+  await stale.goto(`${BASE}?county=${meta.default_geoid}`);
+  check("page renders even with data from an older deploy", await stale.waitForSelector("#summary-title", { timeout: 15000 }).then(() => true, () => false));
+  // A real render crash shows a recovery message, never a blank page.
+  const crash = await browser.newPage();
+  await crash.route("**/data/county_peers.json*", async (r) => {
+    const res = await r.fetch(); const j = await res.json(); j.peers[meta.default_geoid] = {}; r.fulfill({ response: res, json: j });
+  });
+  await crash.goto(`${BASE}?county=${meta.default_geoid}`);
+  check("a render error shows 'Something went wrong' with Reload", await crash.waitForSelector("text=Something went wrong", { timeout: 15000 }).then(() => true, () => false)
+    && await crash.getByRole("button", { name: "Reload" }).isVisible());
+
   // Error state when data cannot load.
   const broken = await browser.newPage();
-  await broken.route("**/data/county_metrics.json", (r) => r.fulfill({ status: 500, body: "" }));
+  await broken.route("**/data/county_metrics.json*", (r) => r.fulfill({ status: 500, body: "" }));
   await broken.goto(BASE);
   await broken.waitForSelector('[role="alert"]');
   check("load failure shows an error message", (await broken.textContent('[role="alert"]')).includes("could not be loaded"));

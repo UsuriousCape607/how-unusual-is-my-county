@@ -54,13 +54,16 @@ export default function CountySummary({ county, peer, metadata, byGeoid, facilit
   const total = peer.n_fewer + peer.n_equal + peer.n_greater;
   const v = verdict(county, peer);
   const closest = peer.peer_geoids.slice(0, 3).map((g) => byGeoid.get(g)!);
-  const st = metadata.state_context[county.state];
+  const st = metadata.state_context?.[county.state];
   // What's in the count: statuses as listed in the snapshot (precomputed in Python), only when there is a mix to show.
-  const parts = [
-    { n: county.pipeline_by_status.under_construction, label: "under construction" },
-    { n: county.pipeline_by_status.permitted, label: "permitted" },
-    { n: county.pipeline_by_status.proposed, label: "proposed" },
-  ].filter((x) => x.n > 0);
+  const s = county.pipeline_by_status;
+  const parts = s
+    ? [
+        { n: s.under_construction, label: "under construction" },
+        { n: s.permitted, label: "permitted" },
+        { n: s.proposed, label: "proposed" },
+      ].filter((x) => x.n > 0)
+    : [];
 
   return (
     <section className="card answer" aria-labelledby="summary-title">
@@ -88,7 +91,7 @@ export default function CountySummary({ county, peer, metadata, byGeoid, facilit
               <span className="muted"> as of {fmtDateShort(metadata.snapshot_date)}</span>
             </span>
           </div>
-          {n >= 2 && (
+          {n >= 2 && parts.length > 0 && (
             <p className="status-line" aria-label="Status of these sites, as listed in the snapshot">
               {parts.map((x, i) => (
                 <span key={x.label}>

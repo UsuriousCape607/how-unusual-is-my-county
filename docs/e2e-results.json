@@ -197,7 +197,7 @@
   {
     "name": "wheel zoom is continuous with at most 2 redraw freezes",
     "ok": true,
-    "detail": "zoom 7 -> 8.68; map moved in 57/59 frames; 1 long tasks"
+    "detail": "zoom 7 -> 8.68; map moved in 58/59 frames; 1 long tasks"
   },
   {
     "name": "a second wheel gesture works right after the first",
@@ -273,6 +273,21 @@
     "name": "no status line for a single-record county",
     "ok": true,
     "detail": "Houston County, AL"
+  },
+  {
+    "name": "data requests carry the build ID (no stale cache after a deploy)",
+    "ok": true,
+    "detail": "http://127.0.0.1:4179/data/county_metrics.json?v=mvpyvcf9"
+  },
+  {
+    "name": "page renders even with data from an older deploy",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "a render error shows 'Something went wrong' with Reload",
+    "ok": true,
+    "detail": ""
   },
   {
     "name": "load failure shows an error message",

@@ -1,8 +1,11 @@
 import type { FeatureCollection } from "geojson";
 import type { AIExample, AppData, CountyMetric, Facility, Metadata, PeersFile, Project } from "../types";
 
+declare const __BUILD_ID__: string;
+
 async function getJSON<T>(file: string): Promise<T> {
-  const res = await fetch(`${import.meta.env.BASE_URL}data/${file}`);
+  // ?v= ties each data file to this build, so a refresh never mixes new code with old cached data.
+  const res = await fetch(`${import.meta.env.BASE_URL}data/${file}?v=${__BUILD_ID__}`);
   if (!res.ok) throw new Error(`Could not load ${file} (HTTP ${res.status})`);
   return (await res.json()) as T;
 }

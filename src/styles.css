@@ -424,3 +424,6 @@ button.primary:hover { background: #0077ed; }
   .card h3 { font-size: 1rem; margin-bottom: 6px; }
   .site-footer { font-size: 0.62rem; }
 }
+.error-page { max-width: 560px; margin: 64px auto; text-align: center; padding: 36px 32px; }
+.error-page h2 { margin-bottom: 10px; }
+.error-page p { color: var(--ink-2); margin-bottom: 20px; }

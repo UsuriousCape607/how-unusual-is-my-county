@@ -71,6 +71,12 @@
   Print stylesheet: page 1 answer + chart, then records and the 10 most similar counties.
   Not built (discussed, not approved yet): robustness badge (20/40/80 peers), change-over-time, Spanish.
 
+- Blank page on refresh (2026-10-27): GitHub Pages lets browsers reuse files for 10 min; JS has hashed names but data
+  files don't, so a refresh after a deploy ran new code on old cached JSON (missing `state_context`) and crashed.
+  Fix: every data fetch adds `?v=<build id>` (`__BUILD_ID__` defined in vite.config.ts); an ErrorBoundary shows
+  "Something went wrong / Reload" instead of a blank page; post-v1 fields are read defensively. e2e simulates
+  stale data and a render crash.
+
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.
 2. (Done 2026-10-26) Repo public, Pages source = GitHub Actions. Live at
