@@ -140,6 +140,40 @@ try {
   const viewAfter = await page.getAttribute(".map", "data-view");
   check("map click does not move the camera", viewBefore && viewBefore === viewAfter, `${viewBefore} vs ${viewAfter}`);
 
+  // Desktop wheel/trackpad zoom: continuous (map moves nearly every frame), one redraw at the end, and repeat
+  // gestures keep working (a second gesture used to be aborted by Leaflet snapping the fractional zoom).
+  await page.mouse.move(box.x + box.width / 2 + 15, box.y + box.height / 2 + 10);
+  const wz = async () => Number((await page.getAttribute(".map", "data-view")).split(",")[2]);
+  const wz0 = await wz();
+  await page.evaluate(() => {
+    window.__scales = []; window.__long = [];
+    new PerformanceObserver((l) => l.getEntries().forEach((e) => window.__long.push(e.duration))).observe({ entryTypes: ["longtask"] });
+    const c = document.querySelector(".leaflet-overlay-pane canvas");
+    const tick = () => { window.__scales.push(getComputedStyle(c).transform); if (window.__scales.length < 60) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
+  for (let i = 0; i < 40; i++) { await page.mouse.wheel(0, -12); await page.waitForTimeout(16); }
+  await page.waitForTimeout(1000);
+  const wz1 = await wz();
+  const wheel = await page.evaluate(() => ({ scales: window.__scales, long: window.__long.length }));
+  let moved = 0; for (let i = 1; i < wheel.scales.length; i++) if (wheel.scales[i] !== wheel.scales[i - 1]) moved++;
+  check("wheel zoom is continuous with at most 2 redraw freezes", wz1 > wz0 + 1 && moved >= 0.8 * (wheel.scales.length - 1) && wheel.long <= 2,
+    `zoom ${wz0} -> ${wz1}; map moved in ${moved}/${wheel.scales.length - 1} frames; ${wheel.long} long tasks`);
+  for (let i = 0; i < 10; i++) { await page.mouse.wheel(0, 12); await page.waitForTimeout(16); }
+  await page.waitForTimeout(900);
+  const wz2 = await wz();
+  check("a second wheel gesture works right after the first", wz2 < wz1 - 0.2, `zoom ${wz1} -> ${wz2}`);
+  // The county under the cursor stays under the cursor while zooming.
+  const ax = box.x + 70, ay = box.y + box.height * 0.55;
+  await page.mouse.move(ax, ay); await page.waitForTimeout(250);
+  const under0 = await page.textContent(".map-hover strong").catch(() => "");
+  for (let i = 0; i < 15; i++) { await page.mouse.wheel(0, -12); await page.waitForTimeout(16); }
+  await page.waitForTimeout(900);
+  await page.mouse.move(box.x + box.width + 40, ay); await page.waitForTimeout(150);
+  await page.mouse.move(ax, ay); await page.waitForTimeout(250);
+  const under1 = await page.textContent(".map-hover strong").catch(() => "");
+  check("wheel zoom keeps the point under the cursor fixed", under0 && under0 === under1, `${under0} / ${under1}`);
+
   // "Similar counties" reframes with a cross-fade (no blank-canvas flight) and ends fully visible.
   const zoomCounty = Number((await page.getAttribute(".map", "data-view")).split(",")[2]);
   await page.getByRole("button", { name: "Similar counties", exact: true }).click();

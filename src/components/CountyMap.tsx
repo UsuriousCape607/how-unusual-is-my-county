@@ -4,6 +4,7 @@ import type { Feature, FeatureCollection } from "geojson";
 import type { CountyMetric, Facility } from "../types";
 import { plural, statusLabel } from "../lib/format";
 import { COLOR, MAP, RAMP, comparisonOf, type Comparison } from "../lib/theme";
+import { attachSmoothWheelZoom } from "../lib/smoothWheelZoom";
 
 export type SelectionSource = "map" | "other";
 type MapView = "county" | "similar" | "shaded";
@@ -64,6 +65,8 @@ export default function CountyMap(props: Props) {
   const camera = useRef<{ sel: string | null; view: MapView }>({ sel: null, view });
   const moveToken = useRef(0);
   const shadedRef = useRef(false);
+  // True while the camera is moving (wheel gesture or animated move); hover work is paused then.
+  const moving = useRef(false);
 
   const featureById = useMemo(() => new Map(counties.features.map((f) => [f.properties?.geoid as string, f])), [counties]);
   const own = byGeoid.get(selected)?.pipeline_count ?? 0;
@@ -122,7 +125,8 @@ export default function CountyMap(props: Props) {
     const pane = map.getPane("mapPane")!;
     const run = () => {
       if (token !== moveToken.current) return;
-      map.stop();
+      // Not map.stop(): it snaps a fractional zoom (left by smooth wheel zoom) with an animation that would swallow this move.
+      (map as unknown as { _stop(): void })._stop();
       const fit = map.getBoundsZoom(t[0], false, L.point(48, 48));
       const zoom = Math.max(map.getMinZoom(), Math.min(fit, t[1]) - t[2]);
       const center = t[0].getCenter();
@@ -155,7 +159,7 @@ export default function CountyMap(props: Props) {
   useEffect(() => {
     if (!container.current) return;
     const map = L.map(container.current, {
-      preferCanvas: true, zoomControl: false, zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 90,
+      preferCanvas: true, zoomControl: false, zoomSnap: 0.25, zoomDelta: 0.5, scrollWheelZoom: false, // see smoothWheelZoom
       minZoom: 2.5, maxZoom: 11, maxBounds: L.latLngBounds([5, -200], [76, -40]), maxBoundsViscosity: 0.85,
     });
     L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -174,6 +178,7 @@ export default function CountyMap(props: Props) {
         layers.current.set(geoid, lyr as L.Polygon);
         lyr.on("click", () => onSelectRef.current(geoid, "map"));
         lyr.on("mouseover", () => {
+          if (moving.current) return;
           setHover(describe.current(geoid));
           hoverLayer.current?.clearLayers();
           if (hoverLayer.current) {
@@ -203,12 +208,23 @@ export default function CountyMap(props: Props) {
     // Current camera as a plain attribute, so tests can check when the view moves.
     map.on("moveend", () => {
       const c = map.getCenter();
-      container.current?.setAttribute("data-view", `${c.lat.toFixed(4)},${c.lng.toFixed(4)},${map.getZoom()}`);
+      container.current?.setAttribute("data-view", `${c.lat.toFixed(4)},${c.lng.toFixed(4)},${+map.getZoom().toFixed(2)}`);
     });
+    const clearHover = () => {
+      setHover(null);
+      hoverLayer.current?.clearLayers();
+    };
+    const detachWheel = attachSmoothWheelZoom(map, (on) => {
+      moving.current = on;
+      if (on) clearHover();
+    });
+    map.on("movestart", () => (moving.current = true));
+    map.on("moveend", () => (moving.current = false));
     map.fitBounds(LOWER_48);
     camera.current = { sel: null, view: camera.current.view };
     mapRef.current = map;
     return () => {
+      detachWheel();
       map.remove();
       mapRef.current = null;
     };
@@ -268,7 +284,9 @@ export default function CountyMap(props: Props) {
     const r = renderer.current ?? undefined;
     if (!group) return;
     group.clearLayers();
-    const show = (info: HoverInfo) => () => setHover(info);
+    const show = (info: HoverInfo) => () => {
+      if (!moving.current) setHover(info);
+    };
     const hide = () => setHover(null);
     const approx = new Map<string, Facility[]>();
     for (const f of facilities) {

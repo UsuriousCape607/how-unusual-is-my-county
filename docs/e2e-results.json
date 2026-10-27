@@ -130,9 +130,24 @@
     "detail": "39.0855,-77.6450,7 vs 39.0855,-77.6450,7"
   },
   {
+    "name": "wheel zoom is continuous with at most 2 redraw freezes",
+    "ok": true,
+    "detail": "zoom 7 -> 8.68; map moved in 57/59 frames; 1 long tasks"
+  },
+  {
+    "name": "a second wheel gesture works right after the first",
+    "ok": true,
+    "detail": "zoom 8.68 -> 8.26"
+  },
+  {
+    "name": "wheel zoom keeps the point under the cursor fixed",
+    "ok": true,
+    "detail": "Warren County, VA / Warren County, VA"
+  },
+  {
     "name": "similar-counties view zooms out and settles visible",
     "ok": true,
-    "detail": "zoom 7 -> 4.5, opacity 1"
+    "detail": "zoom 8.89 -> 4.5, opacity 1"
   },
   {
     "name": "example chip selects county",

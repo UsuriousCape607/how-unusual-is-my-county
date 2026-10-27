@@ -9,7 +9,7 @@ Run on 2026-10-26 against data version `compute-atlas-v1.34.1-asof-2026-10-02_ce
 | AI explanation checks | `python scripts/build_ai_examples.py check` | **3/3 passed** |
 | Frontend unit tests | `npm test` | **8 passed** |
 | Type check + production build | `npm run build` | **passes** |
-| End-to-end (Playwright, Chromium, desktop + 390 px mobile) | `npm run test:e2e` | **37/37 passed** (`docs/e2e-results.json`) |
+| End-to-end (Playwright, Chromium, desktop + 390 px mobile) | `npm run test:e2e` | **40/40 passed** (`docs/e2e-results.json`) |
 
 ## What is covered (spec section 12)
 **Data:** 5-digit GEOIDs with leading zeros (e.g. `01001`); no duplicate or invalid keys; valid population and land
@@ -33,6 +33,8 @@ sentence is used; limitations are present; the inputs match the current data (st
 - The plain-language verdict restates the counts; example chips and the "What do these numbers mean?" panel work.
 - "Similar counties" zooms out to frame the peers and settles fully visible after its cross-fade; the hover card
   appears inside the map frame; chart dots and the map legend match the fewer/same/more counts.
+- Desktop wheel/trackpad zoom is continuous (the map moves in nearly every frame, at most 2 redraw freezes per
+  gesture), a second gesture works immediately after the first, and the point under the cursor stays fixed.
 - The chart shows 40 peer dots; the summary breakdown, facility list and legend counts match the data.
 - The peer table expands from 10 to 40 rows, and selecting a peer refocuses the app.
 - Zero-count wording appears and "has no proposed data centers" never does.

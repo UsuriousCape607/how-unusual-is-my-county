@@ -25,8 +25,7 @@
   document it as an owner-approved extension.
 
 - 2025 Gazetteer is pipe-delimited; delimiter auto-detected (`common.gazetteer_delimiter`).
-- Map: single shared Leaflet canvas (a second canvas blocks county events); `zoomAnimation: false` (Leaflet drops zoom
-  requests mid-animation); record markers only at zoom >= 6.
+- Map: single shared Leaflet canvas (a second canvas blocks county events); record markers only at zoom >= 6.
 - Web export drops `peer_distances` (kept in data/processed) and rounds display coords to 3 decimals (~2 MB gzip total).
 
 - Weekly refresh + Pages deploy workflow added (2026-10-26). The owner must make the repo public and set Pages
@@ -55,6 +54,13 @@
   Large reframes (e.g. Similar counties) cross-fade instead of flying (Leaflet scales the old canvas during flights,
   so big zoom-outs showed blank map); small moves glide. Zoom control bottom-right; soft maxBounds; map 5:4.
   Focus ring on the map only for keyboard users (`.kbd` class set on Tab).
+
+- Desktop zoom (2026-10-27): Leaflet's wheel zoom made discrete animated steps, dropped input during each step and
+  redrew ~3,000 counties after every step (7 freezes of 105–177 ms per trackpad gesture). Replaced with
+  `src/lib/smoothWheelZoom.ts`: pinch-style continuous zoom around the cursor, one redraw at the end (measured:
+  map moves in 58/59 frames, 1 freeze). Never call public `map.stop()`: it snaps fractional zoom with an animation
+  that aborted the next gesture and swallowed camera moves; use internal `_stop()`. Border meshes are grouped into
+  2° tiles so small redraws (hover) stay local. e2e covers continuity, repeat gestures and cursor anchoring.
 
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.

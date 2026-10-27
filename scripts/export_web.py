@@ -16,7 +16,7 @@ import geopandas as gpd
 import pandas as pd
 import shapely
 from shapely.affinity import translate
-from shapely.geometry import MultiPolygon, Polygon, mapping
+from shapely.geometry import MultiLineString, MultiPolygon, Polygon, mapping
 
 from common import (
     ACCEPTED_CONFIDENCE, CENSUS_VINTAGE, COMPUTE_ATLAS_TAG, DISTANCE_METHOD, FACILITY_TYPE, N_PEERS, OPERATIONAL_STATUS,
@@ -43,6 +43,18 @@ def rounded_feature(geom, props: dict) -> dict:
     return {"type": "Feature", "properties": props, "geometry": mapping(geom)}
 
 
+def line_features(mesh, cell_deg: float = 2.0) -> list[dict]:
+    """Border lines grouped into 2°×2° tiles. A single nationwide multi-line would be redrawn in full by Leaflet's
+    canvas on every small partial redraw (e.g. a hover outline); tiles keep redraws local without creating
+    thousands of tiny layers."""
+    parts = [p for p in (mesh.geoms if hasattr(mesh, "geoms") else [mesh]) if not p.is_empty]
+    cells: dict[tuple[int, int], list] = {}
+    for p in parts:
+        c = p.centroid
+        cells.setdefault((int(c.x // cell_deg), int(c.y // cell_deg)), []).append(p)
+    return [rounded_feature(MultiLineString(v) if len(v) > 1 else v[0], {}) for _, v in sorted(cells.items())]
+
+
 def feature_collection(features: list[dict]) -> dict:
     return {"type": "FeatureCollection", "features": features}
 
@@ -63,7 +75,7 @@ def main() -> int:
     # Drawing each polygon's own outline paints shared edges twice and lets later fills cover half of a neighbour's
     # stroke, which makes borders look uneven. A mesh with each edge once draws evenly.
     county_mesh = shapely.line_merge(shapely.union_all(shapely.boundary(simple)))
-    write_json(PUBLIC_DATA / "county_borders.geojson", feature_collection([rounded_feature(county_mesh, {})]), compact=True)
+    write_json(PUBLIC_DATA / "county_borders.geojson", feature_collection(line_features(county_mesh)), compact=True)
 
     sgdf = gpd.GeoDataFrame({"state_fips": polys["geoid"].str[:2]}, geometry=simple, crs=4326)
     state_geoms = []
@@ -71,7 +83,7 @@ def main() -> int:
         g = shapely.union_all(grp.geometry.values)  # robust union; snapping can upset the faster coverage union
         state_geoms.append(g if isinstance(g, (Polygon, MultiPolygon)) else shapely.make_valid(g))
     state_mesh = shapely.line_merge(shapely.union_all(shapely.boundary(state_geoms)))
-    write_json(PUBLIC_DATA / "states.geojson", feature_collection([rounded_feature(state_mesh, {})]), compact=True)
+    write_json(PUBLIC_DATA / "states.geojson", feature_collection(line_features(state_mesh)), compact=True)
 
     m = pd.read_csv(PROCESSED / "county_metrics.csv", dtype={"geoid": str, "state_fips": str})
     metrics = []
