@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 import type { Feature, FeatureCollection } from "geojson";
 import type { CountyMetric, Facility } from "../types";
-import { plural, statusLabel } from "../lib/format";
+import { statusLabel } from "../lib/format";
+import { useM } from "../i18n/I18nProvider";
 import { COLOR, MAP, RAMP, comparisonOf, type Comparison } from "../lib/theme";
 import { attachSmoothWheelZoom } from "../lib/smoothWheelZoom";
 
@@ -30,13 +31,8 @@ interface HoverInfo {
 const MARKER_MIN_ZOOM = 6;
 const LOWER_48 = L.latLngBounds([24.4, -125], [49.5, -66.9]);
 const OFF_MAINLAND = new Set(["02", "15"]); // Alaska, Hawaii
-const VIEWS: { id: MapView; label: string }[] = [
-  { id: "county", label: "This county" },
-  { id: "similar", label: "Similar counties" },
-  { id: "shaded", label: "All counties" },
-];
+const VIEWS: MapView[] = ["county", "similar", "shaded"];
 const CMP_COLOR: Record<Comparison, string> = { fewer: COLOR.fewer, same: COLOR.same, more: COLOR.more };
-const CMP_LABEL: Record<Comparison, string> = { fewer: "fewer", same: "the same", more: "more" };
 
 function rampColor(n: number): string {
   let c = RAMP[0].color;
@@ -48,6 +44,7 @@ const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce
 
 export default function CountyMap(props: Props) {
   const { counties, countyBorders, states, byGeoid, selected, peerGeoids, facilities, selectionSource, onSelect } = props;
+  const m = useM();
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const base = useRef<L.GeoJSON | null>(null);
@@ -86,10 +83,10 @@ export default function CountyMap(props: Props) {
     const c = byGeoid.get(geoid);
     if (!c) return null;
     const n = c.pipeline_count;
-    const lines = [`${n} ${plural(n, "site", "sites")} in development`];
-    if (geoid === selected) lines.push("This county");
-    else if (peerCmp.has(geoid)) lines.push(`Similar county · ${CMP_LABEL[peerCmp.get(geoid)!]} than ${byGeoid.get(selected)?.county_name}`);
-    else lines.push("Click to compare");
+    const lines = [m.sitesInDev(n)];
+    if (geoid === selected) lines.push(m.thisCounty);
+    else if (peerCmp.has(geoid)) lines.push(m.hoverSimilar[peerCmp.get(geoid)!](byGeoid.get(selected)?.county_name ?? ""));
+    else lines.push(m.clickToCompare);
     return { title: `${c.county_name}, ${c.state}`, lines };
   };
 
@@ -293,7 +290,7 @@ export default function CountyMap(props: Props) {
       if (f.metric !== "pipeline" || f.latitude === undefined || f.longitude === undefined) continue;
       if (f.location_precision === "exact") {
         L.circleMarker([f.latitude, f.longitude], { renderer: r, radius: 5.5, color: "#ffffff", weight: 2, fillColor: COLOR.blue, fillOpacity: 1 })
-          .on("mouseover", show({ title: f.name ?? f.source_id, lines: [statusLabel(f.status) ?? "", "Exact location"] }))
+          .on("mouseover", show({ title: f.name ?? f.source_id, lines: [statusLabel(f.status) ?? "", m.exactLocation] }))
           .on("mouseout", hide)
           .addTo(group);
       } else {
@@ -305,8 +302,8 @@ export default function CountyMap(props: Props) {
     for (const recs of approx.values()) {
       const names = recs.slice(0, 4).map((f) => f.name ?? f.source_id);
       const info: HoverInfo = recs.length === 1
-        ? { title: names[0], lines: [statusLabel(recs[0].status) ?? "", "Approximate location, not the actual site"] }
-        : { title: `${recs.length} sites in this approximate area`, lines: [...names, ...(recs.length > 4 ? [`and ${recs.length - 4} more`] : []), "Approximate locations, not the actual sites"] };
+        ? { title: names[0], lines: [statusLabel(recs[0].status) ?? "", m.approxLocation] }
+        : { title: m.approxArea(recs.length), lines: [...names, ...(recs.length > 4 ? [m.andMore(recs.length - 4)] : []), m.approxLocations] };
       L.circleMarker([recs[0].latitude!, recs[0].longitude!], {
         renderer: r, radius: Math.min(22, 13 + 2.5 * Math.log2(recs.length)),
         color: COLOR.blue, weight: 1, opacity: 0.55, fillColor: COLOR.blue, fillOpacity: 0.14,
@@ -315,7 +312,7 @@ export default function CountyMap(props: Props) {
         .on("mouseout", hide)
         .addTo(group);
     }
-  }, [facilities]);
+  }, [facilities, m]);
 
   const choose = (v: MapView) => (v === view ? go(v, true) : setView(v));
   const nExact = facilities.filter((f) => f.metric === "pipeline" && f.location_precision === "exact").length;
@@ -324,17 +321,17 @@ export default function CountyMap(props: Props) {
   return (
     <section className="card map-card" aria-labelledby="map-title">
       <div className="map-head">
-        <h3 id="map-title">Map</h3>
-        <div className="segmented" role="group" aria-label="Map view">
+        <h3 id="map-title">{m.mapTitle}</h3>
+        <div className="segmented" role="group" aria-label={m.mapViewAria}>
           {VIEWS.map((v) => (
-            <button key={v.id} type="button" aria-pressed={view === v.id} onClick={() => choose(v.id)}>
-              {v.label}
+            <button key={v} type="button" aria-pressed={view === v} onClick={() => choose(v)}>
+              {m.view[v]}
             </button>
           ))}
         </div>
       </div>
       <div className="map-frame">
-        <div ref={container} className="map" role="region" aria-label="County map. Select a county to compare it." />
+        <div ref={container} className="map" role="region" aria-label={m.mapAria} />
         {/* Hover details live in a card pinned inside the frame, so they are never clipped by the map edge. */}
         <div className={`map-hover${hover ? " on" : ""}`} aria-hidden="true">
           {hover && (
@@ -350,30 +347,30 @@ export default function CountyMap(props: Props) {
       <div className="legend">
         {view !== "shaded" ? (
           <>
-            <span><i className="sw" style={{ background: COLOR.blue }} /> This county</span>
+            <span><i className="sw" style={{ background: COLOR.blue }} /> {m.thisCounty}</span>
             <span className="legend-group">
-              Similar counties with
-              <span><i className="sw" style={{ background: COLOR.fewer }} /> fewer ({cmpCounts.fewer})</span>
-              <span><i className="sw" style={{ background: COLOR.same }} /> the same ({cmpCounts.same})</span>
-              <span><i className="sw" style={{ background: COLOR.more }} /> more ({cmpCounts.more})</span>
+              {m.legendSimilarWith}
+              <span><i className="sw" style={{ background: COLOR.fewer }} /> {m.legend.fewer(cmpCounts.fewer)}</span>
+              <span><i className="sw" style={{ background: COLOR.same }} /> {m.legend.same(cmpCounts.same)}</span>
+              <span><i className="sw" style={{ background: COLOR.more }} /> {m.legend.more(cmpCounts.more)}</span>
             </span>
           </>
         ) : (
           <span className="legend-group">
-            Sites in development
+            {m.legendSites}
             {RAMP.map((b) => (
               <span key={b.label}><i className="sw" style={{ background: b.color }} /> {b.label}</span>
             ))}
-            <span><i className="sw outline" /> this county</span>
+            <span><i className="sw outline" /> {m.legendThisCounty}</span>
           </span>
         )}
-        {nExact > 0 && <span><i className="dot exact" /> Exact location ({nExact})</span>}
-        {nApprox > 0 && <span><i className="dot approx" /> Approximate area ({nApprox})</span>}
-        {nExact + nApprox > 0 && !markersVisible && <span className="muted">Zoom in to see where the sites are.</span>}
+        {nExact > 0 && <span><i className="dot exact" /> {m.legendExact(nExact)}</span>}
+        {nApprox > 0 && <span><i className="dot approx" /> {m.legendApprox(nApprox)}</span>}
+        {nExact + nApprox > 0 && !markersVisible && <span className="muted">{m.zoomHint}</span>}
       </div>
       {view === "similar" && offMap.length > 0 && (
         <p className="muted small">
-          Also similar, outside this view: {offMap.map((g) => `${byGeoid.get(g)?.county_name}, ${byGeoid.get(g)?.state}`).join("; ")}.
+          {m.offMap(offMap.map((g) => `${byGeoid.get(g)?.county_name}, ${byGeoid.get(g)?.state}`).join("; "))}
         </p>
       )}
     </section>

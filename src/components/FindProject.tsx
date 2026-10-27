@@ -4,6 +4,8 @@ import { loadProjects } from "../lib/data";
 import { searchProjects } from "../lib/projects";
 import { reasonLabel } from "../lib/reasons";
 import { statusLabel } from "../lib/format";
+import { useM } from "../i18n/I18nProvider";
+import { Rich } from "../i18n/Rich";
 
 export const REPORT_URL = "https://www.compute-atlas.com/contribute";
 
@@ -13,35 +15,35 @@ interface Props {
   onSelect: (geoid: string) => void;
 }
 
-const TYPE_LABEL: Record<string, string> = { data_center: "Data center", crypto_mining: "Crypto mining", power_generation: "Power generation" };
-
 function Verdict({ p, selected, byGeoid, onSelect }: { p: Project } & Props) {
+  const m = useM();
   const c = p.county_geoid ? byGeoid.get(p.county_geoid) : undefined;
-  const where = c ? `${c.county_name}, ${c.state}` : undefined;
+  const where = c ? `${c.county_name}, ${c.state}` : null;
   if (p.group === "pipeline" && p.county_geoid === selected) {
-    return <><span className="pill pill-blue">Counted here</span><span className="muted">Included in this county’s number.</span></>;
+    return <><span className="pill pill-blue">{m.countedHere}</span><span className="muted">{m.countedHereNote}</span></>;
   }
   if (p.group === "pipeline" && c) {
     return (
       <>
-        <span className="pill pill-blue">Counted</span>
+        <span className="pill pill-blue">{m.counted}</span>
         <span className="muted">
-          In {where}.{" "}
+          {m.countedIn(where!)}{" "}
           <button type="button" className="linkish" onClick={() => onSelect(c.geoid)}>
-            Compare {c.county_name}
+            {m.compareCounty(c.county_name)}
           </button>
         </span>
       </>
     );
   }
   if (p.group === "operational") {
-    return <><span className="pill">Operating</span><span className="muted">Shown as context{where ? ` in ${where}` : ""}, not in the count.</span></>;
+    return <><span className="pill">{m.operating}</span><span className="muted">{m.operatingContext(where)}</span></>;
   }
-  return <><span className="pill">Not counted</span><span className="muted">{reasonLabel(p.reason)}.</span></>;
+  return <><span className="pill">{m.notCounted}</span><span className="muted">{reasonLabel(p.reason)}.</span></>;
 }
 
 /** "Heard about a project? Is it counted?" — searches every Compute Atlas record in the snapshot. */
 export default function FindProject(props: Props) {
+  const m = useM();
   const [query, setQuery] = useState("");
   const [index, setIndex] = useState<Project[] | null>(null);
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
@@ -61,14 +63,11 @@ export default function FindProject(props: Props) {
 
   return (
     <section className="card find" id="find-project" aria-labelledby="find-title">
-      <h3 id="find-title">Find a project</h3>
-      <p className="muted small">
-        Heard about a specific project? Search every record in the snapshot by name, company, or place to see whether it’s counted,
-        and if not, why.
-      </p>
+      <h3 id="find-title">{m.findTitle}</h3>
+      <p className="muted small">{m.findHelp}</p>
       <div className="search find-search">
         <label htmlFor="find-input" className="sr-only">
-          Search projects
+          {m.findLabel}
         </label>
         <svg className="search-icon" viewBox="0 0 16 16" aria-hidden="true">
           <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
@@ -77,7 +76,7 @@ export default function FindProject(props: Props) {
         <input
           id="find-input"
           type="search"
-          placeholder="e.g. Meta, Project Mica, Abilene"
+          placeholder={m.findPlaceholder}
           autoComplete="off"
           value={query}
           onFocus={ensureLoaded}
@@ -89,11 +88,11 @@ export default function FindProject(props: Props) {
       </div>
 
       <div aria-live="polite">
-        {state === "loading" && q && <p className="muted small find-msg">Loading all 2,000+ project records…</p>}
-        {state === "error" && <p className="muted small find-msg">The project list couldn’t be loaded. Check your connection and try again.</p>}
+        {state === "loading" && q && <p className="muted small find-msg">{m.findLoading}</p>}
+        {state === "error" && <p className="muted small find-msg">{m.findError}</p>}
         {index && q.length >= 2 && results.length === 0 && (
           <p className="muted small find-msg">
-            No project matches “{q}”. Compute Atlas may not list it yet; you can <a href={REPORT_URL}>report it to Compute Atlas</a>.
+            <Rich text={m.findNone(q)} a={(label) => <a href={REPORT_URL}>{label}</a>} />
           </p>
         )}
       </div>
@@ -106,12 +105,12 @@ export default function FindProject(props: Props) {
                 <strong>{p.name ?? p.id}</strong>
                 {p.source_url && (
                   <a className="small" href={p.source_url} target="_blank" rel="noopener noreferrer">
-                    Source
+                    {m.source}
                   </a>
                 )}
               </div>
               <p className="find-meta small">
-                {[p.operator, [p.city, p.state].filter(Boolean).join(", "), statusLabel(p.status), p.type && p.type !== "data_center" ? TYPE_LABEL[p.type] : null]
+                {[p.operator, [p.city, p.state].filter(Boolean).join(", "), statusLabel(p.status), p.type && p.type !== "data_center" ? m.projectType[p.type] ?? p.type : null]
                   .filter(Boolean)
                   .join(" · ")}
               </p>
@@ -124,7 +123,7 @@ export default function FindProject(props: Props) {
       )}
 
       <p className="small find-foot">
-        Know of a project that’s missing or wrong? <a href={REPORT_URL}>Report it to Compute Atlas</a>, the source this site uses.
+        <Rich text={m.findFoot} a={(label) => <a href={REPORT_URL}>{label}</a>} />
       </p>
     </section>
   );

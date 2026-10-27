@@ -1,5 +1,8 @@
 import type { CountyMetric, Facility, Metadata, PeerRecord } from "../types";
-import { fmtDateShort, fmtDensity, fmtInt, fmtStat, plural } from "../lib/format";
+import { fmtDateShort, fmtDensity, fmtInt, fmtStat } from "../lib/format";
+import { useM } from "../i18n/I18nProvider";
+import { Rich } from "../i18n/Rich";
+import { intlLocale } from "../i18n/state";
 import { typicalPhrase, verdict } from "../lib/summary";
 import { COLOR } from "../lib/theme";
 import ShareMenu from "./ShareMenu";
@@ -15,18 +18,19 @@ interface Props {
 
 
 export function ComparisonBar({ peer, name }: { peer: PeerRecord; name: string }) {
+  const m = useM();
   const total = peer.n_fewer + peer.n_equal + peer.n_greater;
   const parts = [
-    { key: "fewer", n: peer.n_fewer, color: COLOR.fewer, label: "have fewer" },
-    { key: "same", n: peer.n_equal, color: COLOR.same, label: "the same" },
-    { key: "more", n: peer.n_greater, color: COLOR.more, label: "have more" },
+    { key: "fewer", n: peer.n_fewer, color: COLOR.fewer, label: m.cmp.fewer(peer.n_fewer) },
+    { key: "same", n: peer.n_equal, color: COLOR.same, label: m.cmp.same(peer.n_equal) },
+    { key: "more", n: peer.n_greater, color: COLOR.more, label: m.cmp.more(peer.n_greater) },
   ];
   return (
     <div className="compare">
       <div
         className="compare-bar"
         role="img"
-        aria-label={`Of ${total} similar counties, ${peer.n_fewer} have fewer sites on record than ${name}, ${peer.n_equal} have the same number, and ${peer.n_greater} have more.`}
+        aria-label={m.barAria(total, peer.n_fewer, name, peer.n_equal, peer.n_greater)}
       >
         {/* All three segments always render so a change of county morphs the split (zero-width when empty). */}
         {parts.map((x, i) => (
@@ -41,7 +45,7 @@ export function ComparisonBar({ peer, name }: { peer: PeerRecord; name: string }
         {parts.map((x) => (
           <li key={x.key} className={x.n === 0 ? "zero" : undefined}>
             <i style={{ background: x.color }} />
-            <strong>{x.n}</strong> {x.label}
+            <Rich text={x.label} />
           </li>
         ))}
       </ul>
@@ -49,7 +53,27 @@ export function ComparisonBar({ peer, name }: { peer: PeerRecord; name: string }
   );
 }
 
+/** The closest counties as a list in the reader's language ("A, B, and C" / "A、B、C"), each a button. */
+function ClosestList({ closest, onSelect }: { closest: CountyMetric[]; onSelect: (geoid: string) => void }) {
+  let k = 0;
+  const parts = new Intl.ListFormat(intlLocale(), { type: "conjunction" }).formatToParts(closest.map((c) => `${c.county_name}, ${c.state}`));
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.type === "literal") return <span key={i}>{part.value}</span>;
+        const c = closest[k++];
+        return (
+          <button key={i} type="button" className="linkish" onClick={() => onSelect(c.geoid)}>
+            {part.value}
+          </button>
+        );
+      })}
+    </>
+  );
+}
+
 export default function CountySummary({ county, peer, metadata, byGeoid, facilities, onSelect }: Props) {
+  const m = useM();
   const n = county.pipeline_count;
   const total = peer.n_fewer + peer.n_equal + peer.n_greater;
   const v = verdict(county, peer);
@@ -59,9 +83,9 @@ export default function CountySummary({ county, peer, metadata, byGeoid, facilit
   const s = county.pipeline_by_status;
   const parts = s
     ? [
-        { n: s.under_construction, label: "under construction" },
-        { n: s.permitted, label: "permitted" },
-        { n: s.proposed, label: "proposed" },
+        { n: s.under_construction, label: m.statusLine.under_construction },
+        { n: s.permitted, label: m.statusLine.permitted },
+        { n: s.proposed, label: m.statusLine.proposed },
       ].filter((x) => x.n > 0)
     : [];
 
@@ -73,13 +97,13 @@ export default function CountySummary({ county, peer, metadata, byGeoid, facilit
             {county.county_name}, {county.state_name}
           </h2>
           <p className="muted small facts">
-            {fmtInt(county.population_2025)} people · {fmtDensity(county.density_per_sqmi)} per sq mi · county code {county.geoid}
+            {m.facts(fmtInt(county.population_2025), fmtDensity(county.density_per_sqmi), county.geoid)}
           </p>
         </div>
         <ShareMenu county={county} peer={peer} byGeoid={byGeoid} facilities={facilities} snapshotDate={metadata.snapshot_date} />
       </div>
 
-      <p className="eyebrow">The short answer</p>
+      <p className="eyebrow">{m.shortAnswer}</p>
       <p key={`v-${county.geoid}`} className="verdict fade-in">{v.headline}</p>
 
       <div key={`h-${county.geoid}`} className="hero-row fade-in">
@@ -87,12 +111,12 @@ export default function CountySummary({ county, peer, metadata, byGeoid, facilit
           <div className="hero">
             <span className="hero-value">{n}</span>
             <span className="hero-label">
-              data-center {plural(n, "site", "sites")} in development on record
-              <span className="muted"> as of {fmtDateShort(metadata.snapshot_date)}</span>
+              {m.heroLabel(n)}
+              <span className="muted">{m.heroAsOf(fmtDateShort(metadata.snapshot_date))}</span>
             </span>
           </div>
           {n >= 2 && parts.length > 0 && (
-            <p className="status-line" aria-label="Status of these sites, as listed in the snapshot">
+            <p className="status-line" aria-label={m.statusAria}>
               {parts.map((x, i) => (
                 <span key={x.label}>
                   {i > 0 && <span className="sep"> · </span>}
@@ -104,59 +128,38 @@ export default function CountySummary({ county, peer, metadata, byGeoid, facilit
         </div>
         <dl className="side-facts">
           <div>
-            <dt>Typical similar county</dt>
+            <dt>{m.typicalSimilar}</dt>
             <dd>{typicalPhrase(peer.peer_median)}</dd>
           </div>
           <div>
-            <dt>Similar counties with any</dt>
-            <dd>
-              {peer.n_peers_with_pipeline} of {total}
-            </dd>
+            <dt>{m.similarWithAny}</dt>
+            <dd>{m.nOf(peer.n_peers_with_pipeline, total)}</dd>
           </div>
           <div>
-            <dt>Average among similar</dt>
+            <dt>{m.averageSimilar}</dt>
             <dd>{fmtStat(peer.peer_mean, 2)}</dd>
           </div>
         </dl>
       </div>
 
-      <h3 className="compare-title">Compared with the {total} most similar counties</h3>
+      <h3 className="compare-title">{m.comparedWith(total)}</h3>
       <ComparisonBar peer={peer} name={county.county_name} />
 
       {n === 0 && (
-        <p className="zero-note">
-          No qualifying pipeline records were found in this county in the selected dataset snapshot. That does not mean no data
-          centers are proposed here, only that none is documented in this source.
-        </p>
+        <p className="zero-note">{m.zeroNote}</p>
       )}
 
       <p className="similar-line small">
-        “Similar” means closest in population and population density, anywhere in the U.S. The most similar are{" "}
-        {closest.map((c, i) => (
-          <span key={c.geoid}>
-            <button type="button" className="linkish" onClick={() => onSelect(c.geoid)}>
-              {c.county_name}, {c.state}
-            </button>
-            {i < closest.length - 2 ? ", " : i === closest.length - 2 ? " and " : ""}
-          </span>
-        ))}
-        .
-        {county.operational_count > 0 && (
-          <>
-            {" "}
-            Separately, {county.operational_count} operating data-center {plural(county.operational_count, "site is", "sites are")} on
-            record here (not counted above).
-          </>
-        )}
+        <Rich text={m.similarLine} list={<ClosestList closest={closest} onSelect={onSelect} />} />
+        {county.operational_count > 0 && <> {m.operatingNote(county.operational_count)}</>}
       </p>
       {st && (
         <p className="state-line small">
-          In {st.state_name}, {st.with_pipeline} of {st.counties} {plural(st.counties, "county", "counties")} have at least one site in
-          development on record.
+          {m.stateLine(st.state_name, st.with_pipeline, st.counties)}
         </p>
       )}
       <p className="small find-link">
-        <a href="#find-project">Heard about a specific project? See whether it’s counted</a>
+        <a href="#find-project">{m.findLink}</a>
       </p>
     </section>
   );

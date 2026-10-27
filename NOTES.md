@@ -98,6 +98,20 @@
   is embedded so cards look the same anywhere. No browser outside CI → warning + small icon card; in CI → error.
   CI now installs Playwright before the build. D.C. shows once ("District of Columbia"), not twice.
 
+- Languages (2026-10-27, owner request): en + es, ko, ko-Kore (國漢文混用), zh-TW, zh-CN, ja, hu, pl, sv. `src/i18n/`:
+  `en.ts` is the typed source (strings or functions for plurals/params; `<b>/<a>/<code>/<list/>` markup rendered by
+  `Rich.tsx`, never as HTML); translations are `Partial` and lazy-loaded (~6 KB gz each), merged over English.
+  `state.ts` holds the active language for non-React helpers (format.ts, verdict(), error page); the build's link
+  previews never set it, so they stay English. Language = `?lang=` → localStorage → `navigator.languages` → en
+  (mixed-script Korean only by choice); the address carries `?lang=` and `countyUrl()` adds it to copied/embed links.
+  Formatting via Intl (dates, numbers, plural rules, relative time, list joins); ko-Kore dates as 2026年 10月 2日;
+  English output unchanged (unit tests). Sentences avoid suffixes/particles on English names (hu, ko) and Polish verbs
+  agree with numerals. CJK: per-script system fonts by `:lang()`, no negative tracking, `keep-all` (ko) /
+  `auto-phrase` (ja). Search Enter/arrows ignored during IME composition. Picker (`LanguagePicker.tsx`): popover
+  (`dialog.show()`) ≥ 521 px, bottom sheet (`showModal()`) on phones with grabber, Done, backdrop tap, Escape, swipe-down
+  (1:1 tracking, momentum projection, rubber-band). Methodology + AI examples stay English with a note. Translations
+  are AI-written and unreviewed: worth a native-speaker pass. Also fixed: map hover said "the same than".
+
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.
 2. (Done 2026-10-26) Repo public, Pages source = GitHub Actions. Live at

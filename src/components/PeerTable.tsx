@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { CountyMetric, PeerRecord } from "../types";
 import { fmtDateShort, fmtDensity, fmtInt } from "../lib/format";
+import { useM } from "../i18n/I18nProvider";
 
 interface Props {
   county: CountyMetric;
@@ -13,34 +14,33 @@ interface Props {
 const INITIAL_ROWS = 10;
 
 export default function PeerTable({ county, peer, byGeoid, snapshotDate, onSelect }: Props) {
+  const m = useM();
   const [expanded, setExpanded] = useState(false);
   const rows = peer.peer_geoids.map((g) => byGeoid.get(g)!);
   const shown = expanded ? rows : rows.slice(0, INITIAL_ROWS);
 
   return (
     <section className="card" aria-labelledby="peers-title">
-      <h3 id="peers-title">The 40 similar counties, most similar first</h3>
+      <h3 id="peers-title">{m.peersTitle}</h3>
       <p className="muted small">
-        They range from {fmtInt(peer.peer_population_min)} to {fmtInt(peer.peer_population_max)} people and from{" "}
-        {fmtDensity(peer.peer_density_min)} to {fmtDensity(peer.peer_density_max)} people per sq mi. Select a name to compare that
-        county instead.
+        {m.peersRange(fmtInt(peer.peer_population_min), fmtInt(peer.peer_population_max), fmtDensity(peer.peer_density_min), fmtDensity(peer.peer_density_max))}
       </p>
       <div className="table-wrap">
         <table>
           <thead>
             <tr>
-              <th scope="col" className="num">Rank</th>
-              <th scope="col">County</th>
-              <th scope="col">State</th>
-              <th scope="col" className="num">Population (2025)</th>
-              <th scope="col" className="num">People per sq mi</th>
-              <th scope="col" className="num">Sites in development ({fmtDateShort(snapshotDate)})</th>
+              <th scope="col" className="num">{m.col.rank}</th>
+              <th scope="col">{m.col.county}</th>
+              <th scope="col">{m.col.state}</th>
+              <th scope="col" className="num">{m.col.population}</th>
+              <th scope="col" className="num">{m.col.density}</th>
+              <th scope="col" className="num">{m.col.sites(fmtDateShort(snapshotDate))}</th>
             </tr>
           </thead>
           <tbody>
             <tr className="selected-row">
               <td className="num">—</td>
-              <td>{county.county_name} <span className="tag">This county</span></td>
+              <td>{county.county_name} <span className="tag">{m.thisCounty}</span></td>
               <td>{county.state}</td>
               <td className="num">{fmtInt(county.population_2025)}</td>
               <td className="num">{fmtDensity(county.density_per_sqmi)}</td>
@@ -65,7 +65,7 @@ export default function PeerTable({ county, peer, byGeoid, snapshotDate, onSelec
       </div>
       {rows.length > INITIAL_ROWS && (
         <button type="button" className="secondary" aria-expanded={expanded} onClick={() => setExpanded((e) => !e)}>
-          {expanded ? `Show only the ${INITIAL_ROWS} most similar` : `Show all ${rows.length} similar counties`}
+          {expanded ? m.showFewer(INITIAL_ROWS) : m.showAll(rows.length)}
         </button>
       )}
     </section>

@@ -7,9 +7,9 @@ Run on 2026-10-27 against data version `compute-atlas-v1.34.1-asof-2026-10-02_ce
 | Python logic + input-schema + output checks | `python -m pytest -q` | **35 passed** |
 | Data & comparison validation | `python scripts/validate_data.py` | **26/26 passed** |
 | AI explanation checks | `python scripts/build_ai_examples.py check` | **3/3 passed** |
-| Frontend unit tests | `npm test` | **11 passed** |
+| Frontend unit tests (incl. translations) | `npm test` | **20 passed** |
 | Type check + production build | `npm run build` | **passes** |
-| End-to-end (Playwright, Chromium, desktop + 390 px mobile) | `npm run test:e2e` | **68/68 passed** (`docs/e2e-results.json`) |
+| End-to-end (Playwright, Chromium, desktop + 390 px mobile) | `npm run test:e2e` | **83/83 passed** (`docs/e2e-results.json`) |
 
 ## What is covered (spec section 12)
 **Data:** 5-digit GEOIDs with leading zeros (e.g. `01001`); no duplicate or invalid keys; valid population and land
@@ -45,6 +45,13 @@ sentence is used; limitations are present; the inputs match the current data (st
   in the tab; its `og:title` is the county and `og:description` leads with the verdict and data date; image URLs are
   absolute, there's a theme colour and no image alt badge; the home preview carries the data date; both favicons
   are served. County and home pages use `summary_large_image` with their own 1200 × 630 PNG (county ~37 KB). On a 390 px phone the Share menu stays fully on screen.
+- Languages: the menu lists 10 languages; choosing Japanese translates the page, sets `<html lang>` and `?lang=`, keeps the
+  methodology in English (marked), still finds counties typed in English, copies links that open in Japanese, is
+  remembered on the next visit, and switching back to English removes `?lang=`; a Korean browser gets Korean by
+  default; embeds follow `?lang=`. On a 390 px phone the menu is a full-width bottom sheet with ≥ 48 px rows that
+  closes on a downward swipe and after a choice, and no language overflows the screen. Unit tests: every translation
+  covers every message and keeps every number/name passed in (a deliberately broken string is caught), markup is
+  balanced, and dates/numbers/relative times use each language's conventions.
 - The chart shows 40 peer dots; the summary breakdown, facility list and legend counts match the data.
 - The peer table expands from 10 to 40 rows, and selecting a peer refocuses the app.
 - Zero-count wording appears and "has no proposed data centers" never does.

@@ -61,10 +61,20 @@ downloads the similar-counties table and the county's records as CSV, and gives 
 **Find a project** searches every Compute Atlas record in the snapshot and says whether it is counted, where, or
 why not (`public/data/projects.json`, loaded only when someone searches).
 
+## Languages
+The interface is available in English, Spanish, Korean (Hangul, and mixed script with hanja), Chinese (Traditional for
+Taiwan, Simplified), Japanese, Hungarian, Polish and Swedish, chosen from the globe button in the header (a popover on
+desktop, a bottom sheet on phones). The choice is remembered, shown in the address as `?lang=` so links open in the same
+language, and a visitor's browser language is used on a first visit. County, state and project names stay in English,
+so search always takes Latin letters. The methodology section and the three AI examples are English only (the page
+says so). All text lives in `src/i18n/en.ts`; each translation file overrides what it translates and falls back to
+English for anything missing. **The translations were written with AI and have not been reviewed by native speakers.**
+Unit tests check that every language covers every message and keeps every number and name it is given.
+
 ## Tests
 ```bash
 python -m pytest -q          # logic tests + data/comparison checks on the built outputs
-npm test                     # search and template-summary tests
+npm test                     # search, template-summary and translation tests
 npm run build && npm run test:e2e   # Playwright smoke test (desktop + mobile)
 ```
 The end-to-end test needs Playwright with Chromium. If it is not installed globally:

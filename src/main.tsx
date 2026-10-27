@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import "./styles.css";
 import App from "./App";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { I18nProvider } from "./i18n/I18nProvider";
 
 // Show focus rings for keyboard users only (a mouse click on the map should not draw a ring around it).
 const root = document.documentElement;
@@ -12,8 +13,10 @@ window.addEventListener("pointerdown", () => root.classList.remove("kbd"));
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
+    <I18nProvider>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </I18nProvider>
   </StrictMode>,
 );

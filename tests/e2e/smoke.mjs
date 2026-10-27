@@ -365,6 +365,89 @@ try {
   await broken.goto(BASE);
   await broken.waitForSelector('[role="alert"]');
   check("load failure shows an error message", (await broken.textContent('[role="alert"]')).includes("could not be loaded"));
+
+  // Languages (own context, so the remembered choice does not leak into the checks above).
+  const lctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, permissions: ["clipboard-read", "clipboard-write"] });
+  const lp = await lctx.newPage();
+  const langErrors = [];
+  lp.on("pageerror", (e) => langErrors.push(e.message));
+  await lp.goto(`${BASE}c/${multi.geoid}/`);
+  await lp.waitForSelector("#summary-title");
+  await lp.getByRole("button", { name: /^Language:/ }).click();
+  check("language menu offers 10 languages, English checked",
+    (await lp.$$("[role=menuitemradio]")).length === 10 && (await lp.textContent('[aria-checked="true"] .lang-native')) === "English");
+  await lp.getByRole("menuitemradio", { name: /日本語/ }).click();
+  await lp.waitForFunction(() => document.documentElement.lang === "ja");
+  check("choosing Japanese translates the page and records it in the address",
+    (await lp.textContent("h1")) === "うちの郡はどれくらい特別？" && lp.url().endsWith(`c/${multi.geoid}/?lang=ja`)
+    && (await lp.textContent(".verdict")).includes("郡") && (await lp.textContent(".freshness-pill")).includes("時点"), lp.url());
+  check("methodology stays English, marked as such", (await lp.getAttribute("#methodology", "lang")) === "en" && (await lp.textContent("#methodology .lang-note")).includes("英語"));
+  await lp.fill(".search input", "Harris County, TX");
+  await lp.waitForSelector(".search-results li[role=option]");
+  await lp.keyboard.press("Enter");
+  await lp.waitForFunction(() => document.querySelector("#summary-title")?.textContent.includes("Harris"));
+  check("county search still takes English names in Japanese", lp.url().endsWith("c/48201/?lang=ja"), lp.url());
+  await lp.getByRole("button", { name: "共有" }).click();
+  await lp.getByRole("menuitem", { name: "リンクをコピー" }).click();
+  await lp.waitForTimeout(200);
+  check("a copied link opens in the same language", (await lp.evaluate(() => navigator.clipboard.readText())) === `${BASE}c/48201/?lang=ja`);
+  const lp2 = await lctx.newPage();
+  await lp2.goto(`${BASE}c/51107/`);
+  await lp2.waitForFunction(() => document.documentElement.lang === "ja");
+  check("the choice is remembered on the next visit", (await lp2.textContent("h1")) === "うちの郡はどれくらい特別？" && lp2.url().includes("lang=ja"));
+  await lp2.getByRole("button", { name: /^言語/ }).click();
+  await lp2.getByRole("menuitemradio", { name: /^English/ }).click();
+  await lp2.waitForFunction(() => document.documentElement.lang === "en");
+  check("switching back to English removes ?lang=", (await lp2.textContent("h1")) === "How Unusual Is My County?" && !lp2.url().includes("lang="), lp2.url());
+  check("no page errors while switching languages", langErrors.length === 0, langErrors.join(" | "));
+
+  const kctx = await browser.newContext({ locale: "ko-KR" });
+  const kp = await kctx.newPage();
+  await kp.goto(`${BASE}c/51107/`);
+  await kp.waitForSelector("#summary-title");
+  check("a Korean browser gets Korean (Hangul) by default", (await kp.evaluate(() => document.documentElement.lang)) === "ko" && (await kp.textContent("h1")).includes("카운티"));
+
+  const emES = await browser.newPage({ viewport: { width: 600, height: 500 } });
+  await emES.goto(`${BASE}?county=${multi.geoid}&embed=1&lang=es`);
+  await emES.waitForSelector(".embed .verdict");
+  check("embeds follow ?lang=", (await emES.textContent(".embed-link")) === "Ver la comparación completa" && (await emES.getAttribute(".embed-link", "href")).includes("lang=es"));
+
+  // Phone: the menu is a bottom sheet that fits the screen, can be swiped away, and every language fits 390 px.
+  const mctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const mp = await mctx.newPage();
+  await mp.goto(`${BASE}c/${multi.geoid}/`);
+  await mp.waitForSelector("#summary-title");
+  await mp.getByRole("button", { name: /^Language:/ }).tap();
+  await mp.waitForTimeout(500);
+  const sheet = await mp.locator(".lang-panel").boundingBox();
+  check("phone: language menu is a bottom sheet across the screen",
+    (await mp.evaluate(() => document.querySelector(".lang-panel").matches(":modal"))) && sheet.x === 0 && Math.round(sheet.width) === 390 && Math.round(sheet.y + sheet.height) === 844,
+    `${Math.round(sheet.x)},${Math.round(sheet.y)} ${Math.round(sheet.width)}x${Math.round(sheet.height)}`);
+  const rows = await mp.$$eval("[role=menuitemradio]", (els) => els.map((e) => e.getBoundingClientRect().height));
+  check("phone: language rows are easy to tap (≥ 48 px)", rows.every((h) => h >= 48), rows.map(Math.round).join(","));
+  await mp.screenshot({ path: `${OUT}/mobile-language.png` });
+  const head = await mp.locator(".lang-head").boundingBox();
+  await mp.mouse.move(head.x + head.width / 2 - 60, head.y + 20);
+  await mp.mouse.down();
+  for (let i = 1; i <= 8; i++) await mp.mouse.move(head.x + head.width / 2 - 60, head.y + 20 + i * 40);
+  await mp.mouse.up();
+  await mp.waitForTimeout(500);
+  check("phone: swiping the sheet down closes it", !(await mp.evaluate(() => document.querySelector(".lang-panel").open)));
+  await mp.getByRole("button", { name: /^Language:/ }).tap();
+  await mp.waitForTimeout(450);
+  await mp.getByRole("menuitemradio", { name: /Polski/ }).tap();
+  await mp.waitForFunction(() => document.documentElement.lang === "pl");
+  const sheetClosed = await mp.waitForFunction(() => !document.querySelector(".lang-panel").open, null, { timeout: 2000 }).then(() => true, () => false);
+  check("phone: choosing a language slides the sheet away and applies it", sheetClosed && (await mp.textContent("h1")).includes("hrabstwo"));
+  const overflow390 = [];
+  for (const l of ["es", "ko", "ko-Kore", "zh-TW", "zh-CN", "ja", "hu", "pl", "sv"]) {
+    await mp.goto(`${BASE}c/${multi.geoid}/?lang=${l}`);
+    await mp.waitForSelector("#summary-title");
+    await mp.waitForTimeout(250);
+    const o = await mp.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    if (o > 1) overflow390.push(`${l}:${o}px`);
+  }
+  check("phone: no language overflows 390 px", overflow390.length === 0, overflow390.join(" "));
 } finally {
   await browser.close();
   server.kill();

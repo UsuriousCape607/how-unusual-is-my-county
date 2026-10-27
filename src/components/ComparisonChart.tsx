@@ -6,6 +6,7 @@ import type { CountyMetric, PeerRecord } from "../types";
 import { countyLabel, fmtDateShort, fmtDensity, fmtInt } from "../lib/format";
 import { typicalPhrase } from "../lib/summary";
 import { COLOR, comparisonOf, type Comparison } from "../lib/theme";
+import { useM } from "../i18n/I18nProvider";
 
 interface Props {
   county: CountyMetric;
@@ -29,22 +30,22 @@ interface Pt {
 const CMP_COLOR: Record<Comparison, string> = { fewer: COLOR.fewer, same: COLOR.same, more: COLOR.more };
 
 function TooltipBody({ active, payload }: { active?: boolean; payload?: { payload: Pt }[] }) {
+  const m = useM();
   if (!active || !payload?.length) return null;
   const p = payload[0].payload;
   return (
     <div className="chart-tip">
       <strong>{p.label}</strong>
-      {p.selected && <span className="tag">This county</span>}
-      <div>{p.x} {p.x === 1 ? "site" : "sites"} in development</div>
-      <div className="muted">
-        {fmtInt(p.population)} people · {fmtDensity(p.density)} per sq mi
-      </div>
-      {!p.selected && <div className="muted">Click to compare this county</div>}
+      {p.selected && <span className="tag">{m.thisCounty}</span>}
+      <div>{m.sitesInDev(p.x)}</div>
+      <div className="muted">{m.peopleDensity(fmtInt(p.population), fmtDensity(p.density))}</div>
+      {!p.selected && <div className="muted">{m.clickToCompareCounty}</div>}
     </div>
   );
 }
 
 export default function ComparisonChart({ county, peer, byGeoid, snapshotDate, onSelect }: Props) {
+  const m = useM();
   const { peers, selected, maxX, maxStack } = useMemo(() => {
     const stacks = new Map<number, number>();
     const pts: Pt[] = peer.peer_geoids
@@ -80,14 +81,11 @@ export default function ComparisonChart({ county, peer, byGeoid, snapshotDate, o
 
   return (
     <section className="card" aria-labelledby="chart-title">
-      <h3 id="chart-title">Where {county.county_name} falls among its 40 similar counties</h3>
-      <p className="muted small">
-        Each dot is one similar county, placed by its number of sites in development on record ({fmtDateShort(snapshotDate)}) and
-        coloured by whether it has fewer, the same, or more than {county.county_name}. Hover for details; click to compare.
-      </p>
+      <h3 id="chart-title">{m.chartTitle(county.county_name)}</h3>
+      <p className="muted small">{m.chartHelp(fmtDateShort(snapshotDate), county.county_name)}</p>
       <figure
         className="chart"
-        aria-label={`Dot plot: ${countyLabel(county)} has ${county.pipeline_count}; ${peer.n_fewer} similar counties have fewer, ${peer.n_equal} the same, ${peer.n_greater} more.`}
+        aria-label={m.chartAria(countyLabel(county), county.pipeline_count, peer.n_fewer, peer.n_equal, peer.n_greater)}
       >
         <ResponsiveContainer width="100%" height={height}>
           <ScatterChart margin={{ top: 28, right: 24, bottom: 30, left: 8 }}>
@@ -101,7 +99,7 @@ export default function ComparisonChart({ county, peer, byGeoid, snapshotDate, o
               tick={{ fill: COLOR.muted, fontSize: 12 }}
               stroke={COLOR.separator}
               tickLine={false}
-              label={{ value: "Data-center sites in development on record", position: "bottom", offset: 12, fill: COLOR.muted, fontSize: 12 }}
+              label={{ value: m.axisLabel, position: "bottom", offset: 12, fill: COLOR.muted, fontSize: 12 }}
             />
             <YAxis type="number" dataKey="y" hide domain={[-2.6, maxStack + 1]} />
             <Tooltip content={<TooltipBody />} cursor={false} isAnimationActive={false} />
@@ -114,7 +112,7 @@ export default function ComparisonChart({ county, peer, byGeoid, snapshotDate, o
                 const dx = anchor === "start" ? -4 : anchor === "end" ? 4 : 0;
                 return (
                   <text x={(viewBox?.x ?? 0) + dx} y={(viewBox?.y ?? 0) - 8} textAnchor={anchor} fontSize={12} fill={COLOR.muted}>
-                    Typical: {typicalPhrase(peer.peer_median)}
+                    {m.typicalMark(typicalPhrase(peer.peer_median))}
                   </text>
                 );
               }}

@@ -10,6 +10,9 @@ The full build spec lives outside the repo; this file and METHODOLOGY.md capture
 (run all with `python scripts/build_all.py`). Python computes every statistic and writes static JSON/GeoJSON to
 `public/data/`. The React + TypeScript + Vite frontend (`src/`, Leaflet + Recharts) only reads and displays it.
 There is no backend, database, auth, paid tiles, or live LLM.
+Interface text: `src/i18n/en.ts` (source of truth) + one lazy-loaded file per language (es, ko, ko-Kore, zh-TW, zh-CN,
+ja, hu, pl, sv; AI-written, unreviewed); methodology and AI examples stay English. Link previews: `previews/` (Vite plugin
+writes `c/<GEOID>/` pages and 1200×630 `og/<GEOID>.png` cards with headless Chromium at build time).
 
 ## Settled decisions (do not reopen)
 - Sources: Compute Atlas `v1.34.1` raw GitHub snapshot (`data/facilities.json`, asOf 2026-10-02, CC BY 4.0, Edward Kubiak);

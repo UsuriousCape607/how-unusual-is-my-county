@@ -1,6 +1,7 @@
 import { useId, useMemo, useRef, useState } from "react";
 import type { CountyMetric } from "../types";
 import { buildIndex, searchCounties } from "../lib/search";
+import { useM } from "../i18n/I18nProvider";
 
 interface Props {
   metrics: CountyMetric[];
@@ -9,6 +10,7 @@ interface Props {
 
 /** Accessible combobox (WAI-ARIA 1.2 pattern): arrows move, Enter selects, Escape closes. */
 export default function CountySearch({ metrics, onSelect }: Props) {
+  const m = useM();
   const index = useMemo(() => buildIndex(metrics.filter((m) => m.eligible)), [metrics]);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -25,6 +27,8 @@ export default function CountySearch({ metrics, onSelect }: Props) {
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Japanese, Chinese and Korean keyboards use Enter and the arrows to pick characters; leave those keys to them.
+    if (e.nativeEvent.isComposing || e.keyCode === 229) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setOpen(true);
@@ -47,7 +51,7 @@ export default function CountySearch({ metrics, onSelect }: Props) {
   return (
     <div className="search">
       <label htmlFor={`${listId}-input`} className="search-label">
-        Find a county
+        {m.findCounty}
       </label>
       <svg className="search-icon" viewBox="0 0 16 16" aria-hidden="true">
         <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
@@ -64,7 +68,7 @@ export default function CountySearch({ metrics, onSelect }: Props) {
         aria-activedescendant={showList && results[active] ? `${listId}-${results[active].geoid}` : undefined}
         autoComplete="off"
         spellCheck={false}
-        placeholder="e.g. Loudoun County, VA"
+        placeholder={m.searchPlaceholder}
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
@@ -76,10 +80,10 @@ export default function CountySearch({ metrics, onSelect }: Props) {
         onKeyDown={onKeyDown}
       />
       {showList && (
-        <ul id={listId} role="listbox" className="search-results" aria-label="Matching counties">
+        <ul id={listId} role="listbox" className="search-results" aria-label={m.matchingCounties}>
           {results.length === 0 && (
             <li className="search-empty" role="option" aria-selected={false} aria-disabled>
-              No county matches “{query}”. Try a county name, “Name, ST”, or a 5-digit county code.
+              {m.noCountyMatch(query)}
             </li>
           )}
           {results.map((r, i) => (

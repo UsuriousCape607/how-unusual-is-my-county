@@ -1,6 +1,7 @@
 import type { AIExample, CountyMetric, PeerRecord } from "../types";
 import { templateSummary } from "../lib/summary";
 import { fmtDate } from "../lib/format";
+import { useM } from "../i18n/I18nProvider";
 
 interface Props {
   county: CountyMetric;
@@ -12,27 +13,28 @@ interface Props {
 }
 
 export default function ExplanationPanel({ county, peer, snapshotDate, examples, byGeoid, onSelect }: Props) {
+  const m = useM();
   const ai = examples.find((e) => e.geoid === county.geoid);
   const paragraphs = templateSummary(county, peer, snapshotDate);
   return (
     <section className="card" aria-labelledby="explain-title">
-      <h3 id="explain-title">Summary</h3>
+      <h3 id="explain-title">{m.summaryTitle}</h3>
 
       {ai && (
         <div className="ai-block">
-          <p className="label-chip">AI-written explanation · pre-generated and checked</p>
-          {ai.output.split(/\n\s*\n/).map((p, i) => (
-            <p key={i}>{p}</p>
-          ))}
-          <p className="muted small">
-            Written once by {ai.model} from this county's figures in the {fmtDate(ai.snapshot_date)} snapshot, then checked number by
-            number ({ai.verification_status}). It is not generated live. Prompt, input, and checks are in AI_EVALUATION.md.
-          </p>
+          <p className="label-chip">{m.aiChip}</p>
+          {m.aiEnglishOnly && <p className="muted small">{m.aiEnglishOnly}</p>}
+          <div lang="en">
+            {ai.output.split(/\n\s*\n/).map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </div>
+          <p className="muted small">{m.aiNote(ai.model, fmtDate(ai.snapshot_date), ai.verification_status)}</p>
         </div>
       )}
 
       <div className="template-block">
-        <p className="label-chip neutral">Automated summary · fixed template from the calculated figures (not AI-written)</p>
+        <p className="label-chip neutral">{m.templateChip}</p>
         {paragraphs.map((p, i) => (
           <p key={i}>{p}</p>
         ))}
@@ -40,7 +42,7 @@ export default function ExplanationPanel({ county, peer, snapshotDate, examples,
 
       {examples.length > 0 && (
         <p className="small">
-          AI-written examples:{" "}
+          {m.aiExamples}{" "}
           {examples.map((e, i) => {
             const c = byGeoid.get(e.geoid);
             return (

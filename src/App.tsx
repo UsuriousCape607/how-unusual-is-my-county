@@ -14,6 +14,10 @@ import Methodology from "./components/Methodology";
 import DataFreshness from "./components/DataFreshness";
 import FindProject from "./components/FindProject";
 import EmbedView from "./components/EmbedView";
+import LanguagePicker from "./components/LanguagePicker";
+import { useM } from "./i18n/I18nProvider";
+import { Rich } from "./i18n/Rich";
+import { fmtInt } from "./lib/format";
 
 // Example counties offered under the search box: a high count, the highest, a zero, and a typical case.
 const EXAMPLE_GEOIDS = ["51107", "06085", "48201", "18097"];
@@ -23,7 +27,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [geoid, setGeoid] = useState<string | null>(null);
   const [source, setSource] = useState<SelectionSource>("other");
-  const [notice, setNotice] = useState<string | null>(null);
+  const [missing, setMissing] = useState<string | null>(null); // a requested county code that does not exist
+  const m = useM();
   const embed = useMemo(isEmbed, []);
 
   useEffect(() => {
@@ -35,7 +40,7 @@ export default function App() {
           setGeoid(requested);
           if (!embed) writeGeoidToUrl(requested, true); // older ?county= links become the county's own page address
         } else {
-          if (requested) setNotice(`County code ${requested} was not found, so an example county is shown instead.`);
+          if (requested) setMissing(requested);
           setGeoid(d.metadata.default_geoid);
           if (!embed) writeGeoidToUrl(d.metadata.default_geoid, true);
         }
@@ -58,7 +63,7 @@ export default function App() {
   const select = useCallback(
     (g: string, from: SelectionSource = "other") => {
       if (!data?.peers.peers[g] || g === geoid) return;
-      setNotice(null);
+      setMissing(null);
       setSource(from);
       setGeoid(g);
       writeGeoidToUrl(g);
@@ -69,8 +74,8 @@ export default function App() {
   const county = geoid && data ? data.byGeoid.get(geoid) : undefined;
   const peer = geoid && data ? data.peers.peers[geoid] : undefined;
   useEffect(() => {
-    if (county && !embed) document.title = `${county.county_name}, ${county.state} · How Unusual Is My County?`;
-  }, [county, embed]);
+    if (county && !embed) document.title = `${county.county_name}, ${county.state} · ${m.siteTitle}`;
+  }, [county, embed, m]);
   const currentExamples = useMemo(
     () => (data ? data.aiExamples.filter((e) => e.data_version === data.metadata.data_version) : []),
     [data],
@@ -85,7 +90,7 @@ export default function App() {
       <EmbedView county={county} peer={peer} metadata={data.metadata} />
     ) : (
       <main className="embed">
-        <p className="muted">{error ? "This comparison could not be loaded." : "Loading…"}</p>
+        <p className="muted">{error ? m.embedLoadError : m.loading}</p>
       </main>
     );
   }
@@ -95,12 +100,14 @@ export default function App() {
       <header className="site-header">
         <div className="wrap header-inner">
           <div>
-            <h1>How Unusual Is My County?</h1>
-            {geoid && <p className="print-only small">Interactive version: {countyUrl(geoid)}</p>}
-            <p className="subtitle">Compare documented data-center development with similar counties across the United States.</p>
+            <h1>{m.siteTitle}</h1>
+            {geoid && <p className="print-only small">{m.printUrl(countyUrl(geoid))}</p>}
+            <p className="subtitle">{m.subtitle}</p>
+            {m.langNote && <p className="lang-note small">{m.langNote}</p>}
           </div>
           <div className="header-meta">
-            <a href="#methodology">Methodology &amp; sources</a>
+            <LanguagePicker />
+            <a href="#methodology">{m.methodologyLink}</a>
           </div>
         </div>
       </header>
@@ -109,13 +116,12 @@ export default function App() {
       <main className="wrap">
         {error && (
           <div className="state-box error" role="alert">
-            <strong>The data files could not be loaded.</strong> {error}. Reload the page to try again; if you are running the
-            site locally, run <code>python scripts/build_all.py</code> first.
+            <strong>{m.loadErrorTitle}</strong> {error}. <Rich text={m.loadErrorHelp} />
           </div>
         )}
         {!data && !error && (
           <div className="state-box loading" role="status" aria-live="polite">
-            <span className="spinner" aria-hidden="true" /> Loading data for 3,144 counties…
+            <span className="spinner" aria-hidden="true" /> {m.loadingCounties(fmtInt(3144))}
           </div>
         )}
 
@@ -125,12 +131,12 @@ export default function App() {
             <div className="search-bar">
               <CountySearch metrics={data.metrics} onSelect={select} />
               <p className="comparing" aria-hidden="true">
-                Comparing <strong>{county.county_name}, {county.state}</strong>
+                <Rich text={m.comparing(`${county.county_name}, ${county.state}`)} />
               </p>
             </div>
-            <section className="search-row" aria-label="Example counties">
+            <section className="search-row" aria-label={m.examplesAria}>
               <p className="examples small">
-                <span className="muted">Try:</span>
+                <span className="muted">{m.tryLabel}</span>
                 {EXAMPLE_GEOIDS.filter((g) => data.byGeoid.has(g)).map((g) => {
                   const c = data.byGeoid.get(g)!;
                   return (
@@ -140,12 +146,12 @@ export default function App() {
                   );
                 })}
               </p>
-              {notice && <p className="notice">{notice}</p>}
+              {missing && <p className="notice">{m.notFound(missing)}</p>}
             </section>
 
             {/* Announce changes for screen-reader users. */}
             <p className="sr-only" aria-live="polite">
-              Showing {county.county_name}, {county.state_name}: {verdict(county, peer).headline}.
+              {m.srShowing(`${county.county_name}, ${county.state_name}`, verdict(county, peer).headline)}
             </p>
 
             <div className="layout">
@@ -193,13 +199,13 @@ export default function App() {
         <div className="wrap">
           {data ? (
             <p>
-              {data.metadata.compute_atlas.attribution} (
-              <a href={data.metadata.compute_atlas.license_url}>license</a>). Transformations: {data.metadata.compute_atlas.transformations}{" "}
-              Population, land area and county boundaries: U.S. Census Bureau (public domain). Data version{" "}
-              <code>{data.metadata.data_version}</code>.
+              <Rich
+                text={m.footer(data.metadata.compute_atlas.attribution, data.metadata.compute_atlas.transformations, data.metadata.data_version)}
+                a={(label) => <a href={data.metadata.compute_atlas.license_url}>{label}</a>}
+              />
             </p>
           ) : (
-            <p>Facility data: Compute Atlas by Edward Kubiak (CC BY 4.0). County data: U.S. Census Bureau.</p>
+            <p>{m.footerFallback}</p>
           )}
         </div>
       </footer>

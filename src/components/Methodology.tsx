@@ -2,7 +2,8 @@ import type { Metadata } from "../types";
 import { fmtDate, fmtInt } from "../lib/format";
 import { STALE_DAYS } from "./DataFreshness";
 import { REASON_LABELS } from "../lib/reasons";
-
+import { useI18n } from "../i18n/I18nProvider";
+import { LANGUAGE } from "../i18n/languages";
 
 const METHOD_LABELS: Record<string, string> = {
   spatial_join: "Exact coordinates inside a county polygon",
@@ -27,6 +28,7 @@ function Table({ rows, caption }: { rows: [string, number][]; caption: string })
 }
 
 export default function Methodology({ metadata }: { metadata: Metadata }) {
+  const { m, lang } = useI18n(); // this section stays in English; translated versions say so
   const qc = metadata.facility_qc;
   const ca = metadata.compute_atlas;
   const exclusions = Object.entries(qc.headline_exclusions_by_reason)
@@ -35,7 +37,8 @@ export default function Methodology({ metadata }: { metadata: Metadata }) {
   const methods = Object.entries(qc.pipeline_assignment_methods).map(([k, v]) => [METHOD_LABELS[k] ?? k, v] as [string, number]);
 
   return (
-    <section id="methodology" className="card methodology" aria-labelledby="method-title">
+    <section id="methodology" lang="en" className="card methodology" aria-labelledby="method-title">
+      {m.methodologyEnglish && <p className="lang-note small" lang={LANGUAGE[lang].html}>{m.methodologyEnglish}</p>}
       <h2 id="method-title">Methodology, limitations, and sources</h2>
 
       <h3>The question</h3>
@@ -65,7 +68,7 @@ export default function Methodology({ metadata }: { metadata: Metadata }) {
       <h3>Assigning records to counties</h3>
       <ul>
         <li>Records with exact coordinates are placed in a county by point-in-polygon on the 2025 Census 1:500,000 boundaries, then checked against the county named in the source. Disagreements are excluded and logged for review, not guessed.</li>
-        <li>Records with approximate coordinates are assigned only when the named county and state match exactly one 2025 county. Their map points are representative, so they are drawn as dashed rings, not precise pins.</li>
+        <li>Records with approximate coordinates are assigned only when the named county and state match exactly one 2025 county. Their map points are representative, so they are drawn as translucent areas, not precise pins.</li>
         <li>Multi-site aggregates, records without a usable county, and territories are excluded.</li>
       </ul>
 

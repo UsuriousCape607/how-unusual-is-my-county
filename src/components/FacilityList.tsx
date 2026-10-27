@@ -1,5 +1,7 @@
 import type { CountyMetric, Facility } from "../types";
-import { assignmentLabel, fmtDate, fmtDateShort, plural, precisionLabel, statusLabel } from "../lib/format";
+import { assignmentLabel, confidenceLabel, fmtDate, fmtDateShort, precisionLabel, statusLabel } from "../lib/format";
+import { useM } from "../i18n/I18nProvider";
+import { Rich } from "../i18n/Rich";
 import { REPORT_URL } from "./FindProject";
 
 interface Props {
@@ -9,14 +11,15 @@ interface Props {
 }
 
 function FacilityItem({ f }: { f: Facility }) {
+  const m = useM();
   // Only fields present in the source are shown; nothing is filled in.
   const facts: [string, string | undefined][] = [
-    ["Operator", f.operator],
-    ["Status", statusLabel(f.status)],
-    ["Confidence", f.confidence],
-    ["Location", precisionLabel(f.location_precision)],
-    ["County assignment", assignmentLabel(f.assignment_method)],
-    ["Last updated", f.last_updated ? fmtDate(f.last_updated) : undefined],
+    [m.field.operator, f.operator],
+    [m.field.status, statusLabel(f.status)],
+    [m.field.confidence, confidenceLabel(f.confidence)],
+    [m.field.location, precisionLabel(f.location_precision)],
+    [m.field.assignment, assignmentLabel(f.assignment_method)],
+    [m.field.updated, f.last_updated ? fmtDate(f.last_updated) : undefined],
   ];
   return (
     <li className="facility">
@@ -43,26 +46,21 @@ function FacilityItem({ f }: { f: Facility }) {
           ))}
         </ul>
       )}
-      <p className="muted tiny">Compute Atlas record: {f.source_id}</p>
+      <p className="muted tiny">{m.recordId(f.source_id)}</p>
     </li>
   );
 }
 
 export default function FacilityList({ county, facilities, snapshotDate }: Props) {
+  const m = useM();
   const pipeline = facilities.filter((f) => f.metric === "pipeline");
   const operational = facilities.filter((f) => f.metric === "operational");
   return (
     <section className="card" aria-labelledby="records-title">
-      <h3 id="records-title">
-        Sites in development on record in {county.county_name}, {county.state} ({pipeline.length})
-      </h3>
-      <p className="muted small">
-        Proposed, permitted, or under-construction data-center sites documented in the Compute Atlas snapshot of{" "}
-        {fmtDateShort(snapshotDate)}, with links to the original sources. A record&apos;s &ldquo;Last updated&rdquo; date shows when its
-        source information was last revised.
-      </p>
+      <h3 id="records-title">{m.recordsTitle(`${county.county_name}, ${county.state}`, pipeline.length)}</h3>
+      <p className="muted small">{m.recordsHelp(fmtDateShort(snapshotDate))}</p>
       {pipeline.length === 0 ? (
-        <p>No qualifying pipeline records were found in this county in the selected dataset snapshot.</p>
+        <p>{m.noRecords}</p>
       ) : (
         <ul className="facility-list">
           {pipeline.map((f) => (
@@ -72,9 +70,7 @@ export default function FacilityList({ county, facilities, snapshotDate }: Props
       )}
       {operational.length > 0 && (
         <details className="operational">
-          <summary>
-            {operational.length} operating data-center {plural(operational.length, "site", "sites")} (context only, not counted above)
-          </summary>
+          <summary>{m.operatingSummary(operational.length)}</summary>
           <ul className="facility-list">
             {operational.map((f) => (
               <FacilityItem key={f.source_id} f={f} />
@@ -83,7 +79,7 @@ export default function FacilityList({ county, facilities, snapshotDate }: Props
         </details>
       )}
       <p className="small find-foot">
-        Missing a site, or see an error? <a href={REPORT_URL}>Report it to Compute Atlas</a>, the source this site uses.
+        <Rich text={m.reportFoot} a={(label) => <a href={REPORT_URL}>{label}</a>} />
       </p>
     </section>
   );

@@ -3,6 +3,7 @@ import type { CountyMetric, Facility, PeerRecord } from "../types";
 import { countyUrl } from "../lib/data";
 import { downloadCSV, toCSV } from "../lib/csv";
 import { assignmentLabel, precisionLabel, statusLabel } from "../lib/format";
+import { useM } from "../i18n/I18nProvider";
 
 interface Props {
   county: CountyMetric;
@@ -16,6 +17,7 @@ const slug = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/
 
 /** One share button (Apple share-sheet style) instead of a row of separate actions. */
 export default function ShareMenu({ county, peer, byGeoid, facilities, snapshotDate }: Props) {
+  const m = useM();
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState("");
   const wrap = useRef<HTMLSpanElement>(null);
@@ -23,7 +25,7 @@ export default function ShareMenu({ county, peer, byGeoid, facilities, snapshotD
   const menu = useRef<HTMLDivElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const base = `${slug(county.county_name)}-${county.state.toLowerCase()}`;
-  const embedCode = `<iframe src="${countyUrl(county.geoid, true)}" title="How Unusual Is My County? ${county.county_name}, ${county.state}" width="100%" height="460" style="border:0" loading="lazy"></iframe>`;
+  const embedCode = `<iframe src="${countyUrl(county.geoid, true)}" title="${m.siteTitle} ${county.county_name}, ${county.state}" width="100%" height="460" style="border:0" loading="lazy"></iframe>`;
 
   const flash = (msg: string) => {
     setStatus(msg);
@@ -60,25 +62,25 @@ export default function ShareMenu({ county, peer, byGeoid, facilities, snapshotD
       await navigator.clipboard.writeText(text);
       flash(done);
     } catch {
-      flash("Copying isn't available here; select the text and copy it instead");
+      flash(m.copyFailed);
     }
   };
 
-  const actions: { label: string; run: () => void }[] = [
-    { label: "Copy link", run: () => copy(countyUrl(county.geoid), "Link copied") },
-    { label: "Print summary", run: () => window.setTimeout(() => window.print(), 50) },
+  const actions: { label: string; run: () => void; keepFocus?: boolean }[] = [
+    { label: m.copyLink, run: () => copy(countyUrl(county.geoid), m.linkCopied) },
+    { label: m.printSummary, run: () => window.setTimeout(() => window.print(), 50) },
     {
-      label: "Download similar counties (CSV)",
+      label: m.downloadSimilar,
       run: () => {
         const row = (c: CountyMetric, rank: string) => [rank, c.county_name, c.state, c.geoid, c.population_2025, c.density_per_sqmi, c.pipeline_count];
         const rows = [row(county, "this county"), ...peer.peer_geoids.map((g, i) => row(byGeoid.get(g)!, String(i + 1)))];
         downloadCSV(`${base}-similar-counties-${snapshotDate}.csv`, toCSV(
           ["similarity_rank", "county", "state", "geoid", "population_2025", "people_per_sq_mi", `sites_in_development_${snapshotDate}`], rows));
-        flash("Download started");
+        flash(m.downloadStarted);
       },
     },
     {
-      label: "Download sites in development (CSV)",
+      label: m.downloadSites,
       run: () => {
         const rows = facilities.filter((f) => f.metric === "pipeline").map((f) => [
           f.name, f.operator, statusLabel(f.status), f.confidence, precisionLabel(f.location_precision),
@@ -86,10 +88,10 @@ export default function ShareMenu({ county, peer, byGeoid, facilities, snapshotD
         ]);
         downloadCSV(`${base}-sites-in-development-${snapshotDate}.csv`, toCSV(
           ["name", "operator", "status", "confidence", "location", "county_assignment", "last_updated", "sources", "compute_atlas_id"], rows));
-        flash("Download started");
+        flash(m.downloadStarted);
       },
     },
-    { label: "Embed on a website…", run: () => dialog.current?.showModal() },
+    { label: m.embedAction, run: () => dialog.current?.showModal(), keepFocus: true },
   ];
 
   return (
@@ -106,17 +108,17 @@ export default function ShareMenu({ county, peer, byGeoid, facilities, snapshotD
           <path d="M8 1.5v8.5M5 4.5l3-3 3 3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M5.5 7H4a1 1 0 0 0-1 1v5.5a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1h-1.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
-        Share
+        {m.share}
       </button>
       {open && (
-        <div className="menu" role="menu" aria-label="Share options" ref={menu} onKeyDown={onMenuKey}>
+        <div className="menu" role="menu" aria-label={m.shareOptions} ref={menu} onKeyDown={onMenuKey}>
           {actions.map((a) => (
             <button
               key={a.label}
               type="button"
               role="menuitem"
               onClick={() => {
-                close(a.label !== "Embed on a website…");
+                close(!a.keepFocus); // the embed dialog takes focus itself
                 a.run();
               }}
             >
@@ -130,18 +132,15 @@ export default function ShareMenu({ county, peer, byGeoid, facilities, snapshotD
       </span>
       <dialog ref={dialog} className="sheet" aria-labelledby="embed-title" onClick={(e) => e.target === dialog.current && dialog.current?.close()}>
         <div className="sheet-body">
-          <h3 id="embed-title">Embed this comparison</h3>
-          <p className="muted small">
-            Paste this into your page. It shows the comparison for {county.county_name}, {county.state}, with its data date and source
-            credit, and links back to the full site.
-          </p>
-          <textarea readOnly value={embedCode} rows={4} onFocus={(e) => e.currentTarget.select()} aria-label="Embed code" />
+          <h3 id="embed-title">{m.embedTitle}</h3>
+          <p className="muted small">{m.embedHelp(`${county.county_name}, ${county.state}`)}</p>
+          <textarea readOnly value={embedCode} rows={4} onFocus={(e) => e.currentTarget.select()} aria-label={m.embedCodeLabel} />
           <div className="sheet-actions">
             <button type="button" className="secondary" onClick={() => dialog.current?.close()}>
-              Done
+              {m.done}
             </button>
-            <button type="button" className="primary" onClick={() => copy(embedCode, "Embed code copied")}>
-              Copy code
+            <button type="button" className="primary" onClick={() => copy(embedCode, m.embedCopied)}>
+              {m.copyCode}
             </button>
           </div>
         </div>

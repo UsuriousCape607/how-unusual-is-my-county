@@ -432,3 +432,92 @@ button.primary:hover { background: #0077ed; }
   .menu { left: 0; right: auto; transform-origin: top left; width: max-content; max-width: calc(100vw - 48px); }
   .menu [role="menuitem"] { padding: 11px 12px; }
 }
+
+/* ---- Language picker: popover on wider screens, bottom sheet on phones (LanguagePicker.tsx) ---- */
+.header-meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.lang-note { color: var(--muted); margin: 10px 0 0; max-width: 60ch; }
+.lang { position: relative; display: inline-flex; }
+.lang-btn {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 6px 13px 6px 11px; border: 0; border-radius: 999px;
+  background: var(--fill-2); color: var(--ink); font: inherit; font-size: 0.9375rem; cursor: pointer;
+  transition: background-color 120ms ease, transform 100ms ease-out;
+}
+.lang-btn:hover { background: var(--fill); }
+.lang-btn:active { transform: scale(0.97); }
+.lang-icon { width: 16px; height: 16px; color: var(--muted); }
+.lang-panel {
+  border: 0; padding: 6px; color: var(--ink); width: 290px; max-width: calc(100vw - 32px); overflow: hidden;
+  background: rgba(255, 255, 255, 0.86); -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.1), 0 14px 36px rgba(0, 0, 0, 0.16); border-radius: 14px;
+}
+/* Popover: grows out of its button. */
+.lang-panel:not(:modal) { position: absolute; inset: calc(100% + 8px) 0 auto auto; margin: 0; z-index: 1300; transform-origin: top right; max-height: min(72vh, 600px); overflow-y: auto; }
+.lang-panel:not(:modal)[open] { animation: menu-in 160ms ease-out; }
+.lang-panel:not(:modal) .lang-head { display: none; }
+.lang-list { display: grid; gap: 1px; }
+.lang-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 44px; padding: 7px 12px;
+  border: 0; border-radius: 8px; background: transparent; color: var(--ink); font: inherit; text-align: left; cursor: pointer;
+}
+.lang-names { display: grid; gap: 1px; }
+.lang-native { font-size: 0.9375rem; line-height: 1.25; }
+.lang-english { font-size: 0.75rem; line-height: 1.25; color: var(--muted); }
+.lang-check { width: 16px; height: 16px; flex: none; color: var(--blue); visibility: hidden; }
+.lang-item[aria-checked="true"] .lang-check { visibility: visible; }
+.lang-item[aria-checked="true"] .lang-native { font-weight: 600; }
+.lang-item:hover, .lang-item:focus-visible { background: var(--blue); color: #fff; box-shadow: none; }
+.lang-item:hover .lang-english, .lang-item:focus-visible .lang-english, .lang-item:hover .lang-check, .lang-item:focus-visible .lang-check { color: rgba(255, 255, 255, 0.85); }
+.lang-foot { margin: 6px 12px 6px; font-size: 0.75rem; line-height: 1.35; color: var(--muted); }
+
+/* Phone: a bottom sheet over a dimmed page. It slides up and leaves the same way; the top bar can be swiped down. */
+.lang-panel:modal {
+  position: fixed; inset: auto 0 0 0; width: 100%; max-width: none; max-height: 86dvh; margin: 0; padding: 0 8px calc(10px + env(safe-area-inset-bottom));
+  border-radius: 16px 16px 0 0; background: rgba(255, 255, 255, 0.94); display: flex; flex-direction: column;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18); animation: lang-sheet-in 420ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.lang-panel::backdrop { background: rgba(0, 0, 0, 0.32); animation: lang-fade-in 300ms ease; transition: opacity 280ms ease; }
+.lang-panel.closing::backdrop { opacity: 0; }
+html:has(.lang-panel:modal) { overflow: hidden; }
+.lang-head { position: relative; display: flex; align-items: center; justify-content: center; min-height: 56px; padding: 14px 8px 6px; touch-action: none; cursor: grab; flex: none; }
+.lang-grabber { position: absolute; top: 6px; left: 50%; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: rgba(60, 60, 67, 0.3); }
+.lang-title { margin: 0; font-size: 1.0625rem; font-weight: 600; letter-spacing: -0.01em; }
+.lang-done { position: absolute; right: 6px; top: 12px; min-height: 44px; padding: 0 12px; border: 0; background: none; color: var(--blue); font: inherit; font-size: 1.0625rem; font-weight: 600; cursor: pointer; }
+.lang-panel:modal .lang-list { overflow-y: auto; overscroll-behavior: contain; background: #fff; border-radius: 12px; gap: 0; }
+.lang-panel:modal .lang-item { min-height: 54px; padding: 9px 16px; border-radius: 0; }
+.lang-panel:modal .lang-item + .lang-item { box-shadow: inset 0 0.5px 0 var(--hairline); }
+.lang-panel:modal .lang-native { font-size: 1.0625rem; }
+.lang-panel:modal .lang-english { font-size: 0.8125rem; }
+.lang-panel:modal .lang-item:hover { background: transparent; color: var(--ink); }
+.lang-panel:modal .lang-item:hover .lang-english { color: var(--muted); }
+.lang-panel:modal .lang-item:hover .lang-check { color: var(--blue); }
+.lang-panel:modal .lang-item:active { background: var(--fill-2); }
+.lang-panel:modal .lang-foot { margin: 10px 8px 0; }
+@keyframes lang-sheet-in { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes lang-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .lang-panel:modal { animation: lang-fade-in 200ms ease; }
+  .lang-panel:not(:modal)[open] { animation: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .lang-panel { background: #fff; -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (prefers-contrast: more) {
+  .lang-panel { background: #fff; box-shadow: 0 0 0 1px var(--ink); }
+}
+@media print { .lang { display: none; } }
+
+/* ---- Chinese, Japanese and Korean ---- */
+/* Each script uses its own system font; the lang attribute also picks the right regional glyph shapes. */
+html:lang(ja) { font-family: system-ui, -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", Meiryo, sans-serif; }
+html:lang(zh-Hant) { font-family: system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif; }
+html:lang(zh-Hans) { font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif; }
+html:lang(ko) { font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; }
+/* Korean wraps between words, Japanese between phrases where the browser can, Chinese/Japanese with strict kinsoku. */
+html:lang(ko) body { word-break: keep-all; overflow-wrap: anywhere; }
+html:lang(ja) body { word-break: auto-phrase; line-break: strict; }
+html:lang(zh) body { line-break: strict; }
+/* Negative tracking tightens Latin headlines but crowds CJK characters; measures in "ch" are half-width there. */
+html:is(:lang(ja), :lang(zh), :lang(ko)) :is(h1, h2, h3, h4, .verdict, .subtitle, .hero-label, .side-facts dd, .lang-title) { letter-spacing: 0; }
+html:is(:lang(ja), :lang(zh), :lang(ko)) .verdict { max-width: 17em; line-height: 1.3; }
+html:is(:lang(ja), :lang(zh), :lang(ko)) .subtitle { max-width: 26em; }
+html:is(:lang(ja), :lang(zh), :lang(ko)) .hero-label { max-width: 18em; }

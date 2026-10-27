@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from "react";
+import { getM } from "../i18n/state";
 
 interface State {
   error: Error | null;
@@ -18,16 +19,14 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, St
 
   render() {
     if (!this.state.error) return this.props.children;
+    const m = getM();
     return (
       <main className="wrap">
         <div className="state-box error-page" role="alert">
-          <h2>Something went wrong</h2>
-          <p>
-            The page couldn’t finish loading. This can happen right after the site is updated. Reloading usually fixes it; your
-            county is kept in the address.
-          </p>
+          <h2>{m.errorTitle}</h2>
+          <p>{m.errorBody}</p>
           <button type="button" className="primary" onClick={() => window.location.reload()}>
-            Reload
+            {m.reload}
           </button>
         </div>
       </main>
