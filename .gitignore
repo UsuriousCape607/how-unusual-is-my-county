@@ -13,3 +13,4 @@ playwright-report/
 data/processed/counties_500k.gpkg
 data/processed/facilities_included.json
 data/processed/county_peers.json
+.cache/

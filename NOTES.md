@@ -89,6 +89,15 @@
   is fetched from `siteRoot()` (resolved from the script URL, since pages now sit two folders deep). Absolute URLs
   come from `SITE_URL` (default: the GitHub Pages address). Mobile: Share menu anchors left at ≤520 px.
 
+- Large preview images (2026-10-27, owner request: rich cards on X/Facebook/WhatsApp/iMessage): the link-preview
+  plugins moved to `previews/plugin.ts`; `previews/card.html` is the 1200 × 630 template (county name, verdict,
+  count + as-of date, the fewer/same/more bar, state locator map with the county in blue — Alaska wraps at 180°,
+  tiny counties get a ring — sources and host). The build renders it per county with headless Chromium (4 tabs,
+  ~3.5 min cold), quantises to a 128-colour PNG with sharp (~37 KB; 124 MB total) and caches by content hash in
+  `.cache/share-images/` (rebuild with unchanged data: <1 s; CI caches it too). Inter (OFL, @fontsource-variable)
+  is embedded so cards look the same anywhere. No browser outside CI → warning + small icon card; in CI → error.
+  CI now installs Playwright before the build. D.C. shows once ("District of Columbia"), not twice.
+
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.
 2. (Done 2026-10-26) Repo public, Pages source = GitHub Actions. Live at

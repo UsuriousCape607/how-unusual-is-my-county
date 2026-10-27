@@ -287,14 +287,25 @@ try {
 
   // Link previews (Discord, Slack, iMessage): crawlers read static tags, so each county has its own small page.
   const home = await (await page.request.get(BASE)).text();
-  check("home page has a preview with the data date and an absolute image URL",
-    /og:description" content="[^"]+as of [A-Z][a-z]{2} \d{1,2}, \d{4}\."/.test(home) && /og:image" content="https:\/\/[^"]+favicon\.png"/.test(home));
+  check("home page has a preview with the data date",
+    /og:description" content="[^"]+as of [A-Z][a-z]{2} \d{1,2}, \d{4}\."/.test(home));
   check("favicon is served", (await page.request.get(`${BASE}favicon-32.png`)).ok() && (await page.request.get(`${BASE}favicon.png`)).ok());
   const prev = await (await page.request.get(`${BASE}c/${multi.geoid}/`)).text();
   const tag = (prop) => prev.match(new RegExp(`${prop}" content="([^"]+)"`))?.[1] ?? "";
   check("county page preview names the county and states its result",
     tag("og:title") === `${multi.county_name}, ${multi.state_name}` && /similar counties\. \d+ sites? in development on record as of/.test(tag("og:description"))
     && prev.includes('name="theme-color"') && /^https:\/\//.test(tag("og:image")) && !prev.includes("og:image:alt"), `${tag("og:title")} | ${tag("og:description")}`);
+  // Large preview image (X, Facebook, WhatsApp, iMessage, Discord): 1200 x 630 PNG, small enough for WhatsApp.
+  const pngInfo = async (path) => {
+    const r = await page.request.get(`${BASE}${path}`); const b = await r.body();
+    return { ok: r.ok() && b.subarray(1, 4).toString() === "PNG", w: b.readUInt32BE(16), h: b.readUInt32BE(20), kb: Math.round(b.length / 1024) };
+  };
+  const img = await pngInfo(`og/${multi.geoid}.png`);
+  check("county page has its own large preview image",
+    tag("twitter:card") === "summary_large_image" && tag("og:image").endsWith(`/og/${multi.geoid}.png`) && img.ok && img.w === 1200 && img.h === 630 && img.kb < 150,
+    `${tag("og:image").split("/").slice(-2).join("/")} ${img.w}x${img.h} ${img.kb} KB`);
+  const homeImg = await pngInfo("og/home.png");
+  check("home page has a large preview image", /og:image" content="https:\/\/[^"]+\/og\/home\.png"/.test(home) && homeImg.ok && homeImg.w === 1200, `${homeImg.kb} KB`);
   const visitor = await browser.newPage();
   await visitor.goto(`${BASE}c/${multi.geoid}/`);
   await visitor.waitForSelector("#summary-title");

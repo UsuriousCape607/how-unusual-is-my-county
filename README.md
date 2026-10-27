@@ -18,10 +18,16 @@ live AI.
 
 ![Desktop view: Loudoun County, VA](docs/screenshots/desktop.png)
 
+Link preview for a county, as shown on X, Facebook, WhatsApp, iMessage and Discord:
+
+![Link preview image for Loudoun County, VA](docs/screenshots/share-card-51107.png)
+
 ## Requirements
 - Python 3.11+ with the packages in `requirements.txt` (pandas, GeoPandas, Shapely ≥ 2.1, pyogrio, pyproj,
   requests, pytest)
 - Node.js 18+ and npm
+- For the link-preview images: Chromium via Playwright (`npm i --no-save playwright && npx playwright install chromium`).
+  Without it the build still works and previews fall back to the small icon card.
 
 ## Build the data
 ```bash
@@ -44,8 +50,9 @@ npm run build      # static site in dist/
 npm run preview    # serve dist/ locally
 ```
 Each county has its own address, `c/<GEOID>/` (e.g. `c/51107/`), which is what the address bar and **Copy link**
-show. The build writes the app once per county there (`vite.config.ts`), with that county's result in its Open Graph
-tags, so Discord, Slack, iMessage and social sites show a real preview card (crawlers don't run JavaScript, and a
+show. The build writes the app once per county there (`previews/plugin.ts`), with that county's result in its Open
+Graph tags and its own 1200 × 630 image (`og/<GEOID>.png`, rendered from `previews/card.html` with headless Chromium,
+cached in `.cache/share-images/`), so X, Facebook, WhatsApp, iMessage, Discord, Slack and LinkedIn show a large preview (crawlers don't run JavaScript, and a
 static host serves the same page for every `?county=` value). Older `?county=<GEOID>` links still work and switch to
 the county address on load. Link previews need absolute URLs; the build uses the GitHub Pages address unless
 `SITE_URL` is set (e.g. `SITE_URL=https://example.org/county/ npm run build`). The Share menu also prints a county summary,
@@ -98,4 +105,4 @@ tests/     pytest suites and tests/e2e/smoke.mjs
 Compute-infrastructure data from Compute Atlas by Edward Kubiak, licensed under
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — https://github.com/ek33450505/compute-atlas.
 The data were filtered, assigned to counties and counted (see DATA_SOURCES.md). Population, land area and
-boundaries: U.S. Census Bureau (public domain). Map rendering: Leaflet. Charts: Recharts.
+boundaries: U.S. Census Bureau (public domain). Map rendering: Leaflet. Charts: Recharts. Preview-image type: Inter (SIL Open Font License).

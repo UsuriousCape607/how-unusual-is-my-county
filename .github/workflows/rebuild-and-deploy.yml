@@ -87,19 +87,29 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-      - name: Build site and run frontend tests
+      - name: Install dependencies and Chromium
         if: steps.plan.outputs.deploy == 'true'
         run: |
           npm ci
+          npm install --no-save playwright@1.63.0
+          npx playwright install --with-deps chromium
+      # Link-preview images (one per county) are rendered with Chromium during the build; unchanged ones are reused.
+      - name: Restore link-preview images
+        if: steps.plan.outputs.deploy == 'true'
+        uses: actions/cache@v4
+        with:
+          path: .cache/share-images
+          key: share-images-${{ hashFiles('public/data/county_metrics.json', 'public/data/county_peers.json', 'public/data/metadata.json', 'public/data/counties.geojson', 'previews/**', 'public/favicon.png', 'package-lock.json') }}
+          restore-keys: share-images-
+      - name: Build site and run frontend tests
+        if: steps.plan.outputs.deploy == 'true'
+        run: |
           npm test
           npm run build
 
       - name: End-to-end test (Playwright, Chromium)
         if: steps.plan.outputs.deploy == 'true'
-        run: |
-          npm install --no-save playwright@1.63.0
-          npx playwright install --with-deps chromium
-          npm run test:e2e
+        run: npm run test:e2e
       - name: Keep e2e screenshots
         if: always() && steps.plan.outputs.deploy == 'true'
         uses: actions/upload-artifact@v4

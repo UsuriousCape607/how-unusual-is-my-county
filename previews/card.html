@@ -1,0 +1,172 @@
+<!doctype html>
+<!--
+  Link-preview image template (1200 x 630, the size X, Facebook, WhatsApp, iMessage and Discord show large).
+  previews/plugin.ts fills FONT_CSS / ICON_URL / SITE_HOST, then calls renderCounty() or renderHome() and screenshots.
+  Colours follow src/lib/theme.ts.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+/*FONT_CSS*/
+:root { --ink: #1d1d1f; --ink-2: #424245; --muted: #6e6e73; --fill: #e8e8ed; --blue: #0071e3; --fewer: #8944ab; --same: #8e8e93; --more: #c96e00; }
+* { box-sizing: border-box; margin: 0; }
+html, body { width: 1200px; height: 630px; overflow: hidden; background: #fff; }
+.nw { white-space: nowrap; }
+body { font-family: "Inter Variable", system-ui, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; font-optical-sizing: auto; }
+.card { position: absolute; inset: 0; padding: 56px 64px 0; display: none; }
+.card.on { display: block; }
+.brand { display: flex; align-items: center; gap: 14px; font-size: 22px; font-weight: 600; color: var(--muted); letter-spacing: -0.01em; }
+.brand img { width: 40px; height: 40px; border-radius: 10px; }
+footer { position: absolute; left: 64px; right: 64px; bottom: 0; height: 64px; border-top: 1px solid #e5e5ea; display: flex; align-items: center; justify-content: space-between; font-size: 17px; color: var(--muted); }
+footer .host { color: var(--ink-2); font-weight: 500; }
+
+/* County card */
+#county .text { position: absolute; left: 64px; top: 128px; width: 700px; }
+#name { font-size: 60px; font-weight: 700; line-height: 1.05; letter-spacing: -0.03em; white-space: nowrap; }
+#verdict { margin-top: 18px; font-size: 32px; font-weight: 600; line-height: 1.2; letter-spacing: -0.02em; color: var(--ink-2); }
+#count { margin-top: 22px; font-size: 22px; color: var(--muted); }
+#count b { color: var(--blue); font-weight: 700; font-size: 26px; font-variant-numeric: tabular-nums; }
+#county .compare { position: absolute; left: 64px; bottom: 96px; width: 700px; }
+.caption { font-size: 18px; color: var(--muted); margin-bottom: 12px; }
+.bar { display: flex; height: 18px; border-radius: 9px; overflow: hidden; background: var(--fill); }
+.bar span { display: block; height: 100%; }
+.labels { display: flex; gap: 28px; padding: 0; margin-top: 14px; font-size: 20px; color: var(--ink-2); }
+.labels li { list-style: none; display: flex; align-items: center; gap: 8px; }
+.labels i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.labels b { font-variant-numeric: tabular-nums; }
+.labels .zero { color: var(--muted); }
+#map { position: absolute; right: 64px; top: 112px; width: 340px; height: 340px; }
+
+/* Home card */
+#home .text { position: absolute; left: 64px; top: 150px; width: 640px; }
+#home h1 { font-size: 72px; font-weight: 700; line-height: 1.02; letter-spacing: -0.035em; }
+#home p { margin-top: 24px; font-size: 30px; line-height: 1.3; color: var(--muted); letter-spacing: -0.015em; }
+#home .asof { margin-top: 28px; display: inline-block; font-size: 20px; font-weight: 600; color: var(--blue); background: #e8f2fd; padding: 8px 16px; border-radius: 999px; }
+#home .hero { position: absolute; right: 72px; top: 118px; width: 340px; height: 340px; border-radius: 76px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.14); }
+</style>
+</head>
+<body>
+<section class="card" id="county">
+  <div class="brand"><img src="ICON_URL" alt="">How Unusual Is My County?</div>
+  <div class="text">
+    <h1 id="name"></h1>
+    <p id="verdict"></p>
+    <p id="count"></p>
+  </div>
+  <svg id="map" viewBox="0 0 340 340" aria-hidden="true"></svg>
+  <div class="compare">
+    <p class="caption">Compared with its 40 most similar counties by population and density</p>
+    <div class="bar" id="bar"></div>
+    <ul class="labels" id="labels"></ul>
+  </div>
+  <footer><span>Sources: Compute Atlas (CC BY 4.0) · U.S. Census Bureau</span><span class="host">SITE_HOST</span></footer>
+</section>
+
+<section class="card" id="home">
+  <div class="brand"><img src="ICON_URL" alt="">Data-center development, county by county</div>
+  <div class="text">
+    <h1>How Unusual Is My County?</h1>
+    <p>Compare any U.S. county’s documented <span class="nw">data-center</span> development with the 40 counties most like it.</p>
+    <span class="asof" id="home-date"></span>
+  </div>
+  <img class="hero" src="ICON_URL" alt="">
+  <footer><span>Sources: Compute Atlas (CC BY 4.0) · U.S. Census Bureau</span><span class="host">SITE_HOST</span></footer>
+</section>
+
+<script>
+const COLORS = { fewer: "#8944ab", same: "#8e8e93", more: "#c96e00" };
+let byState = {};
+
+/** County shapes as lists of polygons, grouped by state FIPS (the first two digits of the GEOID). */
+window.setGeo = (fc) => {
+  byState = {};
+  for (const f of fc.features) {
+    const polys = f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates;
+    (byState[f.properties.geoid.slice(0, 2)] ??= []).push({ geoid: f.properties.geoid, polys });
+  }
+};
+
+/** Sets text, keeping "data-center" on one line. */
+function setText(el, text) {
+  el.replaceChildren(...text.split(/(data-center)/).map((part) => {
+    if (part !== "data-center") return part;
+    const span = document.createElement("span");
+    span.className = "nw";
+    span.textContent = part;
+    return span;
+  }));
+}
+
+function show(id) {
+  document.querySelectorAll(".card").forEach((el) => el.classList.toggle("on", el.id === id));
+}
+
+/** Shrink the county name to fit on one line; very long names wrap onto two. */
+function fitName(el) {
+  el.style.whiteSpace = "nowrap";
+  let size = 60;
+  el.style.fontSize = `${size}px`;
+  while (el.scrollWidth > el.clientWidth && size > 42) el.style.fontSize = `${(size -= 2)}px`;
+  if (el.scrollWidth > el.clientWidth) { el.style.whiteSpace = "normal"; el.style.fontSize = "46px"; }
+}
+
+/** State locator: the state's counties in light grey, this county in blue (simple equirectangular projection). */
+function drawMap(geoid) {
+  const svg = document.getElementById("map");
+  const feats = byState[geoid.slice(0, 2)] ?? [];
+  const wrap = geoid.startsWith("02") ? (x) => (x > 0 ? x - 360 : x) : (x) => x; // Alaska crosses 180°
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const f of feats) for (const poly of f.polys) for (const [x, y] of poly[0]) {
+    const X = wrap(x); x0 = Math.min(x0, X); x1 = Math.max(x1, X); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+  }
+  const k = Math.cos((((y0 + y1) / 2) * Math.PI) / 180);
+  const w = (x1 - x0) * k, h = y1 - y0, pad = 10, size = 340 - 2 * pad;
+  const s = size / Math.max(w, h), ox = pad + (size - w * s) / 2, oy = pad + (size - h * s) / 2;
+  const px = (x) => ox + (wrap(x) - x0) * k * s, py = (y) => oy + (y1 - y) * s;
+  const path = (f) => f.polys.map((poly) => poly.map((ring) =>
+    "M" + ring.map(([x, y]) => `${px(x).toFixed(1)},${py(y).toFixed(1)}`).join("L") + "Z").join("")).join("");
+  let out = "", target = null;
+  for (const f of feats) {
+    if (f.geoid === geoid) { target = f; continue; }
+    out += `<path d="${path(f)}" fill="#e8e8ed" stroke="#fff" stroke-width="0.8" stroke-linejoin="round"/>`;
+  }
+  if (target) {
+    out += `<path d="${path(target)}" fill="#0071e3" stroke="#fff" stroke-width="0.8" stroke-linejoin="round"/>`;
+    // Tiny counties (e.g. independent cities) also get a ring so they are visible.
+    let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
+    for (const poly of target.polys) for (const [x, y] of poly[0]) {
+      a = Math.min(a, px(x)); b = Math.max(b, px(x)); c = Math.min(c, py(y)); d = Math.max(d, py(y));
+    }
+    if (b - a < 12 && d - c < 12) out += `<circle cx="${(a + b) / 2}" cy="${(c + d) / 2}" r="11" fill="none" stroke="#0071e3" stroke-width="3"/>`;
+  }
+  svg.innerHTML = out;
+}
+
+window.renderCounty = async (c) => {
+  show("county");
+  document.getElementById("name").textContent = c.name;
+  setText(document.getElementById("verdict"), `${c.verdict}.`);
+  const count = document.getElementById("count");
+  count.innerHTML = "";
+  const b = document.createElement("b");
+  b.textContent = String(c.n);
+  count.append(b, ` data-center ${c.n === 1 ? "site" : "sites"} in development on record as of ${c.date}`);
+  const parts = [["fewer", c.fewer, "have fewer"], ["same", c.equal, "the same"], ["more", c.greater, "have more"]];
+  document.getElementById("bar").innerHTML = parts.filter(([, n]) => n > 0)
+    .map(([k, n], i) => `<span style="flex-grow:${n};background:${COLORS[k]};margin-left:${i ? 3 : 0}px"></span>`).join("");
+  document.getElementById("labels").innerHTML = parts
+    .map(([k, n, label]) => `<li class="${n ? "" : "zero"}"><i style="background:${COLORS[k]}"></i><b>${n}</b> ${label}</li>`).join("");
+  drawMap(c.geoid);
+  await document.fonts.ready;
+  fitName(document.getElementById("name"));
+};
+
+window.renderHome = async (h) => {
+  show("home");
+  document.getElementById("home-date").textContent = `Compute Atlas data as of ${h.date}`;
+  await document.fonts.ready;
+};
+</script>
+</body>
+</html>

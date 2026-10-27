@@ -270,7 +270,7 @@
     "detail": "36–339px"
   },
   {
-    "name": "home page has a preview with the data date and an absolute image URL",
+    "name": "home page has a preview with the data date",
     "ok": true,
     "detail": ""
   },
@@ -283,6 +283,16 @@
     "name": "county page preview names the county and states its result",
     "ok": true,
     "detail": "Santa Clara County, California | More documented data-center development than all 40 similar counties. 27 sites in development on record as of Oct 2, 2026. Of the 40 counties most like it in population and density, 40 have fewer, 0 the same and 0 more."
+  },
+  {
+    "name": "county page has its own large preview image",
+    "ok": true,
+    "detail": "og/06085.png 1200x630 37 KB"
+  },
+  {
+    "name": "home page has a large preview image",
+    "ok": true,
+    "detail": "83 KB"
   },
   {
     "name": "county page is the app itself (no redirect), with the county in the tab title",
@@ -312,7 +322,7 @@
   {
     "name": "data requests carry the build ID (no stale cache after a deploy)",
     "ok": true,
-    "detail": "http://127.0.0.1:4179/data/county_metrics.json?v=mvpzqdaj"
+    "detail": "http://127.0.0.1:4179/data/county_metrics.json?v=mvq3uh09"
   },
   {
     "name": "page renders even with data from an older deploy",
