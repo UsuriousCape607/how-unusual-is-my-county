@@ -18,7 +18,7 @@ const pl: Translation = {
   siteTitle: "Jak nietypowe jest moje hrabstwo?",
   subtitle: "Porównaj udokumentowane inwestycje w centra danych z podobnymi hrabstwami w całych Stanach Zjednoczonych.",
   methodologyLink: "Metodologia i źródła",
-  langNote: "Przetłumaczono przy pomocy AI; mogą występować błędy. Nazwy hrabstw i miejsc podajemy po angielsku.",
+  langNote: "Przetłumaczono przy pomocy AI, bez weryfikacji przez profesjonalnych tłumaczy ani rodzimych użytkowników języka; mogą występować błędy. Nazwy hrabstw i miejsc podajemy po angielsku.",
   printUrl: (url) => `Wersja interaktywna: ${url}`,
   loadErrorTitle: "Nie udało się wczytać plików z danymi.",
   loadErrorHelp: "Odśwież stronę, aby spróbować ponownie; jeśli uruchamiasz stronę lokalnie, najpierw uruchom <code>python scripts/build_all.py</code>.",
@@ -37,7 +37,8 @@ const pl: Translation = {
 
   language: "Język",
   languageButton: (name) => `Język: ${name}`,
-  languagePanelNote: "Tłumaczenia przygotowano przy pomocy AI i mogą zawierać błędy. Nazwy hrabstw i miejsc są po angielsku, więc wyszukuj po angielsku.",
+  languagePanelNote:
+    "Tłumaczenia przygotowano przy pomocy AI i nie sprawdzili ich profesjonalni tłumacze ani rodzimi użytkownicy języka, więc mogą zawierać błędy. Nazwy hrabstw i miejsc są po angielsku, więc wyszukuj po angielsku.",
   done: "Gotowe",
 
   freshnessAria: "Z kiedy pochodzą te dane",

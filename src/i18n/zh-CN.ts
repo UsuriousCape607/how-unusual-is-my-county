@@ -5,7 +5,7 @@ const zhCN: Translation = {
   siteTitle: "我的县有多特别？",
   subtitle: "将有记录的数据中心开发情况，与全美各地条件相似的县进行比较。",
   methodologyLink: "研究方法与数据来源",
-  langNote: "本页由 AI 翻译，可能有误。县名和地名以英文显示。",
+  langNote: "本页由 AI 翻译，未经专业译者或母语人士审校，可能有误。县名和地名以英文显示。",
   printUrl: (url) => `交互版：${url}`,
   loadErrorTitle: "无法加载数据文件。",
   loadErrorHelp: "请刷新页面重试；如果在本地运行本网站，请先运行 <code>python scripts/build_all.py</code>。",
@@ -24,7 +24,8 @@ const zhCN: Translation = {
 
   language: "语言",
   languageButton: (name) => `语言：${name}`,
-  languagePanelNote: "翻译由 AI 生成，可能有误。县名和地名以英文显示，请用英文搜索。",
+  languagePanelNote:
+    "翻译由 AI 生成，未经专业译者或母语人士审校，可能有误。县名和地名以英文显示，请用英文搜索。",
   done: "完成",
 
   freshnessAria: "数据时间",

@@ -1,8 +1,7 @@
 import type { CountyMetric, Facility, Metadata, PeerRecord } from "../types";
-import { fmtDateShort, fmtDensity, fmtInt, fmtStat } from "../lib/format";
+import { fmtDateShort, fmtDensity, fmtInt, fmtStat, listParts } from "../lib/format";
 import { useM } from "../i18n/I18nProvider";
 import { Rich } from "../i18n/Rich";
-import { intlLocale } from "../i18n/state";
 import { typicalPhrase, verdict } from "../lib/summary";
 import { COLOR } from "../lib/theme";
 import ShareMenu from "./ShareMenu";
@@ -56,7 +55,7 @@ export function ComparisonBar({ peer, name }: { peer: PeerRecord; name: string }
 /** The closest counties as a list in the reader's language ("A, B, and C" / "A、B、C"), each a button. */
 function ClosestList({ closest, onSelect }: { closest: CountyMetric[]; onSelect: (geoid: string) => void }) {
   let k = 0;
-  const parts = new Intl.ListFormat(intlLocale(), { type: "conjunction" }).formatToParts(closest.map((c) => `${c.county_name}, ${c.state}`));
+  const parts = listParts(closest.map((c) => `${c.county_name}, ${c.state}`));
   return (
     <>
       {parts.map((part, i) => {

@@ -15,6 +15,17 @@ export const getM = (): Messages => active.m;
 export const getLang = (): Lang => active.lang;
 export const intlLocale = (): string => LANGUAGE[active.lang].intl;
 
+/** Runs fn with English formatting, for sections that stay in English (the methodology) so numbers and dates match the prose. */
+export function asEnglish<T>(fn: () => T): T {
+  const prev = active;
+  active = { lang: "en", m: en };
+  try {
+    return fn();
+  } finally {
+    active = prev;
+  }
+}
+
 /** Plural category of n in the active language ("one", "few", "many", "other", …), for translations that need it. */
 export function pluralOf(n: number, locale: string): Intl.LDMLPluralRule {
   return new Intl.PluralRules(locale).select(n);

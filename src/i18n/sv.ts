@@ -10,7 +10,7 @@ const sv: Translation = {
   siteTitle: "Hur ovanligt är mitt county?",
   subtitle: "Jämför dokumenterad datacenterutbyggnad med liknande countyn i hela USA.",
   methodologyLink: "Metod och källor",
-  langNote: "Översatt med AI och kan innehålla fel. Namn på countyn och orter visas på engelska.",
+  langNote: "Översatt med AI och inte granskat av professionella översättare eller modersmålstalare; kan innehålla fel. Namn på countyn och orter visas på engelska.",
   printUrl: (url) => `Interaktiv version: ${url}`,
   loadErrorTitle: "Datafilerna kunde inte läsas in.",
   loadErrorHelp: "Ladda om sidan för att försöka igen. Om du kör webbplatsen lokalt, kör först <code>python scripts/build_all.py</code>.",
@@ -29,7 +29,8 @@ const sv: Translation = {
 
   language: "Språk",
   languageButton: (name) => `Språk: ${name}`,
-  languagePanelNote: "Översättningarna är gjorda med AI och kan innehålla fel. Namn på countyn och orter är på engelska, så sök på engelska.",
+  languagePanelNote:
+    "Översättningarna är gjorda med AI och har inte granskats av professionella översättare eller modersmålstalare, så de kan innehålla fel. Namn på countyn och orter är på engelska, så sök på engelska.",
   done: "Klar",
 
   freshnessAria: "Hur gamla uppgifterna är",

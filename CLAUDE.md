@@ -10,8 +10,10 @@ The full build spec lives outside the repo; this file and METHODOLOGY.md capture
 (run all with `python scripts/build_all.py`). Python computes every statistic and writes static JSON/GeoJSON to
 `public/data/`. The React + TypeScript + Vite frontend (`src/`, Leaflet + Recharts) only reads and displays it.
 There is no backend, database, auth, paid tiles, or live LLM.
-Interface text: `src/i18n/en.ts` (source of truth) + one lazy-loaded file per language (es, ko, ko-Kore, zh-TW, zh-CN,
-ja, hu, pl, sv; AI-written, unreviewed); methodology and AI examples stay English. Link previews: `previews/` (Vite plugin
+Interface text: `src/i18n/en.ts` (source of truth) + one lazy-loaded file per language (21: es, ko, ko-Kore, zh-TW, zh-CN,
+ja, hu, pl, sv, el, el-x-kathar, az-Latn, mn-Cyrl, la-x-eccl, xno, pdc, ht, nv, it, tr, hi; AI-written, unreviewed, see
+TRANSLATION_REVIEW.md); written-out dates for languages without browser data in `src/i18n/formats.ts`; methodology and
+AI examples stay English. Link previews: `previews/` (Vite plugin
 writes `c/<GEOID>/` pages and 1200×630 `og/<GEOID>.png` cards with headless Chromium at build time).
 
 ## Settled decisions (do not reopen)

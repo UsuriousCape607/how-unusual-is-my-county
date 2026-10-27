@@ -62,14 +62,30 @@ downloads the similar-counties table and the county's records as CSV, and gives 
 why not (`public/data/projects.json`, loaded only when someone searches).
 
 ## Languages
-The interface is available in English, Spanish, Korean (Hangul, and mixed script with hanja), Chinese (Traditional for
-Taiwan, Simplified), Japanese, Hungarian, Polish and Swedish, chosen from the globe button in the header (a popover on
-desktop, a bottom sheet on phones). The choice is remembered, shown in the address as `?lang=` so links open in the same
-language, and a visitor's browser language is used on a first visit. County, state and project names stay in English,
-so search always takes Latin letters. The methodology section and the three AI examples are English only (the page
-says so). All text lives in `src/i18n/en.ts`; each translation file overrides what it translates and falls back to
-English for anything missing. **The translations were written with AI and have not been reviewed by native speakers.**
-Unit tests check that every language covers every message and keeps every number and name it is given.
+The interface is available in 22 languages, chosen from the globe button in the header (a compact scrolling menu on
+desktop, a bottom sheet on phones):
+- English, Spanish, Korean (Hangul, and mixed script with hanja), Chinese (Traditional for Taiwan, and Simplified),
+  Japanese, Hungarian, Polish, Swedish;
+- Greek (Demotic, and polytonic Katharevousa), Azerbaijani (Latin), Mongolian (Cyrillic), Ecclesiastical Latin,
+  Anglo-Norman (Law French), Pennsylvania Dutch, Haitian Creole, Navajo (Diné bizaad), Italian, Turkish and Hindi.
+
+The choice is remembered and shown in the address as `?lang=`, so links open in the same language. A visitor's
+browser language is used on a first visit. The historical registers (mixed-script Korean, Katharevousa, Ecclesiastical
+Latin, Law French) appear only when chosen, and no language stands in for another: a German browser gets English, not
+Pennsylvania Dutch.
+
+County, state and project names stay in English, so search always takes Latin letters. The methodology section and
+the three AI examples are English only, and the page says so.
+
+All text lives in `src/i18n/en.ts`. Each translation file overrides what it translates and falls back to English for
+anything missing. Dates, "N days ago" and list joins come from the browser where it has data for the language, from
+`src/i18n/formats.ts` where it does not (Latin, Law French, Pennsylvania Dutch, Mongolian, Azerbaijani, Haitian
+Creole, Navajo, Katharevousa), and otherwise fall back to an ISO date.
+
+**The translations were written with AI and have not been checked by professional translators or native speakers;
+the site says so in every language.** [TRANSLATION_REVIEW.md](TRANSLATION_REVIEW.md) lists what to review first. Navajo,
+Law French, Latin and Katharevousa are the least certain. Unit tests check that every language covers every message and
+keeps every number and name it is given.
 
 ## Tests
 ```bash

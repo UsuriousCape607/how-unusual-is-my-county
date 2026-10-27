@@ -1,9 +1,14 @@
 import type { Metadata } from "../types";
 import { fmtDate, fmtInt } from "../lib/format";
+import { asEnglish } from "../i18n/state";
 import { STALE_DAYS } from "./DataFreshness";
 import { REASON_LABELS } from "../lib/reasons";
 import { useI18n } from "../i18n/I18nProvider";
 import { LANGUAGE } from "../i18n/languages";
+
+// The section is English, so its numbers and dates are too ("1,234", "October 2, 2026"), whatever the interface language.
+const enInt = (n: number) => asEnglish(() => fmtInt(n));
+const enDate = (iso: string) => asEnglish(() => fmtDate(iso));
 
 const METHOD_LABELS: Record<string, string> = {
   spatial_join: "Exact coordinates inside a county polygon",
@@ -19,7 +24,7 @@ function Table({ rows, caption }: { rows: [string, number][]; caption: string })
         {rows.map(([k, v]) => (
           <tr key={k}>
             <td>{k}</td>
-            <td className="num">{fmtInt(v)}</td>
+            <td className="num">{enInt(v)}</td>
           </tr>
         ))}
       </tbody>
@@ -52,13 +57,13 @@ export default function Methodology({ metadata }: { metadata: Metadata }) {
         A <strong>qualifying pipeline record</strong> is a Compute Atlas record with facility type <code>{metadata.filters.facility_type}</code>,
         status {metadata.filters.pipeline_statuses.map((s) => <code key={s}>{s}</code>).reduce((a, b) => <>{a}, {b}</>)}, confidence{" "}
         {metadata.filters.confidence.map((s) => <code key={s}>{s}</code>).reduce((a, b) => <>{a} or {b}</>)}, and one defensible
-        county. There is no announcement-date filter: the count is the pipeline as documented on {fmtDate(metadata.snapshot_date)}.
+        county. There is no announcement-date filter: the count is the pipeline as documented on {enDate(metadata.snapshot_date)}.
         A record is a documented site entry, not necessarily a separate building, and the inventory does not capture every project.
       </p>
       <p>
-        Of {fmtInt(qc.total_records)} records in the snapshot, {fmtInt(qc.pipeline_candidates_before_assignment)} met the type, status,
-        and confidence filters and {fmtInt(qc.headline_included)} were assigned to a county and counted.{" "}
-        {fmtInt(metadata.counties.with_pipeline_records)} of {fmtInt(metadata.counties.eligible)} counties have at least one.
+        Of {enInt(qc.total_records)} records in the snapshot, {enInt(qc.pipeline_candidates_before_assignment)} met the type, status,
+        and confidence filters and {enInt(qc.headline_included)} were assigned to a county and counted.{" "}
+        {enInt(metadata.counties.with_pipeline_records)} of {enInt(metadata.counties.eligible)} counties have at least one.
       </p>
       <div className="tables">
         <Table caption="Records not in the headline count, by first reason" rows={exclusions} />
@@ -75,7 +80,7 @@ export default function Methodology({ metadata }: { metadata: Metadata }) {
       <h3>Choosing the 40 peers</h3>
       <p>
         For every county we take the natural log of its 2025 population and of its population density (people per square mile of
-        land; water excluded). Each is converted to a z-score across all {fmtInt(metadata.counties.eligible)} counties, using the
+        land; water excluded). Each is converted to a z-score across all {enInt(metadata.counties.eligible)} counties, using the
         population standard deviation. The peers are the 40 counties at the smallest Euclidean distance:
       </p>
       <p className="formula">distance(A, B) = √[(zPop<sub>A</sub> − zPop<sub>B</sub>)² + (zDensity<sub>A</sub> − zDensity<sub>B</sub>)²]</p>
@@ -97,13 +102,13 @@ export default function Methodology({ metadata }: { metadata: Metadata }) {
       <h3>Data dates</h3>
       <table className="compact dates">
         <tbody>
-          <tr><td>Facility records (Compute Atlas snapshot {ca.tag})</td><td>as of {fmtDate(metadata.data_dates.facility_snapshot_as_of)}</td></tr>
+          <tr><td>Facility records (Compute Atlas snapshot {ca.tag})</td><td>as of {enDate(metadata.data_dates.facility_snapshot_as_of)}</td></tr>
           {metadata.data_dates.facility_file_retrieved_at && (
-            <tr><td>Snapshot file downloaded</td><td>{fmtDate(metadata.data_dates.facility_file_retrieved_at)}</td></tr>
+            <tr><td>Snapshot file downloaded</td><td>{enDate(metadata.data_dates.facility_file_retrieved_at)}</td></tr>
           )}
-          <tr><td>Population ({metadata.data_dates.population_vintage})</td><td>{fmtDate(metadata.data_dates.population_reference_date)}</td></tr>
+          <tr><td>Population ({metadata.data_dates.population_vintage})</td><td>{enDate(metadata.data_dates.population_reference_date)}</td></tr>
           <tr><td>Land area and county boundaries</td><td>{metadata.data_dates.geography_vintage} Census vintage</td></tr>
-          <tr><td>Site data last rebuilt</td><td>{fmtDate(metadata.data_dates.site_data_built_at)}</td></tr>
+          <tr><td>Site data last rebuilt</td><td>{enDate(metadata.data_dates.site_data_built_at)}</td></tr>
         </tbody>
       </table>
       <p className="small">
@@ -114,7 +119,7 @@ export default function Methodology({ metadata }: { metadata: Metadata }) {
       <h3>Sources and attribution</h3>
       <ul className="sources-list">
         <li>
-          <strong>Facility records:</strong> {ca.attribution}. Snapshot {ca.tag} (data as of {fmtDate(ca.snapshot_as_of)}),{" "}
+          <strong>Facility records:</strong> {ca.attribution}. Snapshot {ca.tag} (data as of {enDate(ca.snapshot_as_of)}),{" "}
           <a href={ca.license_url}>CC BY 4.0</a>. {ca.transformations}
         </li>
         <li><strong>Population:</strong> {metadata.census.population}.</li>
@@ -128,13 +133,13 @@ export default function Methodology({ metadata }: { metadata: Metadata }) {
             {Object.entries(metadata.sources).map(([k, s]) => (
               <tr key={k}>
                 <td><a href={s.url}>{k}</a></td>
-                <td>{s.retrieved_at ? fmtDate(s.retrieved_at) : "supplied locally"}</td>
+                <td>{s.retrieved_at ? enDate(s.retrieved_at) : "supplied locally"}</td>
                 <td><code>{s.sha256?.slice(0, 16)}…</code></td>
               </tr>
             ))}
           </tbody>
         </table>
-        <p className="muted small">Data version <code>{metadata.data_version}</code>, built {fmtDate(metadata.generated_at)}.</p>
+        <p className="muted small">Data version <code>{metadata.data_version}</code>, built {enDate(metadata.generated_at)}.</p>
       </details>
 
       <h3>About the AI explanations</h3>

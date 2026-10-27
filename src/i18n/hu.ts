@@ -9,7 +9,7 @@ const hu: Translation = {
   siteTitle: "Mennyire szokatlan a megyém?",
   subtitle: "Hasonlítsd össze a dokumentált adatközpont-fejlesztéseket az Egyesült Államok hasonló megyéivel.",
   methodologyLink: "Módszertan és források",
-  langNote: "MI-vel fordítva, hibákat tartalmazhat. A megyék és helyek neve angolul szerepel.",
+  langNote: "MI-vel fordítva, szakfordító vagy anyanyelvi beszélő nem ellenőrizte; hibákat tartalmazhat. A megyék és helyek neve angolul szerepel.",
   printUrl: (url) => `Interaktív változat: ${url}`,
   loadErrorTitle: "Az adatfájlokat nem sikerült betölteni.",
   loadErrorHelp: "Töltsd be újra az oldalt; ha helyben futtatod az oldalt, előbb futtasd a <code>python scripts/build_all.py</code> parancsot.",
@@ -28,7 +28,8 @@ const hu: Translation = {
 
   language: "Nyelv",
   languageButton: (name) => `Nyelv: ${name}`,
-  languagePanelNote: "A fordítások MI-vel készültek, és hibákat tartalmazhatnak. A megyék és helyek neve angolul szerepel, ezért angolul keress.",
+  languagePanelNote:
+    "A fordítások MI-vel készültek, szakfordító vagy anyanyelvi beszélő nem ellenőrizte őket, ezért hibákat tartalmazhatnak. A megyék és helyek neve angolul szerepel, ezért angolul keress.",
   done: "Kész",
 
   freshnessAria: "Az adatok időpontja",

@@ -11,7 +11,7 @@ export const en = {
   siteTitle: "How Unusual Is My County?",
   subtitle: "Compare documented data-center development with similar counties across the United States.",
   methodologyLink: "Methodology & sources",
-  langNote: "", // translated versions say they were translated with AI
+  langNote: "", // translated versions say they were machine-translated with AI and not checked by professionals or native speakers
   printUrl: (url: string) => `Interactive version: ${url}`,
   loadErrorTitle: "The data files could not be loaded.",
   loadErrorHelp: "Reload the page to try again; if you are running the site locally, run <code>python scripts/build_all.py</code> first.",
@@ -31,7 +31,8 @@ export const en = {
   // Language picker
   language: "Language",
   languageButton: (name: string) => `Language: ${name}`,
-  languagePanelNote: "Translations were made with AI and may contain mistakes. County and place names stay in English, so search in English.",
+  languagePanelNote:
+    "Translations were made with AI and have not been checked by professional translators or native speakers, so they may contain mistakes. County and place names stay in English, so search in English.",
   done: "Done",
 
   // Data dates banner

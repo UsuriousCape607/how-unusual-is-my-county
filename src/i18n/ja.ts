@@ -5,7 +5,7 @@ const ja: Translation = {
   siteTitle: "うちの郡はどれくらい特別？",
   subtitle: "記録されたデータセンター開発の状況を、全米の条件が似た郡と比べます。",
   methodologyLink: "調査方法と出典",
-  langNote: "AI による翻訳のため、誤りを含む場合があります。郡名・地名は英語で表示しています。",
+  langNote: "AI による翻訳で、専門の翻訳者やネイティブスピーカーの確認は受けていないため、誤りを含む場合があります。郡名・地名は英語で表示しています。",
   printUrl: (url) => `インタラクティブ版：${url}`,
   loadErrorTitle: "データファイルを読み込めませんでした。",
   loadErrorHelp: "ページを再読み込みしてもう一度お試しください。ローカルで実行している場合は、先に <code>python scripts/build_all.py</code> を実行してください。",
@@ -24,7 +24,8 @@ const ja: Translation = {
 
   language: "言語",
   languageButton: (name) => `言語：${name}`,
-  languagePanelNote: "翻訳は AI によるもので、誤りを含む場合があります。郡名・地名は英語表記のため、検索は英語で行ってください。",
+  languagePanelNote:
+    "翻訳は AI によるもので、専門の翻訳者やネイティブスピーカーの確認は受けていないため、誤りを含む場合があります。郡名・地名は英語表記のため、検索は英語で行ってください。",
   done: "完了",
 
   freshnessAria: "データの時点",

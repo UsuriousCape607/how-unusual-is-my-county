@@ -116,6 +116,24 @@
   overflow, so `scrollWidth - innerWidth` stays 0; e2e now measures against the device width (390) and repeats the
   390 px check for every language with DejaVu forced. Fixes: `overflow-wrap: anywhere` on methodology/footer; on
   phones the map's segmented control lets long labels wrap (balanced) instead of widening the page.
+- 22 languages (2026-10-27, owner spec "Final localization expansion"): + el (monotonic Demotic), el-x-kathar
+  (polytonic Katharevousa), az-Latn, mn-Cyrl, la-x-eccl, xno (Law French), pdc, ht, nv, it, tr, hi. Ids are the
+  `?lang=` values and saved choices; private-use subtags (`-x-kathar`, `-x-eccl`) are also the `<html lang>`.
+  - Browser matching never substitutes: de → en (not pdc), el → Demotic, az-Cyrl/mn-Mong → en; the historical
+    registers only by explicit choice. `?lang=la` is accepted as la-x-eccl.
+  - Intl has no data for mn, la, xno, pdc, ht, nv and only placeholder data for az, so `formats.ts` writes out their
+    dates, "ago" and list conjunctions (and Katharevousa's). Any other language without browser data falls back to
+    an ISO date, no "ago" and comma lists (unit-tested with a fake locale). Numbers use `intl` (a locale with the same
+    separators where needed: az → tr-TR, la → it-IT).
+  - The Methodology section (English) now formats its own numbers and dates in English (`asEnglish()` in
+    `state.ts`), so "1.234" or a Latin ablative date never lands inside English prose.
+  - Disclosure strengthened in all 21 translations: AI-made, no professional or native-speaker check.
+  - Picker: desktop is a compact box (list ≈ 7½ rows, scrolls inside, edge fades only where there is more,
+    disclosure pinned below, opens centred on the current language without moving the page, type-to-select by own
+    or English name). The phone sheet is unchanged. Hindi gets a Devanagari stack, zero tracking and taller leading;
+    Katharevousa a polytonic-capable stack.
+  - Navajo, Law French, Latin and Katharevousa are the lowest-confidence translations; TRANSLATION_REVIEW.md lists
+    terms to check.
 
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.

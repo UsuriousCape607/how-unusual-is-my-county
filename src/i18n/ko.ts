@@ -8,7 +8,7 @@ const ko: Translation = {
   siteTitle: "우리 카운티는 얼마나 특별할까?",
   subtitle: "미국 전역에서 비슷한 카운티와 기록된 데이터 센터 개발 현황을 비교해 보세요.",
   methodologyLink: "방법론 및 출처",
-  langNote: "AI로 번역되어 오류가 있을 수 있습니다. 카운티와 지명은 영어로 표시됩니다.",
+  langNote: "AI로 번역되었으며 전문 번역가나 원어민의 검토를 거치지 않아 오류가 있을 수 있습니다. 카운티와 지명은 영어로 표시됩니다.",
   printUrl: (url) => `인터랙티브 버전: ${url}`,
   loadErrorTitle: "데이터 파일을 불러오지 못했습니다.",
   loadErrorHelp: "페이지를 새로 고쳐 다시 시도하세요. 사이트를 로컬에서 실행 중이라면 먼저 <code>python scripts/build_all.py</code>를 실행하세요.",
@@ -27,7 +27,8 @@ const ko: Translation = {
 
   language: "언어",
   languageButton: (name) => `언어: ${name}`,
-  languagePanelNote: "번역은 AI로 작성되어 오류가 있을 수 있습니다. 카운티와 지명은 영어로 표시되므로 영어로 검색하세요.",
+  languagePanelNote:
+    "번역은 AI로 작성되었으며 전문 번역가나 원어민의 검토를 거치지 않아 오류가 있을 수 있습니다. 카운티와 지명은 영어로 표시되므로 영어로 검색하세요.",
   done: "완료",
 
   freshnessAria: "데이터 기준 시점",

@@ -8,7 +8,7 @@ const es: Translation = {
   siteTitle: "¿Qué tan inusual es mi condado?",
   subtitle: "Compara el desarrollo documentado de centros de datos con el de condados similares de todo Estados Unidos.",
   methodologyLink: "Metodología y fuentes",
-  langNote: "Traducción hecha con IA; puede contener errores. Los nombres de condados y lugares se muestran en inglés.",
+  langNote: "Traducción hecha con IA, sin revisión de traductores profesionales ni de hablantes nativos; puede contener errores. Los nombres de condados y lugares se muestran en inglés.",
   printUrl: (url) => `Versión interactiva: ${url}`,
   loadErrorTitle: "No se pudieron cargar los archivos de datos.",
   loadErrorHelp: "Vuelve a cargar la página para intentarlo de nuevo; si ejecutas el sitio localmente, ejecuta primero <code>python scripts/build_all.py</code>.",
@@ -27,7 +27,8 @@ const es: Translation = {
 
   language: "Idioma",
   languageButton: (name) => `Idioma: ${name}`,
-  languagePanelNote: "Las traducciones se hicieron con IA y pueden contener errores. Los nombres de condados y lugares están en inglés, así que busca en inglés.",
+  languagePanelNote:
+    "Las traducciones se hicieron con IA y no las han revisado traductores profesionales ni hablantes nativos, así que pueden contener errores. Los nombres de condados y lugares están en inglés, así que busca en inglés.",
   done: "Listo",
 
   freshnessAria: "De cuándo son estos datos",

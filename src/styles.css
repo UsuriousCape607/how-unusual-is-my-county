@@ -306,7 +306,7 @@ table.dates { max-width: 640px; margin-bottom: 8px; }
 .share-status { font-size: 0.8125rem; color: var(--muted); min-height: 1em; }
 .menu {
   position: absolute; top: calc(100% + 6px); right: 0; z-index: 1300; min-width: 260px; padding: 6px; border-radius: 14px;
-  background: rgba(255, 255, 255, 0.86); -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
+  background: rgba(255, 255, 255, 0.93); -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
   box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.1), 0 14px 36px rgba(0, 0, 0, 0.16);
   transform-origin: top right; animation: menu-in 160ms ease-out;
 }
@@ -450,14 +450,24 @@ button.primary:hover { background: #0077ed; }
 .lang-icon { width: 16px; height: 16px; color: var(--muted); }
 .lang-panel {
   border: 0; padding: 6px; color: var(--ink); width: 290px; max-width: calc(100vw - 32px); overflow: hidden;
-  background: rgba(255, 255, 255, 0.86); -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
+  background: rgba(255, 255, 255, 0.93); -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
   box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.1), 0 14px 36px rgba(0, 0, 0, 0.16); border-radius: 14px;
 }
-/* Popover: grows out of its button. */
-.lang-panel:not(:modal) { position: absolute; inset: calc(100% + 8px) 0 auto auto; margin: 0; z-index: 1300; transform-origin: top right; max-height: min(72vh, 600px); overflow-y: auto; }
-.lang-panel:not(:modal)[open] { animation: menu-in 160ms ease-out; }
+/* Popover: grows out of its button. A compact menu: about seven and a half rows show (the cut-off row says there is more),
+   the list scrolls inside it with soft fades at whichever edge has more, and the note stays put underneath. */
+.lang-panel:not(:modal) { position: absolute; inset: calc(100% + 8px) 0 auto auto; margin: 0; z-index: 1300; transform-origin: top right; flex-direction: column; }
+.lang-panel:not(:modal)[open] { display: flex; animation: menu-in 160ms ease-out; }
 .lang-panel:not(:modal) .lang-head { display: none; }
-.lang-list { display: grid; gap: 1px; }
+.lang-list { position: relative; display: grid; gap: 1px; }
+.lang-panel:not(:modal) .lang-list {
+  --fade-top: 0px; --fade-bottom: 0px;
+  max-height: min(312px, calc(100vh - 220px)); min-height: 120px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent);
+}
+.lang-panel:not(:modal) .lang-list.fade-top { --fade-top: 18px; }
+.lang-panel:not(:modal) .lang-list.fade-bottom { --fade-bottom: 18px; }
+.lang-panel:not(:modal) .lang-item { min-height: 40px; padding: 5px 10px; }
 .lang-item {
   display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 44px; padding: 7px 12px;
   border: 0; border-radius: 8px; background: transparent; color: var(--ink); font: inherit; text-align: left; cursor: pointer;
@@ -470,7 +480,7 @@ button.primary:hover { background: #0077ed; }
 .lang-item[aria-checked="true"] .lang-native { font-weight: 600; }
 .lang-item:hover, .lang-item:focus-visible { background: var(--blue); color: #fff; box-shadow: none; }
 .lang-item:hover .lang-english, .lang-item:focus-visible .lang-english, .lang-item:hover .lang-check, .lang-item:focus-visible .lang-check { color: rgba(255, 255, 255, 0.85); }
-.lang-foot { margin: 6px 12px 6px; font-size: 0.75rem; line-height: 1.35; color: var(--muted); }
+.lang-foot { margin: 6px 12px 6px; font-size: 0.75rem; line-height: 1.35; color: var(--muted); flex: none; }
 
 /* Phone: a bottom sheet over a dimmed page. It slides up and leaves the same way; the top bar can be swiped down. */
 .lang-panel:modal {
@@ -524,3 +534,16 @@ html:is(:lang(ja), :lang(zh), :lang(ko)) :is(h1, h2, h3, h4, .verdict, .subtitle
 html:is(:lang(ja), :lang(zh), :lang(ko)) .verdict { max-width: 17em; line-height: 1.3; }
 html:is(:lang(ja), :lang(zh), :lang(ko)) .subtitle { max-width: 26em; }
 html:is(:lang(ja), :lang(zh), :lang(ko)) .hero-label { max-width: 18em; }
+
+/* ---- Devanagari, polytonic Greek ---- */
+/* Hindi: a Devanagari system font, no negative tracking (it breaks the headstroke and crowds conjuncts) and more line
+   height, since vowel signs reach above and below the line. */
+html:lang(hi) { font-family: system-ui, -apple-system, "Kohinoor Devanagari", "Devanagari Sangam MN", "Nirmala UI", "Noto Sans Devanagari", Mangal, sans-serif; }
+html:lang(hi) :is(h1, h2, h3, h4, .verdict, .subtitle, .hero-label, .side-facts dd, .lang-title) { letter-spacing: 0; }
+html:lang(hi) :is(h1, h2, .verdict) { line-height: 1.32; }
+html:lang(hi) :is(h3, h4, .subtitle) { line-height: 1.45; }
+/* Katharevousa is polytonic: fonts known to carry the Greek Extended block come right after the system font, and
+   stacked breathings and accents get a little more room on headlines. */
+html:lang(el-x-kathar) { font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans", "Arial Unicode MS", "Gentium Plus", sans-serif; }
+html:lang(el-x-kathar) :is(h1, h2, .verdict) { line-height: 1.22; letter-spacing: -0.01em; }
+.lang-native:lang(hi) { line-height: 1.4; }

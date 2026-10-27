@@ -11,6 +11,8 @@ const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)"
 const project = (v: number, rate = 0.998) => ((v / 1000) * rate) / (1 - rate);
 /** Past the top edge the sheet follows the finger less and less instead of stopping dead. */
 const rubberband = (over: number, size: number) => (over * size * 0.55) / (size + 0.55 * Math.abs(over));
+/** Folded for type-to-select: "Türkçe" and "turk" match, as do "Diné" and "dine". */
+const fold = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
 
 /**
  * Language menu. A popover anchored to its button on wider screens; on phones a bottom sheet that can be swiped down,
@@ -22,6 +24,8 @@ export default function LanguagePicker() {
   const wrap = useRef<HTMLSpanElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDialogElement>(null);
+  const list = useRef<HTMLDivElement>(null);
+  const typed = useRef({ text: "", at: 0 });
   const drag = useRef<{ start: number; dy: number; samples: { y: number; t: number }[] } | null>(null);
   const titleId = useId();
   const current = LANGUAGE[lang];
@@ -61,10 +65,22 @@ export default function LanguagePicker() {
     }, finish);
   };
 
-  // Focus the current language when the menu opens; a tap outside the popover closes it.
+  /** Soft fades only at the edges that have more to scroll to. */
+  const updateFades = () => {
+    const l = list.current;
+    if (!l) return;
+    l.classList.toggle("fade-top", l.scrollTop > 1);
+    l.classList.toggle("fade-bottom", l.scrollTop + l.clientHeight < l.scrollHeight - 1);
+  };
+
+  // Open on the current language, centred in the list (without scrolling the page); a tap outside the popover closes it.
   useEffect(() => {
     if (!open) return;
-    panel.current?.querySelector<HTMLButtonElement>('[aria-checked="true"]')?.focus();
+    const l = list.current;
+    const item = panel.current?.querySelector<HTMLButtonElement>('[aria-checked="true"]');
+    if (l && item) l.scrollTop = item.offsetTop - (l.clientHeight - item.offsetHeight) / 2;
+    item?.focus({ preventScroll: true });
+    updateFades();
     const onDown = (e: PointerEvent) => {
       if (!isSheet() && !wrap.current?.contains(e.target as Node)) close(false);
     };
@@ -86,8 +102,21 @@ export default function LanguagePicker() {
     else if (e.key === "Home") items[0]?.focus();
     else if (e.key === "End") items[items.length - 1]?.focus();
     else if (e.key === "Escape") close();
+    else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key !== " " || typed.current.text)) typeToSelect(e.key, items, i);
     else return;
     e.preventDefault();
+  };
+
+  /** Type-to-select, as in native menus: typing the start of a language's own or English name moves to it. */
+  const typeToSelect = (key: string, items: HTMLButtonElement[], i: number) => {
+    const t = typed.current;
+    t.text = (Date.now() - t.at < 800 ? t.text : "") + fold(key);
+    t.at = Date.now();
+    // Repeating one letter steps through the languages that start with it.
+    const repeat = t.text.length > 1 && [...t.text].every((c) => c === t.text[0]);
+    const query = repeat ? t.text[0] : t.text;
+    const order = repeat || t.text.length === 1 ? [...items.slice(i + 1), ...items.slice(0, i + 1)] : [...items.slice(Math.max(i, 0)), ...items.slice(0, Math.max(i, 0))];
+    order.find((b) => (b.dataset.names ?? "").split("|").some((n) => n.startsWith(query)))?.focus();
   };
 
   // Swipe-to-dismiss on the sheet's top bar: 1:1 tracking, then the release velocity decides close or snap back.
@@ -159,9 +188,17 @@ export default function LanguagePicker() {
             {m.done}
           </button>
         </div>
-        <div className="lang-list" role="menu" aria-labelledby={titleId}>
+        <div ref={list} className="lang-list" role="menu" aria-labelledby={titleId} onScroll={updateFades}>
           {LANGUAGES.map((l) => (
-            <button key={l.id} type="button" role="menuitemradio" aria-checked={l.id === lang} className="lang-item" onClick={() => choose(l.id)}>
+            <button
+              key={l.id}
+              type="button"
+              role="menuitemradio"
+              aria-checked={l.id === lang}
+              className="lang-item"
+              data-names={`${fold(l.native)}|${fold(l.english)}|${fold(l.short)}`}
+              onClick={() => choose(l.id)}
+            >
               <span className="lang-names">
                 <span lang={l.html} className="lang-native">{l.native}</span>
                 {l.english !== l.native && <span className="lang-english">{l.english}</span>}

@@ -8,7 +8,7 @@ const koKore: Translation = {
   siteTitle: "우리 카운티는 얼마나 特別할까?",
   subtitle: "美國 全域에서 類似한 카운티와 記錄된 데이터 센터 開發 現況을 比較해 보세요.",
   methodologyLink: "方法論 및 出處",
-  langNote: "AI로 飜譯되어 誤謬가 있을 수 있습니다. 카운티와 地名은 英語로 表示됩니다.",
+  langNote: "AI로 飜譯되었으며 專門 飜譯家나 原語民의 檢討를 거치지 않아 誤謬가 있을 수 있습니다. 카운티와 地名은 英語로 表示됩니다.",
   printUrl: (url) => `인터랙티브 版: ${url}`,
   loadErrorTitle: "데이터 파일을 불러오지 못했습니다.",
   loadErrorHelp: "페이지를 새로 고쳐 다시 試圖하세요. 사이트를 로컬에서 實行 中이라면 먼저 <code>python scripts/build_all.py</code>를 實行하세요.",
@@ -27,7 +27,8 @@ const koKore: Translation = {
 
   language: "言語",
   languageButton: (name) => `言語: ${name}`,
-  languagePanelNote: "飜譯은 AI로 作成되어 誤謬가 있을 수 있습니다. 카운티와 地名은 英語로 表示되므로 英語로 檢索하세요.",
+  languagePanelNote:
+    "飜譯은 AI로 作成되었으며 專門 飜譯家나 原語民의 檢討를 거치지 않아 誤謬가 있을 수 있습니다. 카운티와 地名은 英語로 表示되므로 英語로 檢索하세요.",
   done: "完了",
 
   freshnessAria: "데이터 基準 時點",

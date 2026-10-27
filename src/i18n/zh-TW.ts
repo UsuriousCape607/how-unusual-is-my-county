@@ -5,7 +5,7 @@ const zhTW: Translation = {
   siteTitle: "我的郡有多特別？",
   subtitle: "將有紀錄的資料中心開發情況，與全美各地條件相似的郡進行比較。",
   methodologyLink: "研究方法與資料來源",
-  langNote: "本頁由 AI 翻譯，可能有誤。郡名與地名以英文顯示。",
+  langNote: "本頁由 AI 翻譯，未經專業譯者或母語人士審閱，可能有誤。郡名與地名以英文顯示。",
   printUrl: (url) => `互動版：${url}`,
   loadErrorTitle: "無法載入資料檔案。",
   loadErrorHelp: "請重新整理頁面再試一次；若在本機執行本網站，請先執行 <code>python scripts/build_all.py</code>。",
@@ -24,7 +24,8 @@ const zhTW: Translation = {
 
   language: "語言",
   languageButton: (name) => `語言：${name}`,
-  languagePanelNote: "翻譯由 AI 產生，可能有誤。郡名與地名以英文顯示，請用英文搜尋。",
+  languagePanelNote:
+    "翻譯由 AI 產生，未經專業譯者或母語人士審閱，可能有誤。郡名與地名以英文顯示，請用英文搜尋。",
   done: "完成",
 
   freshnessAria: "資料時間",

@@ -375,8 +375,16 @@ try {
   await lp.goto(`${BASE}c/${multi.geoid}/`);
   await lp.waitForSelector("#summary-title");
   await lp.getByRole("button", { name: /^Language:/ }).click();
-  check("language menu offers 10 languages, English checked",
-    (await lp.$$("[role=menuitemradio]")).length === 10 && (await lp.textContent('[aria-checked="true"] .lang-native')) === "English");
+  check("language menu offers exactly 22 languages, English checked",
+    (await lp.$$("[role=menuitemradio]")).length === 22 && (await lp.textContent('[aria-checked="true"] .lang-native')) === "English");
+  // Desktop: a compact box that scrolls inside itself, opened without moving the page; typing a name jumps to it.
+  const langBox = await lp.locator(".lang-panel").boundingBox();
+  const listScroll = await lp.$eval(".lang-list", (l) => ({ sh: l.scrollHeight, ch: l.clientHeight, fade: l.className }));
+  check("desktop: language menu is a compact scrolling box",
+    langBox.height <= 480 && langBox.y + langBox.height <= 900 && listScroll.sh > listScroll.ch && listScroll.fade.includes("fade-bottom") && (await lp.evaluate(() => scrollY)) === 0,
+    `${Math.round(langBox.height)}px tall, list ${listScroll.ch}/${listScroll.sh}`);
+  await lp.keyboard.type("tur");
+  check("desktop: typing a language name moves to it", (await lp.evaluate(() => document.activeElement?.querySelector(".lang-native")?.textContent)) === "Türkçe");
   await lp.getByRole("menuitemradio", { name: /日本語/ }).click();
   await lp.waitForFunction(() => document.documentElement.lang === "ja");
   check("choosing Japanese translates the page and records it in the address",
@@ -401,6 +409,46 @@ try {
   await lp2.waitForFunction(() => document.documentElement.lang === "en");
   check("switching back to English removes ?lang=", (await lp2.textContent("h1")) === "How Unusual Is My County?" && !lp2.url().includes("lang="), lp2.url());
   check("no page errors while switching languages", langErrors.length === 0, langErrors.join(" | "));
+
+  // All 22 options work from the menu: each sets its own <html lang>, title and ?lang=, none stands in for another.
+  const LANG_CODES = [["en", "en"], ["es", "es"], ["ko", "ko"], ["ko-Kore", "ko-Kore"], ["zh-TW", "zh-Hant-TW"], ["zh-CN", "zh-Hans-CN"], ["ja", "ja"],
+    ["hu", "hu"], ["pl", "pl"], ["sv", "sv"], ["el", "el"], ["el-x-kathar", "el-x-kathar"], ["az-Latn", "az-Latn"], ["mn-Cyrl", "mn-Cyrl"],
+    ["la-x-eccl", "la-x-eccl"], ["xno", "xno"], ["pdc", "pdc"], ["ht", "ht"], ["nv", "nv"], ["it", "it"], ["tr", "tr"], ["hi", "hi"]];
+  const actx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const ap = await actx.newPage();
+  const allErrors = [];
+  ap.on("pageerror", (e) => allErrors.push(e.message));
+  await ap.goto(`${BASE}c/51107/`);
+  await ap.waitForSelector("#summary-title");
+  const titles = new Map();
+  const wrong = [];
+  const order = [...LANG_CODES.slice(1), LANG_CODES[0]]; // through every language, then back to English
+  for (let i = 0; i < order.length; i++) {
+    const [id, html] = order[i];
+    await ap.locator(".lang-btn").click();
+    await ap.locator("[role=menuitemradio]").nth(LANG_CODES.findIndex(([x]) => x === id)).click();
+    const ok = await ap.waitForFunction((h) => document.documentElement.lang === h, html, { timeout: 5000 }).then(() => true, () => false);
+    await ap.waitForTimeout(150);
+    const t = await ap.textContent("h1");
+    const q = new URL(ap.url()).searchParams.get("lang");
+    if (!ok || q !== (id === "en" ? null : id)) wrong.push(`${id}: lang=${await ap.evaluate(() => document.documentElement.lang)} ?lang=${q}`);
+    titles.set(id, t);
+  }
+  check("all 22 menu options apply their own language (html lang, ?lang=, title)", wrong.length === 0 && new Set(titles.values()).size === 22, wrong.join("; ") || `${new Set(titles.values()).size} distinct titles`);
+  const polytonic = /[\u1F00-\u1FFF]/;
+  check("Katharevousa is its own polytonic register, not Demotic",
+    polytonic.test(titles.get("el-x-kathar")) && !polytonic.test(titles.get("el")) && titles.get("el") !== titles.get("el-x-kathar"),
+    `${titles.get("el-x-kathar")} / ${titles.get("el")}`);
+  check("no page errors while switching through all 22 languages", allErrors.length === 0, allErrors.join(" | "));
+  for (const [locale, want, label] of [["de-DE", "en", "a German browser gets English, not Pennsylvania Dutch"], ["el-GR", "el", "a Greek browser gets Demotic Greek"]]) {
+    const bctx = await browser.newContext({ locale });
+    const bp = await bctx.newPage();
+    await bp.goto(`${BASE}c/51107/`);
+    await bp.waitForSelector("#summary-title");
+    await bp.waitForTimeout(300);
+    check(label, (await bp.evaluate(() => document.documentElement.lang)) === want, await bp.evaluate(() => document.documentElement.lang));
+    await bctx.close();
+  }
 
   const kctx = await browser.newContext({ locale: "ko-KR" });
   const kp = await kctx.newPage();
@@ -450,9 +498,9 @@ try {
   }));
   for (const [ctxName, c] of [["system", mctx], ["wide font", wide]]) {
     const wp = await c.newPage();
-    for (const l of ["en", "es", "ko", "ko-Kore", "zh-TW", "zh-CN", "ja", "hu", "pl", "sv"]) {
+    for (const [l, html] of LANG_CODES) {
       await wp.goto(`${BASE}c/${multi.geoid}/?lang=${l}`);
-      await wp.waitForFunction((x) => document.documentElement.lang.startsWith(x.slice(0, 2)) && document.querySelector("#summary-title"), l);
+      await wp.waitForFunction((h) => document.documentElement.lang === h && document.querySelector("#summary-title"), html);
       await wp.waitForTimeout(250);
       const o = await wp.evaluate(() => Math.max(document.documentElement.scrollWidth, innerWidth) - 390);
       if (o > 0) overflow390.push(`${ctxName}/${l}:+${o}px`);
