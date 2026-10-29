@@ -62,8 +62,11 @@ try {
     footerText.includes("Data from Compute Atlas by Edward Kubiak") && footerText.includes("Transformations:")
     && footerLinks.includes("https://www.compute-atlas.com") && footerLinks.includes("https://creativecommons.org/licenses/by/4.0/")
     && !footerLinks.some((h) => h.includes("github.com")), footerLinks.join(" "));
-  check("methodology gives the Compute Atlas DOI citation",
-    (await page.$$eval("#methodology a", (els) => els.map((e) => e.getAttribute("href")))).includes("https://doi.org/10.5281/zenodo.22284476"));
+  const methodLinks = await page.$$eval("#methodology a", (els) => els.map((e) => e.getAttribute("href")));
+  check("methodology cites the pinned release (version-pinned URL) and gives the concept DOI",
+    methodLinks.includes(`https://raw.githubusercontent.com/ek33450505/compute-atlas/${meta.compute_atlas.tag}/data/facilities.json`)
+    && methodLinks.includes("https://doi.org/10.5281/zenodo.22284476")
+    && (await page.textContent("#methodology")).includes(`Compute Atlas (Version ${meta.compute_atlas.tag.replace(/^v/, "")}) [Data set]`));
   check("methodology section present", await page.isVisible("#methodology"));
   await page.waitForTimeout(600);
   await page.screenshot({ path: `${OUT}/desktop-default.png`, fullPage: false });

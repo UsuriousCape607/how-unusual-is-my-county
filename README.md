@@ -131,6 +131,8 @@ tests/     pytest suites and tests/e2e/smoke.mjs
 Data from Compute Atlas by Edward Kubiak (https://www.compute-atlas.com), licensed under CC BY 4.0
 (https://creativecommons.org/licenses/by/4.0/). The data were filtered to data-center records, assigned to counties
 and counted (see DATA_SOURCES.md). The county comparisons and summaries are this site's own analysis, not Compute
-Atlas's, and do not imply its endorsement. Academic citation, as Compute Atlas gives it:
-Kubiak, E. (n.d.). *Compute Atlas* [Data set]. https://doi.org/10.5281/zenodo.22284476 (this site uses release v1.34.1).
+Atlas's, and do not imply its endorsement. To cite the exact data used here (Compute Atlas's form for a release
+snapshot): Kubiak, E. (2026). *Compute Atlas* (Version 1.34.1) [Data set].
+https://raw.githubusercontent.com/ek33450505/compute-atlas/v1.34.1/data/facilities.json. The concept DOI
+https://doi.org/10.5281/zenodo.22284476 always resolves to the latest release, which may be newer than this data.
 Population, land area and boundaries: U.S. Census Bureau (public domain). Map rendering: Leaflet. Charts: Recharts. Preview-image type: Inter (SIL Open Font License).

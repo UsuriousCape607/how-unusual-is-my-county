@@ -144,6 +144,12 @@
     comparisons are ours and imply no endorsement); the footer, where URLs are now links and the redundant "(license)"
     link is gone from all 22 templates; Methodology, which gets a citation line; the map attribution link; the CSV
     downloads, which get a `data_credit` column; README, DATA_SOURCES and CLAUDE.md.
+  - Then the owner pasted the /data and /api pages. /data matches the above. /api adds a form for citing a
+    reproducible release snapshot: "Kubiak, E. (2026). Compute Atlas (Version 1.34.1) [Data set].
+    <version-pinned raw URL>". That is now `citation`, generated from the tag. The concept DOI moves to
+    `persistent_id`, because it resolves to the latest release, not ours.
+  - The v1.34.1 files still match our SHA-256. /api's "cut on October 29" is the date of main's latest daily
+    snapshot (2,879 records); the CHANGELOG says 2026-10-04.
 
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.

@@ -88,9 +88,13 @@ export interface Metadata {
     record_count?: number;
     license: string;
     license_url: string;
-    /** Dataset home to credit (not the GitHub mirror) and the academic citation, as Compute Atlas asks. */
+    /**
+     * Dataset home to credit (not the GitHub mirror); the citation of the pinned release (version + version-pinned URL);
+     * and the concept DOI, which always resolves to the latest release.
+     */
     site: string;
     citation: string;
+    persistent_id: string;
     attribution: string;
     transformations: string;
   };

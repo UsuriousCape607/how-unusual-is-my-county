@@ -21,7 +21,7 @@ from shapely.affinity import translate
 from shapely.geometry import MultiLineString, MultiPolygon, Polygon, mapping
 
 from common import (
-    ACCEPTED_CONFIDENCE, CENSUS_VINTAGE, COMPUTE_ATLAS_TAG, DISTANCE_METHOD, FACILITY_TYPE, N_PEERS, OPERATIONAL_STATUS,
+    ACCEPTED_CONFIDENCE, CENSUS_VINTAGE, COMPUTE_ATLAS_BASE, COMPUTE_ATLAS_TAG, DISTANCE_METHOD, FACILITY_TYPE, N_PEERS, OPERATIONAL_STATUS,
     POP_COLUMN, POP_REFERENCE_DATE,
     PIPELINE_STATUSES, PROCESSED, PUBLIC_DATA, RAW, SOURCES, data_version, read_json, write_json,
 )
@@ -173,10 +173,12 @@ def main() -> int:
         },
         "sources": {k: {kk: v.get(kk) for kk in ("url", "retrieved_at", "sha256", "bytes", "note") if v.get(kk) is not None}
                     for k, v in manifest.items()},
-        # Credit as Compute Atlas asks in LICENSE-DATA, "HOW TO ATTRIBUTE" (rechecked on the main branch 2026-10-29):
-        # credit "Compute Atlas by Edward Kubiak", link www.compute-atlas.com (the GitHub repository is only its source
-        # mirror, "not the place to credit"), link the license, say what changed, and keep this site's analysis
-        # distinct from the records. The citation is the DOI form it gives for academic use.
+        # Credit as Compute Atlas asks (LICENSE-DATA "HOW TO ATTRIBUTE" and the site's /data and /api pages, rechecked
+        # 2026-10-29): credit "Compute Atlas by Edward Kubiak", link www.compute-atlas.com (the GitHub repository is
+        # only its source mirror), link the license, say what changed, and keep this site's analysis distinct from the
+        # records. A tagged release is cited with its version and version-pinned URL (the /api page's "reproducible
+        # snapshot" form); the concept DOI always resolves to the latest release, so it is given only as the
+        # persistent identifier. Year = the snapshot's year.
         "compute_atlas": {
             "site": "https://www.compute-atlas.com",
             "repository": "https://github.com/ek33450505/compute-atlas",
@@ -189,7 +191,9 @@ def main() -> int:
             "license_url": "https://creativecommons.org/licenses/by/4.0/",
             "attribution": "Data from Compute Atlas by Edward Kubiak (https://www.compute-atlas.com), licensed under "
                            "CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).",
-            "citation": "Kubiak, E. (n.d.). Compute Atlas [Data set]. https://doi.org/10.5281/zenodo.22284476",
+            "citation": f"Kubiak, E. ({(ca_meta.get('asOf') or '')[:4]}). Compute Atlas (Version {COMPUTE_ATLAS_TAG.lstrip('v')}) "
+                        f"[Data set]. {COMPUTE_ATLAS_BASE}/data/facilities.json",
+            "persistent_id": "Kubiak, E. (n.d.). Compute Atlas [Data set]. https://doi.org/10.5281/zenodo.22284476",
             "transformations": "Filtered to data-center pipeline and operational records, assigned to 2025 Census counties, "
                                "counted per county, and reduced to a subset of fields. No records were edited or added. "
                                "The county comparisons and summaries are this site's own analysis, not Compute Atlas's, "

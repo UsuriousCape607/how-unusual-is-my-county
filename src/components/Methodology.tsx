@@ -124,8 +124,12 @@ export default function Methodology({ metadata }: { metadata: Metadata }) {
           {ca.tag} (data as of {enDate(ca.snapshot_as_of)}). {ca.transformations}
         </li>
         <li>
-          <strong>Citing Compute Atlas:</strong> <Rich text={linkUrls(ca.citation)} a={(url) => <a href={url}>{url}</a>} /> This site
-          uses release {ca.tag}.
+          <strong>Citing the data used here</strong> (Compute Atlas's form for a reproducible release snapshot):{" "}
+          <Rich text={linkUrls(ca.citation)} a={(url) => <a href={url}>{url}</a>} />
+        </li>
+        <li>
+          <strong>Persistent identifier</strong> (always resolves to the latest Compute Atlas release, which may be newer than the data
+          here): <Rich text={linkUrls(ca.persistent_id)} a={(url) => <a href={url}>{url}</a>} />
         </li>
         <li><strong>Population:</strong> {metadata.census.population}.</li>
         <li><strong>Land area:</strong> {metadata.census.land_area}.</li>

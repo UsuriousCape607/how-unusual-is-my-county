@@ -1,7 +1,7 @@
 {
   "title": "How Unusual Is My County?",
   "data_version": "compute-atlas-v1.34.1-asof-2026-10-02_census-v2025",
-  "generated_at": "2026-10-29T23:37:58+00:00",
+  "generated_at": "2026-10-29T23:44:33+00:00",
   "snapshot_date": "2026-10-02",
   "default_geoid": "51107",
   "data_dates": {
@@ -10,7 +10,7 @@
     "population_reference_date": "2025-07-01",
     "population_vintage": "Vintage 2025 estimates",
     "geography_vintage": "2025",
-    "site_data_built_at": "2026-10-29T23:37:58+00:00"
+    "site_data_built_at": "2026-10-29T23:44:33+00:00"
   },
   "sources": {
     "compute_atlas_facilities": {
@@ -61,7 +61,8 @@
     "license": "CC BY 4.0",
     "license_url": "https://creativecommons.org/licenses/by/4.0/",
     "attribution": "Data from Compute Atlas by Edward Kubiak (https://www.compute-atlas.com), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).",
-    "citation": "Kubiak, E. (n.d.). Compute Atlas [Data set]. https://doi.org/10.5281/zenodo.22284476",
+    "citation": "Kubiak, E. (2026). Compute Atlas (Version 1.34.1) [Data set]. https://raw.githubusercontent.com/ek33450505/compute-atlas/v1.34.1/data/facilities.json",
+    "persistent_id": "Kubiak, E. (n.d.). Compute Atlas [Data set]. https://doi.org/10.5281/zenodo.22284476",
     "transformations": "Filtered to data-center pipeline and operational records, assigned to 2025 Census counties, counted per county, and reduced to a subset of fields. No records were edited or added. The county comparisons and summaries are this site's own analysis, not Compute Atlas's, and do not imply its endorsement."
   },
   "census": {

@@ -22,17 +22,27 @@ copies placed in `data/raw/` by hand.
   environment. The pinned raw GitHub file is the documented public export of the same dataset.
 - **Attribution (as Compute Atlas asks, rechecked 2026-10-29):** "Data from Compute Atlas by Edward Kubiak
   (https://www.compute-atlas.com), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)."
-  - Source: `LICENSE-DATA` ("HOW TO ATTRIBUTE") and the README's "Citing it" section on the repository's main
-    branch. The /data page on www.compute-atlas.com could not be loaded from the build environment.
+  - Sources: the site's [/data](https://www.compute-atlas.com/data) "How to cite" and [/api](https://www.compute-atlas.com/api)
+    "How to cite" sections (text supplied by the owner, since the site cannot be reached from the build environment).
+    They match `LICENSE-DATA` ("HOW TO ATTRIBUTE") and the README's "Citing it" section on the repository's main branch.
   - A complete credit names "Compute Atlas by Edward Kubiak" and links www.compute-atlas.com, the dataset's home.
     The GitHub repository is its source mirror and "not the place to credit". It also links the license and says
     what changed, and keeps this site's analysis distinct from the records.
   - The site shows this in the footer and Methodology, links it on the map, and writes it into every row of the
     CSV downloads (`data_credit`).
   - Release v1.34.1's own `LICENSE-DATA` suggested an older string linking GitHub; the current guidance replaces it.
-- **Academic citation (DOI from Compute Atlas):** Kubiak, E. (n.d.). *Compute Atlas* [Data set].
-  https://doi.org/10.5281/zenodo.22284476. Whether a version-specific DOI exists for v1.34.1 was not checked
-  (Zenodo was not reachable), so name the release alongside it.
+- **Citation of the data used here** (the /api page's form for a reproducible release snapshot, built from the
+  pinned tag in `scripts/export_web.py`): Kubiak, E. (2026). *Compute Atlas* (Version 1.34.1) [Data set].
+  https://raw.githubusercontent.com/ek33450505/compute-atlas/v1.34.1/data/facilities.json
+  - The tag is immutable. On 2026-10-29 the file at that URL still had the SHA-256 recorded in `data/raw/manifest.json`.
+  - The /api page says "Version 1.34.1 was cut on October 29, 2026", which disagrees with the repository CHANGELOG
+    (2026-10-04) and with the tag's own `asOf` (2026-10-02). That page appears to show the date of the latest daily
+    snapshot (main's `facilities.meta.json`: `sourceRelease` 1.34.1, `asOf` 2026-10-29, 2,879 records). The site
+    does not use that date.
+  - Persistent identifier: Kubiak, E. (n.d.). *Compute Atlas* [Data set]. https://doi.org/10.5281/zenodo.22284476.
+    This is a concept DOI that always resolves to the latest archived release, so it can point to newer data than
+    this site's.
+  - Compute Atlas notes that either form satisfies CC BY 4.0 attribution when used as written.
 - **Transformations:** records were filtered to data-center pipeline and operational records, assigned to 2025
   Census counties, counted per county, and reduced to a subset of fields (id, name, operator, status,
   confidence, precision, coordinates, last updated, source links). No record was edited or added. The county

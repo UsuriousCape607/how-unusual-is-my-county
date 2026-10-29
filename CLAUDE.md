@@ -19,8 +19,10 @@ writes `c/<GEOID>/` pages and 1200×630 `og/<GEOID>.png` cards with headless Chr
 ## Settled decisions (do not reopen)
 - Attribution follows Compute Atlas's current `LICENSE-DATA` "HOW TO ATTRIBUTE": "Data from Compute Atlas by Edward Kubiak
   (https://www.compute-atlas.com), licensed under CC BY 4.0 (…)" — link the site, never the GitHub mirror; note the changes;
-  keep our analysis distinct. DOI citation: Kubiak, E. (n.d.). Compute Atlas [Data set]. https://doi.org/10.5281/zenodo.22284476.
-  The string lives in `scripts/export_web.py` → metadata.json; footer, Methodology, map and CSVs read it.
+  keep our analysis distinct. Citation = the pinned release's snapshot form, "Kubiak, E. (2026). Compute Atlas (Version 1.34.1)
+  [Data set]. <version-pinned raw URL>" (generated from the tag); the concept DOI 10.5281/zenodo.22284476 resolves to the
+  latest release, so it is only the persistent identifier. All of it is built in `scripts/export_web.py` → metadata.json;
+  footer, Methodology, map and CSVs read it.
 - Sources: Compute Atlas `v1.34.1` raw GitHub snapshot (`data/facilities.json`, asOf 2026-10-02, CC BY 4.0, Edward Kubiak);
   Census Vintage 2025 county pop (`co-est2025-alldata.csv`, POPESTIMATE2025), 2025 Gazetteer (ALAND_SQMI),
   `cb_2025_us_county_500k`. Scope: 50 states + DC; territories excluded.
