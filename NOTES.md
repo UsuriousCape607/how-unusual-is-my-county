@@ -134,6 +134,16 @@
     Katharevousa a polytonic-capable stack.
   - Navajo, Law French, Latin and Katharevousa are the lowest-confidence translations; TRANSLATION_REVIEW.md lists
     terms to check.
+- Attribution recheck (2026-10-29, owner request). The www.compute-atlas.com/data page was unreachable from the
+  sandbox, but the repository's current `LICENSE-DATA` and README ("Citing it") changed after v1.34.1.
+  - What they now ask for: the suggested string "Data from Compute Atlas by Edward Kubiak
+    (https://www.compute-atlas.com), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)."; a
+    link to the site and not the GitHub mirror; a note of the changes; our analysis kept distinct; and the DOI
+    10.5281/zenodo.22284476 for academic citation.
+  - Updated: the metadata (`attribution`, new `site` and `citation`, plus a sentence in `transformations` saying the
+    comparisons are ours and imply no endorsement); the footer, where URLs are now links and the redundant "(license)"
+    link is gone from all 22 templates; Methodology, which gets a citation line; the map attribution link; the CSV
+    downloads, which get a `data_credit` column; README, DATA_SOURCES and CLAUDE.md.
 
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.

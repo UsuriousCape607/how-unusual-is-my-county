@@ -21,7 +21,7 @@ const es: Translation = {
   notFound: (code) => `No se encontró el código de condado ${code}, así que se muestra un condado de ejemplo.`,
   srShowing: (name, verdict) => `Mostrando ${name}: ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>licencia</a>). Transformaciones: ${transformations} Población, superficie terrestre y límites de condados: Oficina del Censo de EE. UU. (dominio público). Versión de datos <code>${version}</code>.`,
+    `${attribution} Transformaciones: ${transformations} Población, superficie terrestre y límites de condados: Oficina del Censo de EE. UU. (dominio público). Versión de datos <code>${version}</code>.`,
   footerFallback: "Datos de instalaciones: Compute Atlas, de Edward Kubiak (CC BY 4.0). Datos de condados: Oficina del Censo de EE. UU.",
   methodologyEnglish: "Esta sección solo está disponible en inglés.",
 

@@ -54,7 +54,16 @@ try {
   check("answer card shows as-of date next to the count", (await page.textContent(".answer .hero-label")).includes(asOfShort));
   check("plain-language verdict shown", (await page.textContent(".verdict")).includes("similar counties"), await page.textContent(".verdict"));
   check("share button present", await page.getByRole("button", { name: "Share" }).isVisible());
-  check("attribution visible", (await page.textContent(".site-footer")).includes("Compute Atlas"));
+  // Credit as Compute Atlas's LICENSE-DATA asks: "Compute Atlas by Edward Kubiak", a link to its site (not the GitHub
+  // mirror), a link to the license, and the changes made.
+  const footerLinks = await page.$$eval(".site-footer a", (els) => els.map((e) => e.getAttribute("href")));
+  const footerText = await page.textContent(".site-footer");
+  check("attribution credits Compute Atlas by Edward Kubiak with site and license links and the changes made",
+    footerText.includes("Data from Compute Atlas by Edward Kubiak") && footerText.includes("Transformations:")
+    && footerLinks.includes("https://www.compute-atlas.com") && footerLinks.includes("https://creativecommons.org/licenses/by/4.0/")
+    && !footerLinks.some((h) => h.includes("github.com")), footerLinks.join(" "));
+  check("methodology gives the Compute Atlas DOI citation",
+    (await page.$$eval("#methodology a", (els) => els.map((e) => e.getAttribute("href")))).includes("https://doi.org/10.5281/zenodo.22284476"));
   check("methodology section present", await page.isVisible("#methodology"));
   await page.waitForTimeout(600);
   await page.screenshot({ path: `${OUT}/desktop-default.png`, fullPage: false });
@@ -79,6 +88,7 @@ try {
   const [dl] = await Promise.all([page.waitForEvent("download"), page.getByRole("menuitem", { name: "Download similar counties (CSV)" }).click()]);
   const csv = readFileSync(await dl.path(), "utf8").replace(/^\ufeff/, "").trim().split(/\r?\n/);
   check("similar-counties CSV has the county and its 40 peers", csv.length === 42 && csv[1].includes(def.county_name), `${csv.length} lines; ${dl.suggestedFilename()}`);
+  check("CSV rows carry the Compute Atlas credit", csv[0].endsWith(",data_credit") && csv.slice(1).every((l) => l.includes("Data from Compute Atlas by Edward Kubiak (https://www.compute-atlas.com)")));
   await page.getByRole("button", { name: "Share" }).click();
   await page.getByRole("menuitem", { name: "Embed on a website…" }).click();
   const code = await page.inputValue(".sheet textarea");

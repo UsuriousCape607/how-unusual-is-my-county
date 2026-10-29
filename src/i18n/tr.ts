@@ -22,7 +22,7 @@ const tr: Translation = {
   notFound: (code) => `${code} ilçe kodu bulunamadı; bu yüzden örnek bir ilçe gösteriliyor.`,
   srShowing: (name, verdict) => `Gösterilen: ${name}. ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>lisans</a>). Dönüşümler: ${transformations} Nüfus, kara yüzölçümü ve ilçe sınırları: ABD Nüfus Sayım Bürosu (kamu malı). Veri sürümü <code>${version}</code>.`,
+    `${attribution} Dönüşümler: ${transformations} Nüfus, kara yüzölçümü ve ilçe sınırları: ABD Nüfus Sayım Bürosu (kamu malı). Veri sürümü <code>${version}</code>.`,
   footerFallback: "Tesis verileri: Compute Atlas, Edward Kubiak (CC BY 4.0). İlçe verileri: ABD Nüfus Sayım Bürosu.",
   methodologyEnglish: "Bu bölüm yalnızca İngilizce olarak sunulmaktadır.",
 

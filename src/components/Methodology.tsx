@@ -1,6 +1,7 @@
 import type { Metadata } from "../types";
 import { fmtDate, fmtInt } from "../lib/format";
 import { asEnglish } from "../i18n/state";
+import { Rich, linkUrls } from "../i18n/Rich";
 import { STALE_DAYS } from "./DataFreshness";
 import { REASON_LABELS } from "../lib/reasons";
 import { useI18n } from "../i18n/I18nProvider";
@@ -119,8 +120,12 @@ export default function Methodology({ metadata }: { metadata: Metadata }) {
       <h3>Sources and attribution</h3>
       <ul className="sources-list">
         <li>
-          <strong>Facility records:</strong> {ca.attribution}. Snapshot {ca.tag} (data as of {enDate(ca.snapshot_as_of)}),{" "}
-          <a href={ca.license_url}>CC BY 4.0</a>. {ca.transformations}
+          <strong>Facility records:</strong> <Rich text={linkUrls(ca.attribution)} a={(url) => <a href={url}>{url}</a>} /> Snapshot{" "}
+          {ca.tag} (data as of {enDate(ca.snapshot_as_of)}). {ca.transformations}
+        </li>
+        <li>
+          <strong>Citing Compute Atlas:</strong> <Rich text={linkUrls(ca.citation)} a={(url) => <a href={url}>{url}</a>} /> This site
+          uses release {ca.tag}.
         </li>
         <li><strong>Population:</strong> {metadata.census.population}.</li>
         <li><strong>Land area:</strong> {metadata.census.land_area}.</li>

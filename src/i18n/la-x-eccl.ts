@@ -26,7 +26,7 @@ const la: Translation = {
   notFound: (code) => `Comitatus numero ${code} notatus non inventus est; quare comitatus exempli gratia ostenditur.`,
   srShowing: (name, verdict) => `Ostenditur ${name}: ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>licentia</a>). Mutationes: ${transformations} Incolae, area terrestris et fines comitatuum: U.S. Census Bureau (ditionis publicae). Versio notitiarum <code>${version}</code>.`,
+    `${attribution} Mutationes: ${transformations} Incolae, area terrestris et fines comitatuum: U.S. Census Bureau (ditionis publicae). Versio notitiarum <code>${version}</code>.`,
   footerFallback: "Notitiae de aedificiis: Compute Atlas, auctore Edward Kubiak (CC BY 4.0). Notitiae de comitatibus: U.S. Census Bureau.",
   methodologyEnglish: "Haec pars Anglice tantum praebetur.",
 

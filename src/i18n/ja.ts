@@ -18,7 +18,7 @@ const ja: Translation = {
   notFound: (code) => `郡コード ${code} が見つからなかったため、例の郡を表示しています。`,
   srShowing: (name, verdict) => `${name} を表示中：${verdict}。`,
   footer: (attribution, transformations, version) =>
-    `${attribution}（<a>ライセンス</a>）。加工内容：${transformations} 人口・陸地面積・郡境界：米国国勢調査局（パブリックドメイン）。データバージョン <code>${version}</code>。`,
+    `${attribution} 加工内容：${transformations} 人口・陸地面積・郡境界：米国国勢調査局（パブリックドメイン）。データバージョン <code>${version}</code>。`,
   footerFallback: "施設データ：Compute Atlas（Edward Kubiak、CC BY 4.0）。郡データ：米国国勢調査局。",
   methodologyEnglish: "このセクションは英語のみです。",
 

@@ -20,11 +20,23 @@ copies placed in `data/raw/` by hand.
   unique.
 - **Access note:** `www.compute-atlas.com` (API and schema endpoints) was not reachable from the build
   environment. The pinned raw GitHub file is the documented public export of the same dataset.
-- **Required attribution:** "Compute-infrastructure data from Compute Atlas by Edward Kubiak, licensed under
-  CC BY 4.0 — https://github.com/ek33450505/compute-atlas"
+- **Attribution (as Compute Atlas asks, rechecked 2026-10-29):** "Data from Compute Atlas by Edward Kubiak
+  (https://www.compute-atlas.com), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)."
+  - Source: `LICENSE-DATA` ("HOW TO ATTRIBUTE") and the README's "Citing it" section on the repository's main
+    branch. The /data page on www.compute-atlas.com could not be loaded from the build environment.
+  - A complete credit names "Compute Atlas by Edward Kubiak" and links www.compute-atlas.com, the dataset's home.
+    The GitHub repository is its source mirror and "not the place to credit". It also links the license and says
+    what changed, and keeps this site's analysis distinct from the records.
+  - The site shows this in the footer and Methodology, links it on the map, and writes it into every row of the
+    CSV downloads (`data_credit`).
+  - Release v1.34.1's own `LICENSE-DATA` suggested an older string linking GitHub; the current guidance replaces it.
+- **Academic citation (DOI from Compute Atlas):** Kubiak, E. (n.d.). *Compute Atlas* [Data set].
+  https://doi.org/10.5281/zenodo.22284476. Whether a version-specific DOI exists for v1.34.1 was not checked
+  (Zenodo was not reachable), so name the release alongside it.
 - **Transformations:** records were filtered to data-center pipeline and operational records, assigned to 2025
   Census counties, counted per county, and reduced to a subset of fields (id, name, operator, status,
-  confidence, precision, coordinates, last updated, source links). No record was edited or added.
+  confidence, precision, coordinates, last updated, source links). No record was edited or added. The county
+  comparisons and summaries are this site's own analysis, not Compute Atlas's.
 
 ## U.S. Census Bureau (public domain)
 | Purpose | File | Official URL |

@@ -11,12 +11,14 @@ interface Props {
   byGeoid: Map<string, CountyMetric>;
   facilities: Facility[];
   snapshotDate: string;
+  /** Compute Atlas credit and the changes made, written into every row of the CSV downloads (CC BY 4.0). */
+  credit: string;
 }
 
 const slug = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-");
 
 /** One share button (Apple share-sheet style) instead of a row of separate actions. */
-export default function ShareMenu({ county, peer, byGeoid, facilities, snapshotDate }: Props) {
+export default function ShareMenu({ county, peer, byGeoid, facilities, snapshotDate, credit }: Props) {
   const m = useM();
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState("");
@@ -72,10 +74,10 @@ export default function ShareMenu({ county, peer, byGeoid, facilities, snapshotD
     {
       label: m.downloadSimilar,
       run: () => {
-        const row = (c: CountyMetric, rank: string) => [rank, c.county_name, c.state, c.geoid, c.population_2025, c.density_per_sqmi, c.pipeline_count];
+        const row = (c: CountyMetric, rank: string) => [rank, c.county_name, c.state, c.geoid, c.population_2025, c.density_per_sqmi, c.pipeline_count, credit];
         const rows = [row(county, "this county"), ...peer.peer_geoids.map((g, i) => row(byGeoid.get(g)!, String(i + 1)))];
         downloadCSV(`${base}-similar-counties-${snapshotDate}.csv`, toCSV(
-          ["similarity_rank", "county", "state", "geoid", "population_2025", "people_per_sq_mi", `sites_in_development_${snapshotDate}`], rows));
+          ["similarity_rank", "county", "state", "geoid", "population_2025", "people_per_sq_mi", `sites_in_development_${snapshotDate}`, "data_credit"], rows));
         flash(m.downloadStarted);
       },
     },
@@ -84,10 +86,10 @@ export default function ShareMenu({ county, peer, byGeoid, facilities, snapshotD
       run: () => {
         const rows = facilities.filter((f) => f.metric === "pipeline").map((f) => [
           f.name, f.operator, statusLabel(f.status), f.confidence, precisionLabel(f.location_precision),
-          assignmentLabel(f.assignment_method), f.last_updated, f.source_links.map((l) => l.url).join(" "), f.source_id,
+          assignmentLabel(f.assignment_method), f.last_updated, f.source_links.map((l) => l.url).join(" "), f.source_id, credit,
         ]);
         downloadCSV(`${base}-sites-in-development-${snapshotDate}.csv`, toCSV(
-          ["name", "operator", "status", "confidence", "location", "county_assignment", "last_updated", "sources", "compute_atlas_id"], rows));
+          ["name", "operator", "status", "confidence", "location", "county_assignment", "last_updated", "sources", "compute_atlas_id", "data_credit"], rows));
         flash(m.downloadStarted);
       },
     },

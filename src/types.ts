@@ -88,6 +88,9 @@ export interface Metadata {
     record_count?: number;
     license: string;
     license_url: string;
+    /** Dataset home to credit (not the GitHub mirror) and the academic citation, as Compute Atlas asks. */
+    site: string;
+    citation: string;
     attribution: string;
     transformations: string;
   };

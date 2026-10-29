@@ -4,7 +4,7 @@ Compare documented data-center development with similar counties across the Unit
 
 Pick any county in the 50 states or DC. The site shows how many qualifying data-center pipeline records
 (proposed, permitted or under construction) are documented there in a pinned
-[Compute Atlas](https://github.com/ek33450505/compute-atlas) snapshot. It compares that count with the
+[Compute Atlas](https://www.compute-atlas.com) snapshot. It compares that count with the
 40 counties most similar in population and population density, and explains the result in plain language.
 **Live site:** https://usuriouscape607.github.io/how-unusual-is-my-county/
 
@@ -128,7 +128,9 @@ tests/     pytest suites and tests/e2e/smoke.mjs
 ```
 
 ## Attribution
-Compute-infrastructure data from Compute Atlas by Edward Kubiak, licensed under
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — https://github.com/ek33450505/compute-atlas.
-The data were filtered, assigned to counties and counted (see DATA_SOURCES.md). Population, land area and
-boundaries: U.S. Census Bureau (public domain). Map rendering: Leaflet. Charts: Recharts. Preview-image type: Inter (SIL Open Font License).
+Data from Compute Atlas by Edward Kubiak (https://www.compute-atlas.com), licensed under CC BY 4.0
+(https://creativecommons.org/licenses/by/4.0/). The data were filtered to data-center records, assigned to counties
+and counted (see DATA_SOURCES.md). The county comparisons and summaries are this site's own analysis, not Compute
+Atlas's, and do not imply its endorsement. Academic citation, as Compute Atlas gives it:
+Kubiak, E. (n.d.). *Compute Atlas* [Data set]. https://doi.org/10.5281/zenodo.22284476 (this site uses release v1.34.1).
+Population, land area and boundaries: U.S. Census Bureau (public domain). Map rendering: Leaflet. Charts: Recharts. Preview-image type: Inter (SIL Open Font License).

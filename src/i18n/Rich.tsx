@@ -26,3 +26,8 @@ export function Rich({ text, a, list }: { text: string; a?: (label: string) => R
 export function plain(text: string): string {
   return text.replace(/<\/?(?:b|a|code)>|<list\/>/g, "");
 }
+
+/** Marks each URL in a data string (a source credit, a citation) as <a>…</a>, so Rich renders it as a link to itself. */
+export function linkUrls(text: string): string {
+  return text.replace(/https?:\/\/[^\s)]+/g, (url) => `<a>${url}</a>`);
+}

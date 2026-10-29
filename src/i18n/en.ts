@@ -24,7 +24,7 @@ export const en = {
   notFound: (code: string) => `County code ${code} was not found, so an example county is shown instead.`,
   srShowing: (name: string, verdict: string) => `Showing ${name}: ${verdict}.`,
   footer: (attribution: string, transformations: string, version: string) =>
-    `${attribution} (<a>license</a>). Transformations: ${transformations} Population, land area and county boundaries: U.S. Census Bureau (public domain). Data version <code>${version}</code>.`,
+    `${attribution} Transformations: ${transformations} Population, land area and county boundaries: U.S. Census Bureau (public domain). Data version <code>${version}</code>.`,
   footerFallback: "Facility data: Compute Atlas by Edward Kubiak (CC BY 4.0). County data: U.S. Census Bureau.",
   methodologyEnglish: "", // translated versions say the methodology section is in English
 

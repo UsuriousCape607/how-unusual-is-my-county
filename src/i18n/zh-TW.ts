@@ -18,7 +18,7 @@ const zhTW: Translation = {
   notFound: (code) => `找不到郡代碼 ${code}，因此改為顯示範例郡。`,
   srShowing: (name, verdict) => `目前顯示 ${name}：${verdict}。`,
   footer: (attribution, transformations, version) =>
-    `${attribution}（<a>授權條款</a>）。資料處理：${transformations} 人口、陸地面積與郡界：美國人口普查局（公有領域）。資料版本 <code>${version}</code>。`,
+    `${attribution} 資料處理：${transformations} 人口、陸地面積與郡界：美國人口普查局（公有領域）。資料版本 <code>${version}</code>。`,
   footerFallback: "設施資料：Compute Atlas，作者 Edward Kubiak（CC BY 4.0）。郡資料：美國人口普查局。",
   methodologyEnglish: "本節僅提供英文版。",
 

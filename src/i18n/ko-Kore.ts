@@ -21,7 +21,7 @@ const koKore: Translation = {
   notFound: (code) => `카운티 코드 ${code}을(를) 찾을 수 없어 例示 카운티를 表示합니다.`,
   srShowing: (name, verdict) => `${name} 表示 中: ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>라이선스</a>). 加工 內容: ${transformations} 人口, 陸地 面積, 카운티 境界: 美國 人口調査局(퍼블릭 도메인). 데이터 버전 <code>${version}</code>.`,
+    `${attribution} 加工 內容: ${transformations} 人口, 陸地 面積, 카운티 境界: 美國 人口調査局(퍼블릭 도메인). 데이터 버전 <code>${version}</code>.`,
   footerFallback: "施設 데이터: Edward Kubiak의 Compute Atlas(CC BY 4.0). 카운티 데이터: 美國 人口調査局.",
   methodologyEnglish: "이 섹션은 英語로만 提供됩니다.",
 

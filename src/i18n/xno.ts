@@ -26,7 +26,7 @@ const xno: Translation = {
   notFound: (code) => `Le nombre de countee ${code} ne fuit pas trové, issint un countee d’ensample est monstré en lieu de ceo.`,
   srShowing: (name, verdict) => `Monstrant ${name}: ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>licence</a>). Transformations: ${transformations} Population, terre et bundes des countees: U.S. Census Bureau (domaine publique). Version del data <code>${version}</code>.`,
+    `${attribution} Transformations: ${transformations} Population, terre et bundes des countees: U.S. Census Bureau (domaine publique). Version del data <code>${version}</code>.`,
   footerFallback: "Data des edifices: Compute Atlas per Edward Kubiak (CC BY 4.0). Data des countees: U.S. Census Bureau.",
   methodologyEnglish: "Ceste partie est en Engleis tantsolement.",
 

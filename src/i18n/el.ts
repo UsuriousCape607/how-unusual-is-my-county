@@ -24,7 +24,7 @@ const el: Translation = {
   notFound: (code) => `Δεν βρέθηκε ο κωδικός κομητείας ${code}, γι’ αυτό εμφανίζεται μια κομητεία ως παράδειγμα.`,
   srShowing: (name, verdict) => `Εμφανίζεται: ${name}. ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>άδεια χρήσης</a>). Μετασχηματισμοί: ${transformations} Πληθυσμός, χερσαία έκταση και όρια κομητειών: Γραφείο Απογραφής των ΗΠΑ (κοινό κτήμα). Έκδοση δεδομένων <code>${version}</code>.`,
+    `${attribution} Μετασχηματισμοί: ${transformations} Πληθυσμός, χερσαία έκταση και όρια κομητειών: Γραφείο Απογραφής των ΗΠΑ (κοινό κτήμα). Έκδοση δεδομένων <code>${version}</code>.`,
   footerFallback: "Δεδομένα εγκαταστάσεων: Compute Atlas, Edward Kubiak (CC BY 4.0). Δεδομένα κομητειών: Γραφείο Απογραφής των ΗΠΑ.",
   methodologyEnglish: "Η ενότητα αυτή είναι διαθέσιμη μόνο στα αγγλικά.",
 

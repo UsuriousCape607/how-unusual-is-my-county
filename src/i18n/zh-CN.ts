@@ -18,7 +18,7 @@ const zhCN: Translation = {
   notFound: (code) => `未找到县代码 ${code}，因此显示示例县。`,
   srShowing: (name, verdict) => `正在显示 ${name}：${verdict}。`,
   footer: (attribution, transformations, version) =>
-    `${attribution}（<a>许可协议</a>）。数据处理：${transformations} 人口、陆地面积和县界：美国人口普查局（公有领域）。数据版本 <code>${version}</code>。`,
+    `${attribution} 数据处理：${transformations} 人口、陆地面积和县界：美国人口普查局（公有领域）。数据版本 <code>${version}</code>。`,
   footerFallback: "设施数据：Compute Atlas，作者 Edward Kubiak（CC BY 4.0）。县数据：美国人口普查局。",
   methodologyEnglish: "本节仅提供英文版。",
 

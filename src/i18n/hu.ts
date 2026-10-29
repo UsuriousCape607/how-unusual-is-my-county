@@ -22,7 +22,7 @@ const hu: Translation = {
   notFound: (code) => `Nincs ilyen megyekód (${code}), ezért egy példamegye látható.`,
   srShowing: (name, verdict) => `Megjelenítve: ${name}. ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>licenc</a>). Átalakítások: ${transformations} Népesség, szárazföldi terület és megyehatárok: az USA Népszámlálási Hivatala (közkincs). Adatverzió: <code>${version}</code>.`,
+    `${attribution} Átalakítások: ${transformations} Népesség, szárazföldi terület és megyehatárok: az USA Népszámlálási Hivatala (közkincs). Adatverzió: <code>${version}</code>.`,
   footerFallback: "Létesítményadatok: Compute Atlas, Edward Kubiak (CC BY 4.0). Megyeadatok: az USA Népszámlálási Hivatala.",
   methodologyEnglish: "Ez a szakasz csak angolul érhető el.",
 

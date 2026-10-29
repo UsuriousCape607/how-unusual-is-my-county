@@ -21,7 +21,7 @@ const hi: Translation = {
   notFound: (code) => `काउंटी कोड ${code} नहीं मिला, इसलिए एक उदाहरण काउंटी दिखाई जा रही है।`,
   srShowing: (name, verdict) => `${name} दिखाई जा रही है: ${verdict}।`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>लाइसेंस</a>)। रूपांतरण: ${transformations} जनसंख्या, भूमि क्षेत्रफल और काउंटी सीमाएँ: अमेरिकी जनगणना ब्यूरो (सार्वजनिक डोमेन)। डेटा संस्करण <code>${version}</code>।`,
+    `${attribution} रूपांतरण: ${transformations} जनसंख्या, भूमि क्षेत्रफल और काउंटी सीमाएँ: अमेरिकी जनगणना ब्यूरो (सार्वजनिक डोमेन)। डेटा संस्करण <code>${version}</code>।`,
   footerFallback: "सुविधाओं का डेटा: Compute Atlas, Edward Kubiak (CC BY 4.0)। काउंटी डेटा: अमेरिकी जनगणना ब्यूरो।",
   methodologyEnglish: "यह खंड केवल अंग्रेज़ी में उपलब्ध है।",
 

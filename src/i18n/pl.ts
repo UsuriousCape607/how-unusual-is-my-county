@@ -31,7 +31,7 @@ const pl: Translation = {
   notFound: (code) => `Nie znaleziono hrabstwa o kodzie ${code}, więc pokazujemy przykładowe hrabstwo.`,
   srShowing: (name, verdict) => `Wyświetlane: ${name}. ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>licencja</a>). Przekształcenia: ${transformations} Ludność, powierzchnia lądowa i granice hrabstw: Biuro Spisu Ludności USA (domena publiczna). Wersja danych <code>${version}</code>.`,
+    `${attribution} Przekształcenia: ${transformations} Ludność, powierzchnia lądowa i granice hrabstw: Biuro Spisu Ludności USA (domena publiczna). Wersja danych <code>${version}</code>.`,
   footerFallback: "Dane o obiektach: Compute Atlas, autor Edward Kubiak (CC BY 4.0). Dane o hrabstwach: Biuro Spisu Ludności USA.",
   methodologyEnglish: "Ta sekcja jest dostępna tylko po angielsku.",
 

@@ -21,7 +21,7 @@ const ko: Translation = {
   notFound: (code) => `카운티 코드 ${code}을(를) 찾을 수 없어 예시 카운티를 표시합니다.`,
   srShowing: (name, verdict) => `${name} 표시 중: ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>라이선스</a>). 가공 내용: ${transformations} 인구, 육지 면적, 카운티 경계: 미국 인구조사국(퍼블릭 도메인). 데이터 버전 <code>${version}</code>.`,
+    `${attribution} 가공 내용: ${transformations} 인구, 육지 면적, 카운티 경계: 미국 인구조사국(퍼블릭 도메인). 데이터 버전 <code>${version}</code>.`,
   footerFallback: "시설 데이터: Edward Kubiak의 Compute Atlas(CC BY 4.0). 카운티 데이터: 미국 인구조사국.",
   methodologyEnglish: "이 섹션은 영어로만 제공됩니다.",
 

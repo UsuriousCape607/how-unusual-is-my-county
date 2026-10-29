@@ -23,7 +23,7 @@ const sv: Translation = {
   notFound: (code) => `Countykoden ${code} hittades inte, så ett exempel visas i stället.`,
   srShowing: (name, verdict) => `Visar ${name}: ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>licens</a>). Bearbetning: ${transformations} Befolkning, landareal och countygränser: U.S. Census Bureau (allmän egendom). Dataversion <code>${version}</code>.`,
+    `${attribution} Bearbetning: ${transformations} Befolkning, landareal och countygränser: U.S. Census Bureau (allmän egendom). Dataversion <code>${version}</code>.`,
   footerFallback: "Anläggningsdata: Compute Atlas av Edward Kubiak (CC BY 4.0). Countydata: U.S. Census Bureau.",
   methodologyEnglish: "Det här avsnittet finns bara på engelska.",
 

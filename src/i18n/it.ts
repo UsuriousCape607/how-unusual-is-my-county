@@ -20,7 +20,7 @@ const it: Translation = {
   notFound: (code) => `Il codice di contea ${code} non è stato trovato, quindi viene mostrata una contea di esempio.`,
   srShowing: (name, verdict) => `Visualizzazione di ${name}: ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>licenza</a>). Trasformazioni: ${transformations} Popolazione, superficie terrestre e confini delle contee: U.S. Census Bureau (pubblico dominio). Versione dei dati <code>${version}</code>.`,
+    `${attribution} Trasformazioni: ${transformations} Popolazione, superficie terrestre e confini delle contee: U.S. Census Bureau (pubblico dominio). Versione dei dati <code>${version}</code>.`,
   footerFallback: "Dati sulle strutture: Compute Atlas di Edward Kubiak (CC BY 4.0). Dati sulle contee: U.S. Census Bureau.",
   methodologyEnglish: "Questa sezione è disponibile solo in inglese.",
 

@@ -162,7 +162,7 @@ export default function CountyMap(props: Props) {
     L.control.zoom({ position: "bottomright" }).addTo(map);
     map.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
     map.attributionControl.addAttribution(
-      'Census Bureau 2025 · <a href="https://github.com/ek33450505/compute-atlas">Compute Atlas</a> (CC BY 4.0)',
+      'Census Bureau 2025 · <a href="https://www.compute-atlas.com">Compute Atlas</a> (<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>)',
     );
     const r = L.canvas({ padding: 0.5, tolerance: 3 });
     renderer.current = r;

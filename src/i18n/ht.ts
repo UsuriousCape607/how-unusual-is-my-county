@@ -21,7 +21,7 @@ const ht: Translation = {
   notFound: (code) => `Nou pa jwenn kòd konte ${code}, kidonk n ap montre yon konte egzanp.`,
   srShowing: (name, verdict) => `N ap montre ${name}: ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>lisans</a>). Transfòmasyon: ${transformations} Popilasyon, sifas tè ak fwontyè konte yo: Biwo Resansman Etazini (domèn piblik). Vèsyon done <code>${version}</code>.`,
+    `${attribution} Transfòmasyon: ${transformations} Popilasyon, sifas tè ak fwontyè konte yo: Biwo Resansman Etazini (domèn piblik). Vèsyon done <code>${version}</code>.`,
   footerFallback: "Done sou enstalasyon yo: Compute Atlas, pa Edward Kubiak (CC BY 4.0). Done sou konte yo: Biwo Resansman Etazini.",
   methodologyEnglish: "Seksyon sa a disponib an angle sèlman.",
 

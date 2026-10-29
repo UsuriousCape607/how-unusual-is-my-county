@@ -16,7 +16,7 @@ import FindProject from "./components/FindProject";
 import EmbedView from "./components/EmbedView";
 import LanguagePicker from "./components/LanguagePicker";
 import { useM } from "./i18n/I18nProvider";
-import { Rich } from "./i18n/Rich";
+import { Rich, linkUrls } from "./i18n/Rich";
 import { fmtInt } from "./lib/format";
 
 // Example counties offered under the search box: a high count, the highest, a zero, and a typical case.
@@ -200,8 +200,8 @@ export default function App() {
           {data ? (
             <p>
               <Rich
-                text={m.footer(data.metadata.compute_atlas.attribution, data.metadata.compute_atlas.transformations, data.metadata.data_version)}
-                a={(label) => <a href={data.metadata.compute_atlas.license_url}>{label}</a>}
+                text={m.footer(linkUrls(data.metadata.compute_atlas.attribution), data.metadata.compute_atlas.transformations, data.metadata.data_version)}
+                a={(url) => <a href={url}>{url}</a>}
               />
             </p>
           ) : (

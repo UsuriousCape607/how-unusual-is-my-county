@@ -173,7 +173,12 @@ def main() -> int:
         },
         "sources": {k: {kk: v.get(kk) for kk in ("url", "retrieved_at", "sha256", "bytes", "note") if v.get(kk) is not None}
                     for k, v in manifest.items()},
+        # Credit as Compute Atlas asks in LICENSE-DATA, "HOW TO ATTRIBUTE" (rechecked on the main branch 2026-10-29):
+        # credit "Compute Atlas by Edward Kubiak", link www.compute-atlas.com (the GitHub repository is only its source
+        # mirror, "not the place to credit"), link the license, say what changed, and keep this site's analysis
+        # distinct from the records. The citation is the DOI form it gives for academic use.
         "compute_atlas": {
+            "site": "https://www.compute-atlas.com",
             "repository": "https://github.com/ek33450505/compute-atlas",
             "tag": COMPUTE_ATLAS_TAG,
             "snapshot_as_of": ca_meta.get("asOf"),
@@ -182,10 +187,13 @@ def main() -> int:
             "schema_version": ca_meta.get("schemaVersion"),
             "license": "CC BY 4.0",
             "license_url": "https://creativecommons.org/licenses/by/4.0/",
-            "attribution": "Compute-infrastructure data from Compute Atlas by Edward Kubiak, licensed under CC BY 4.0 — "
-                           "https://github.com/ek33450505/compute-atlas",
+            "attribution": "Data from Compute Atlas by Edward Kubiak (https://www.compute-atlas.com), licensed under "
+                           "CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).",
+            "citation": "Kubiak, E. (n.d.). Compute Atlas [Data set]. https://doi.org/10.5281/zenodo.22284476",
             "transformations": "Filtered to data-center pipeline and operational records, assigned to 2025 Census counties, "
-                               "counted per county, and reduced to a subset of fields. No records were edited or added.",
+                               "counted per county, and reduced to a subset of fields. No records were edited or added. "
+                               "The county comparisons and summaries are this site's own analysis, not Compute Atlas's, "
+                               "and do not imply its endorsement.",
         },
         "census": {
             "population": f"Vintage {CENSUS_VINTAGE} county population estimates ({POP_COLUMN}, July 1, {CENSUS_VINTAGE})",

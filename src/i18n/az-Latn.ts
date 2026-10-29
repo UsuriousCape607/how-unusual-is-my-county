@@ -22,7 +22,7 @@ const azLatn: Translation = {
   notFound: (code) => `${code} qraflıq kodu tapılmadı, buna görə nümunə qraflıq göstərilir.`,
   srShowing: (name, verdict) => `Göstərilir: ${name}. ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>lisenziya</a>). Dəyişikliklər: ${transformations} Əhali, quru ərazi və qraflıq sərhədləri: ABŞ Siyahıyaalma Bürosu (ictimai mülkiyyət). Məlumat versiyası <code>${version}</code>.`,
+    `${attribution} Dəyişikliklər: ${transformations} Əhali, quru ərazi və qraflıq sərhədləri: ABŞ Siyahıyaalma Bürosu (ictimai mülkiyyət). Məlumat versiyası <code>${version}</code>.`,
   footerFallback: "Obyekt məlumatları: Compute Atlas, Edward Kubiak (CC BY 4.0). Qraflıq məlumatları: ABŞ Siyahıyaalma Bürosu.",
   methodologyEnglish: "Bu bölmə yalnız ingilis dilində mövcuddur.",
 

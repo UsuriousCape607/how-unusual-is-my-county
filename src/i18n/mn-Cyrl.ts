@@ -23,7 +23,7 @@ const mnCyrl: Translation = {
   notFound: (code) => `${code} кодтой каунти олдсонгүй, тиймээс жишээ каунти харуулж байна.`,
   srShowing: (name, verdict) => `Харуулж буй: ${name}. ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>лиценз</a>). Хувиргалт: ${transformations} Хүн ам, хуурай газрын талбай, каунтийн хил: АНУ-ын Хүн амын тооллогын товчоо (нийтийн өмч). Өгөгдлийн хувилбар <code>${version}</code>.`,
+    `${attribution} Хувиргалт: ${transformations} Хүн ам, хуурай газрын талбай, каунтийн хил: АНУ-ын Хүн амын тооллогын товчоо (нийтийн өмч). Өгөгдлийн хувилбар <code>${version}</code>.`,
   footerFallback: "Байгууламжийн өгөгдөл: Compute Atlas, Edward Kubiak (CC BY 4.0). Каунтийн өгөгдөл: АНУ-ын Хүн амын тооллогын товчоо.",
   methodologyEnglish: "Энэ хэсэг зөвхөн англи хэл дээр байна.",
 

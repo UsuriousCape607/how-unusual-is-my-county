@@ -26,7 +26,7 @@ const pdc: Translation = {
   notFound: (code) => `Mer hen ken Kaundi mit em Kode ${code} gfunne, also weise mer en Beischpiel-Kaundi.`,
   srShowing: (name, verdict) => `Do is ${name}: ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>Lizens</a>). Was gennert is: ${transformations} Leit, Landflaech un Kaundi-Grenze: US Census Bureau (fer alle frei). Data-Version <code>${version}</code>.`,
+    `${attribution} Was gennert is: ${transformations} Leit, Landflaech un Kaundi-Grenze: US Census Bureau (fer alle frei). Data-Version <code>${version}</code>.`,
   footerFallback: "Data vun de Bletz: Compute Atlas vum Edward Kubiak (CC BY 4.0). Kaundi-Data: US Census Bureau.",
   methodologyEnglish: "Des Schtick gebt's yuscht in Englisch.",
 

@@ -99,7 +99,14 @@ export default function CountySummary({ county, peer, metadata, byGeoid, facilit
             {m.facts(fmtInt(county.population_2025), fmtDensity(county.density_per_sqmi), county.geoid)}
           </p>
         </div>
-        <ShareMenu county={county} peer={peer} byGeoid={byGeoid} facilities={facilities} snapshotDate={metadata.snapshot_date} />
+        <ShareMenu
+          county={county}
+          peer={peer}
+          byGeoid={byGeoid}
+          facilities={facilities}
+          snapshotDate={metadata.snapshot_date}
+          credit={`${metadata.compute_atlas.attribution} Changes: ${metadata.compute_atlas.transformations}`}
+        />
       </div>
 
       <p className="eyebrow">{m.shortAnswer}</p>

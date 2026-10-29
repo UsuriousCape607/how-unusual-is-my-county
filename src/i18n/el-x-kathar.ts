@@ -27,7 +27,7 @@ const elKathar: Translation = {
   notFound: (code) => `Ὁ κωδικὸς κομητείας ${code} δὲν εὑρέθη· διὸ ἐμφανίζεται κομητεία ὡς παράδειγμα.`,
   srShowing: (name, verdict) => `Ἐμφανίζεται: ${name}. ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>ἄδεια χρήσεως</a>). Μετασχηματισμοί: ${transformations} Πληθυσμός, χερσαία ἔκτασις καὶ ὅρια κομητειῶν: Γραφεῖον Ἀπογραφῆς τῶν Η.Π.Α. (κοινὸν κτῆμα). Ἔκδοσις δεδομένων <code>${version}</code>.`,
+    `${attribution} Μετασχηματισμοί: ${transformations} Πληθυσμός, χερσαία ἔκτασις καὶ ὅρια κομητειῶν: Γραφεῖον Ἀπογραφῆς τῶν Η.Π.Α. (κοινὸν κτῆμα). Ἔκδοσις δεδομένων <code>${version}</code>.`,
   footerFallback: "Δεδομένα ἐγκαταστάσεων: Compute Atlas, Edward Kubiak (CC BY 4.0). Δεδομένα κομητειῶν: Γραφεῖον Ἀπογραφῆς τῶν Η.Π.Α.",
   methodologyEnglish: "Τὸ τμῆμα τοῦτο διατίθεται μόνον ἀγγλιστί.",
 

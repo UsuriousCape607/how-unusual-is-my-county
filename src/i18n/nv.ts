@@ -29,7 +29,7 @@ const nv: Translation = {
   notFound: (code) => `County code ${code} doo hólǫ́ǫ da; éí biniinaa county łaʼ bee ééhózinii hólǫ́.`,
   srShowing: (name, verdict) => `${name}: ${verdict}.`,
   footer: (attribution, transformations, version) =>
-    `${attribution} (<a>license</a>). Transformations: ${transformations} Dineʼé, kéyah dóó county bináhásdzo: U.S. Census Bureau (public domain). Data version <code>${version}</code>.`,
+    `${attribution} Transformations: ${transformations} Dineʼé, kéyah dóó county bináhásdzo: U.S. Census Bureau (public domain). Data version <code>${version}</code>.`,
   footerFallback: "Kin bidata: Compute Atlas, Edward Kubiak (CC BY 4.0). County bidata: U.S. Census Bureau.",
   methodologyEnglish: "Díí Bilagáana bizaad tʼéiyá bee siʼą́.",
 
