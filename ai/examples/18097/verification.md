@@ -1,17 +1,17 @@
 # Verification: Marion County, IN (18097)
 
-Checked 2026-10-26 against `input.json` (data version compute-atlas-v1.34.1-asof-2026-10-02_census-v2025).
+Checked 2026-11-09 against `input.json` (data version compute-atlas-v1.35.1-asof-2026-11-01_census-v2025).
+Regenerated with the same prompt (ai/prompt.md, version 1) after the update to Compute Atlas v1.35.1.
 
 | Statement in output | Input field | Match |
 |---|---|---|
-| snapshot of October 2, 2026 | `snapshot_date` | ✓ |
+| snapshot of November 1, 2026 | `snapshot_date` | ✓ |
 | 3 qualifying documented pipeline records | `pipeline_count` 3 | ✓ |
-| 33 fewer, 5 same, 2 more (of 40) | `n_peers_fewer` 33, `n_peers_equal` 5, `n_peers_greater` 2 | ✓ (sums to 40) |
-| peer median 1, peer mean 1.075 | `peer_median` 1.0, `peer_mean` 1.075 | ✓ |
-| 23 of the 40 peers have at least one record | `n_peers_with_at_least_one_record` 23 | ✓ |
+| 32 fewer, 5 same, 3 more (of 40) | `n_peers_fewer` 32, `n_peers_equal` 5, `n_peers_greater` 3 | ✓ (sums to 40) |
+| peer median 1, peer mean 1.25 | `peer_median` 1.0, `peer_mean` 1.25 | ✓ |
+| 26 of the 40 peers have at least one record | `n_peers_with_at_least_one_record` 26 | ✓ |
 | populations from 678,179 to 1,636,630 | `peer_population_range` | ✓ |
 | matched only on population and density | `peer_method` | ✓ |
 | limitations sentence | `limitations` 1, 3, 5 | ✓ |
 
-Revision: manual review removed "similar size and settlement pattern" (an interpretation not in the input) and replaced it
-with "similar population and density".
+No harm, price, demographic, political or causal claims; it says the comparison does not explain the count.

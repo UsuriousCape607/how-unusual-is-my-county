@@ -15,6 +15,9 @@ the automated tests (see TEST_RESULTS.md).
 
 ## Changes
 
+Numbers in row 1 are from the snapshot reviewed (Compute Atlas v1.34.1). After the update to v1.35.1 the same table reads
+2,923 − 990 = 1,933 filtered out, 990 − 969 = 21 not placeable in one county, 1,954 not counted.
+
 | # | Feedback | What we found | Change |
 |---|---|---|---|
 | 1 | The "records not in the headline count" table doesn't reconcile: the county-assignment rows add to 27, but 828 − 799 = 29. | The data and the live table did reconcile. There are **seven** assignment rows (11 + 7 + 4 + 2 + 2 + 2 + 1 = 29), and the full table sums to 1,529 = 2,328 − 799. The reviewer's text view dropped one of the three rows showing "2", the same view that blanked county names. Still, checking it meant adding twelve rows by hand. | The table is now grouped, and each group's subtotal shows its own arithmetic. "Did not meet the filters (2,328 − 828)": 1,500. "Met the filters but could not be placed in one county (828 − 799)": 29. "Total not counted (2,328 − 799)": 1,529. Python computes the subtotals. `validate_data.py` checks rows, subtotals and total against each other (`exclusion_table_reconciles`), and the end-to-end test re-adds the table as shown on the page. |

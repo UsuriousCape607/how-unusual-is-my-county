@@ -170,7 +170,10 @@ def main() -> int:
         old = manifest.get(key, {})
         entry = {"url": src["url"], "file": src["file"]}
 
-        if dest.exists() and not args.force:
+        # A file whose pinned URL changed (e.g. a new Compute Atlas tag) is a different source: fetch it again rather
+        # than recording the new URL against the old content.
+        url_changed = bool(old.get("url")) and old["url"] != src["url"]
+        if dest.exists() and not args.force and not (url_changed and not args.offline):
             was_downloaded = old.get("acquired", "downloaded" if old.get("retrieved_at") else None) == "downloaded"
             if old.get("sha256") and was_downloaded and sha256(dest) == old["sha256"]:
                 entry.update(acquired="downloaded", retrieved_at=old.get("retrieved_at"),

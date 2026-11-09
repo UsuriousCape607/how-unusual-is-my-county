@@ -18,7 +18,7 @@ JSON. The website only displays those values.
 - **Eligible** = population > 0 and land area > 0. No values are imputed.
 
 ## 2. What is counted (headline metric)
-A **qualifying pipeline record** is a Compute Atlas record (snapshot `v1.34.1`) with all of:
+A **qualifying pipeline record** is a Compute Atlas record (snapshot `v1.35.1`) with all of:
 
 | Field | Accepted values |
 |---|---|

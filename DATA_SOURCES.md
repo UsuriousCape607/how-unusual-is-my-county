@@ -8,13 +8,16 @@ copies placed in `data/raw/` by hand.
 ## Compute Atlas: facility and pipeline records
 - **Author / license:** Edward Kubiak. Data licensed **CC BY 4.0** (repository `LICENSE-DATA`); code MIT.
 - **Repository:** https://github.com/ek33450505/compute-atlas · site https://www.compute-atlas.com/data
-- **Pinned snapshot:** tag `v1.34.1`
-  - `data/facilities.json`: https://raw.githubusercontent.com/ek33450505/compute-atlas/v1.34.1/data/facilities.json
-  - `data/facilities.meta.json`: `asOf` 2026-10-02T18:14:01.267Z, `recordCount` 2328,
-    `sourceRelease` 1.34.0, `schemaVersion` 1
-  - The repository CHANGELOG dates release 1.34.1 to 2026-10-04. The build spec's "October 22, 2026" could not
-    be confirmed; the meta file's `asOf` date is used as the snapshot date.
-- **Verification (2026-10-26):** fields checked against the actual records and `lib/schema.ts`. All 2,328
+- **Pinned snapshot:** tag `v1.35.1` (since 2026-11-09; previously `v1.34.1`, asOf 2026-10-02, 2,328 records)
+  - `data/facilities.json`: https://raw.githubusercontent.com/ek33450505/compute-atlas/v1.35.1/data/facilities.json
+  - `data/facilities.meta.json`: `asOf` 2026-11-01T14:44:18.590Z, `recordCount` 2923, `sourceRelease` 1.34.1,
+    `schemaVersion` 1
+  - The repository CHANGELOG dates release 1.35.1 to 2026-11-02. The meta file's `asOf` date is used as the snapshot
+    date.
+  - Same three facility types, five statuses and confidence levels as v1.34.1. Validation passed (28/28).
+  - The release records far more locations as approximate (2,448, up from 1,573), so more counted records are now
+    assigned by their named county than by a map point.
+- **Verification (2026-10-26, on v1.34.1):** fields checked against the actual records and `lib/schema.ts`. All 2,328
   records have `id, name, operator, facilityType, status, confidence, location{lat, lon, state, precision},
   sources, lastUpdated`. `location.county` is present on 2,292 records and `location.multiSite` on 3. ids are
   unique.
@@ -32,9 +35,10 @@ copies placed in `data/raw/` by hand.
     CSV downloads (`data_credit`).
   - Release v1.34.1's own `LICENSE-DATA` suggested an older string linking GitHub; the current guidance replaces it.
 - **Citation of the data used here** (the /api page's form for a reproducible release snapshot, built from the
-  pinned tag in `scripts/export_web.py`): Kubiak, E. (2026). *Compute Atlas* (Version 1.34.1) [Data set].
-  https://raw.githubusercontent.com/ek33450505/compute-atlas/v1.34.1/data/facilities.json
-  - The tag is immutable. On 2026-10-29 the file at that URL still had the SHA-256 recorded in `data/raw/manifest.json`.
+  pinned tag in `scripts/export_web.py`): Kubiak, E. (2026). *Compute Atlas* (Version 1.35.1) [Data set].
+  https://raw.githubusercontent.com/ek33450505/compute-atlas/v1.35.1/data/facilities.json
+  - The tag is immutable; its SHA-256 is recorded in `data/raw/manifest.json`. (The v1.34.1 file was re-checked
+    against its recorded SHA-256 on 2026-10-29.)
   - The /api page says "Version 1.34.1 was cut on October 29, 2026", which disagrees with the repository CHANGELOG
     (2026-10-04) and with the tag's own `asOf` (2026-10-02). That page appears to show the date of the latest daily
     snapshot (main's `facilities.meta.json`: `sourceRelease` 1.34.1, `asOf` 2026-10-29, 2,879 records). The site

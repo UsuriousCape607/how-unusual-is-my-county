@@ -35,14 +35,19 @@ needs no API key.
   only from the prompt and input JSON, but it is not an independent system. The project owner should read the three
   outputs against their inputs before relying on them; this takes about five minutes.
 
-## Examples (snapshot 2026-10-02)
+## Examples (snapshot 2026-11-01, Compute Atlas v1.35.1)
 | County | Why chosen | Count | Peers fewer / same / more | Automated check | Manual review |
 |---|---|---|---|---|---|
-| Loudoun County, VA (51107) | High count; default demo county | 9 | 40 / 0 / 0 | pass | pass (1 revision) |
-| Marion County, IN (18097) | Typical case with ties | 3 | 33 / 5 / 2 | pass | pass (1 revision) |
-| Harris County, TX (48201) | Large county with zero records | 0 | 0 / 15 / 25 | pass | pass |
+| Loudoun County, VA (51107) | High count; default demo county | 9 | 39 / 1 / 0 | pass | pass |
+| Marion County, IN (18097) | Typical case with ties | 3 | 32 / 5 / 3 | pass | pass |
+| Harris County, TX (48201) | Large county with zero records | 0 | 0 / 13 / 27 | pass | pass |
 
-**Revisions found by the checks:**
+**Regenerated 2026-11-09** for the update to Compute Atlas v1.35.1, with the same prompt (version 1) and the same
+checks. The site shows an example only when its `data_version` matches the data, so the v1.34.1 texts would otherwise
+have been hidden. The first-round versions (snapshot 2026-10-02: Loudoun 40 / 0 / 0, Marion 33 / 5 / 2, Harris
+0 / 15 / 25) are in the git history.
+
+**Revisions found by the checks (first round):**
 - Loudoun: the first draft said "informative because…", which the banned-wording check flagged; it was reworded.
 - Marion: manual review removed "similar size and settlement pattern", an interpretation not in the input.
 

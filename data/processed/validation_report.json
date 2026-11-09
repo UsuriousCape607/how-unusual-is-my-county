@@ -49,7 +49,7 @@
   },
   "headline_total_matches_qc": {
     "pass": true,
-    "detail": "799"
+    "detail": "969"
   },
   "income_complete_or_annotated": {
     "pass": true,
@@ -57,7 +57,7 @@
   },
   "exclusion_table_reconciles": {
     "pass": true,
-    "detail": "filters 1500 + county assignment 29 = 1529 not counted"
+    "detail": "filters 1933 + county assignment 21 = 1954 not counted"
   },
   "pipeline_candidates_included_or_explained": {
     "pass": true,
@@ -65,7 +65,7 @@
   },
   "assignment_failures_logged": {
     "pass": true,
-    "detail": "29 unassigned candidates"
+    "detail": "21 unassigned candidates"
   },
   "approximate_never_assigned_by_point": {
     "pass": true,
@@ -89,11 +89,11 @@
   },
   "project_index_covers_all_records": {
     "pass": true,
-    "detail": "2328 rows vs 2328 records"
+    "detail": "2923 rows vs 2923 records"
   },
   "project_index_matches_counted_records": {
     "pass": true,
-    "detail": "799 vs 799"
+    "detail": "969 vs 969"
   },
   "project_index_explains_every_uncounted_record": {
     "pass": true,
@@ -109,6 +109,6 @@
   },
   "zero_and_outlier_counties_work": {
     "pass": true,
-    "detail": "zero example 01001; max 06085 (27)"
+    "detail": "zero example 01001; max 06085 (28)"
   }
 }

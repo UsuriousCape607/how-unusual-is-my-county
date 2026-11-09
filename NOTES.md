@@ -180,6 +180,17 @@
   Find-a-project checks (counted here / operating / not counted with reason / counted elsewhere) now pick their
   examples from `projects.json`, so the next weekly run can adopt the new release. That will change the site's
   numbers, and the three AI examples will hide until they are regenerated for the new `data_version`.
+- Compute Atlas v1.35.1 adopted early (2026-11-09, owner request; the weekly job would have done it at the next run).
+  - The release has 2,923 records (asOf 2026-11-01); 990 meet the filters and 969 are counted, in 530 counties
+    (was 799 in 458). 153 counties changed (142 up, 11 down); the biggest moves were Licking OH 10→14,
+    Williamson TX 1→5 and Culpeper VA 2→6. Loudoun now ties one peer (39 / 1 / 0), so its verdict reads "more
+    than most similar counties".
+  - No new facility types, statuses or reason codes. Many more records are approximate (2,448, up from 1,573).
+    Validation passes 28/28.
+  - The three AI examples were regenerated from the same prompt and new inputs; all checks pass, and the
+    verification tables were updated.
+  - Fixed in `download_data.py`: when a pinned URL changes, the file is downloaded again. Before, a local copy of the
+    old release was reused and recorded under the new URL; CI was never affected, since it always downloads fresh.
 
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.

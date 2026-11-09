@@ -19,13 +19,13 @@
     11719.94
   ],
   "peer_median": 1.0,
-  "peer_mean": 2.675,
+  "peer_mean": 2.875,
   "n_peers_fewer": 0,
-  "n_peers_equal": 15,
-  "n_peers_greater": 25,
-  "n_peers_with_at_least_one_record": 25,
-  "snapshot_date": "2026-10-02",
-  "data_version": "compute-atlas-v1.34.1-asof-2026-10-02_census-v2025",
+  "n_peers_equal": 13,
+  "n_peers_greater": 27,
+  "n_peers_with_at_least_one_record": 27,
+  "snapshot_date": "2026-11-01",
+  "data_version": "compute-atlas-v1.35.1-asof-2026-11-01_census-v2025",
   "limitations": [
     "Counts are documented site records in one dataset snapshot, not verified counts of buildings or all real projects.",
     "A zero means no qualifying record was found in this snapshot, not that no development is proposed.",
@@ -34,8 +34,8 @@
     "Peer comparisons are descriptive. They do not show causes, impacts, or statistical significance."
   ],
   "quality_indicators": {
-    "records_in_snapshot": 2328,
-    "pipeline_records_counted_nationally": 799,
-    "pipeline_candidates_not_assignable_to_one_county": 29
+    "records_in_snapshot": 2923,
+    "pipeline_records_counted_nationally": 969,
+    "pipeline_candidates_not_assignable_to_one_county": 21
   }
 }

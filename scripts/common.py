@@ -15,7 +15,7 @@ N_PEERS = 40
 DISTANCE_METHOD = "euclidean_z_ln_population_ln_density_popsd_v1"
 
 # Pinned facility snapshot. The tag is immutable; the commit it points to is recorded in DATA_SOURCES.md.
-COMPUTE_ATLAS_TAG = "v1.34.1"
+COMPUTE_ATLAS_TAG = "v1.35.1"
 COMPUTE_ATLAS_BASE = f"https://raw.githubusercontent.com/ek33450505/compute-atlas/{COMPUTE_ATLAS_TAG}"
 
 # Census inputs are pinned to one vintage. Download URLs, the population column the checks require, and the dates
