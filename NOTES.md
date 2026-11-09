@@ -174,6 +174,12 @@
   - The deployment ID is the commit SHA, so re-running the same run can reattach to the stuck deployment. Recover
     with a new commit.
   - The deploy step now waits up to 20 min.
+- Weekly refresh blocked (found 2026-11-09). The 2026-11-02 scheduled run found Compute Atlas v1.35.1 and rebuilt the data;
+  validation (26/26) and pytest passed. One e2e check failed: it hard-coded a "Prometheus" project whose county conflict
+  was corrected in the new release. By design nothing was committed or deployed, so the site stayed on v1.34.1. The
+  Find-a-project checks (counted here / operating / not counted with reason / counted elsewhere) now pick their
+  examples from `projects.json`, so the next weekly run can adopt the new release. That will change the site's
+  numbers, and the three AI examples will hide until they are regenerated for the new `data_version`.
 
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.

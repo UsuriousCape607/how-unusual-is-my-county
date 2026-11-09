@@ -116,22 +116,38 @@ try {
   check("embed dialog gives iframe code", code.startsWith("<iframe") && code.includes("embed=1"), code.slice(0, 80));
   await page.getByRole("button", { name: "Done" }).click();
 
-  // Find a project: counted here / counted elsewhere (with compare) / operating / not counted with reason.
+  // Find a project: counted here / operating / not counted with its reason. The examples are picked from the current
+  // data, not hard-coded, so a new Compute Atlas release that corrects one record can't break the check.
   const find = page.locator("#find-input");
-  await find.fill("Spring Valley Technology Park");
-  await page.waitForSelector(".find-results li");
-  check("find: counted here", (await page.textContent(".find-results li")).includes("Counted here"));
-  await find.fill("Aligned IAD-01");
-  await page.waitForFunction(() => document.querySelector(".find-results li")?.textContent.includes("Aligned IAD-01"));
-  check("find: operating shown as context", (await page.textContent(".find-results li")).includes("Operating"));
-  await find.fill("prometheus");
-  await page.waitForFunction(() => document.querySelectorAll(".find-results li").length >= 2);
-  const promText = await page.textContent(".find-results");
-  check("find: excluded project explains why", promText.includes("Not counted") && promText.includes("map location and named county disagree"));
+  const projects = JSON.parse(readFileSync("public/data/projects.json", "utf8"));
+  const lower = (t) => t.toLowerCase();
+  const distinct = (p) => p.name.length >= 8 && !projects.some((q) => q !== p && lower(q.name).includes(lower(p.name)));
+  const pick = (test) => projects.find((p) => test(p) && distinct(p));
+  const REASON_TEXT = {
+    "assignment:conflict_point_county_vs_source_county": "map location and named county disagree",
+    "assignment:approximate_without_source_county": "Approximate location with no county named",
+    "status:cancelled": "Canceled",
+    "confidence:rumored": "Only rumored",
+  };
+  const here = pick((p) => p.group === "pipeline" && p.county_geoid === meta.default_geoid);
+  const operating = pick((p) => p.group === "operational");
+  const excluded = Object.keys(REASON_TEXT).map((r) => pick((p) => p.reason === r)).find(Boolean);
+  const resultFor = async (name) => {
+    await find.fill(name);
+    await page.waitForFunction((n) => [...document.querySelectorAll(".find-results li")].some((li) => li.textContent.includes(n)), name);
+    return page.$$eval(".find-results li", (lis, n) => lis.find((li) => li.textContent.includes(n)).textContent, name);
+  };
+  check("find: counted here", Boolean(here) && (await resultFor(here.name)).includes("Counted here"), here?.name);
+  check("find: operating shown as context", Boolean(operating) && (await resultFor(operating.name)).includes("Operating"), operating?.name);
+  const exText = excluded ? await resultFor(excluded.name) : "";
+  check("find: excluded project explains why", exText.includes("Not counted") && exText.includes(REASON_TEXT[excluded?.reason]),
+    `${excluded?.name}: ${excluded?.reason}`);
   check("report link points to Compute Atlas", (await page.getAttribute(".find-foot a", "href")) === "https://www.compute-atlas.com/contribute");
-  await page.locator(".find-results li", { hasText: "Prometheus Hyperscale Falls Ranch Data Center Campus" }).getByRole("button", { name: /^Compare/ }).click();
+  const elsewhere = pick((p) => p.group === "pipeline" && p.county_geoid && p.county_geoid !== meta.default_geoid);
+  await resultFor(elsewhere.name);
+  await page.locator(".find-results li", { hasText: elsewhere.name }).getByRole("button", { name: /^Compare/ }).click();
   await page.waitForTimeout(500);
-  check("find: counted elsewhere switches to that county", page.url().includes("c/56009/"), page.url());
+  check("find: counted elsewhere switches to that county", page.url().includes(`c/${elsewhere.county_geoid}/`), `${elsewhere.name} → ${page.url()}`);
 
   // Print layout: the summary, without search, map or menus.
   await page.emulateMedia({ media: "print" });
