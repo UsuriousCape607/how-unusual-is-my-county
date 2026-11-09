@@ -165,6 +165,15 @@
   - **Table:** the similar-counties table sorts by any column, with `aria-sort` and "Sort by most similar" to reset;
     the CSV gains `median_household_income_acs5`. Seven new strings in all 22 languages. The county column is pinned
     on phones. The CI Census cache now includes the ACS file (key bumped).
+- Deploy timeouts (2026-11-09). The review-round commit d78f68f built and tested green, but `actions/deploy-pages` timed
+  out twice. Every 5 s poll returned HTTP 200 with an empty `status` (the action prints `Current status: ` + status).
+  So the Pages deployment was created but never picked up by GitHub's backend. A healthy deploy shows
+  `syncing_files` and then success within ~10 s (e.g. 2026-10-29). It was not our content: bad artifacts fail fast
+  with `deployment_content_failed`. Others reported the same empty-status pattern during GitHub's early-November
+  Pages incidents.
+  - The deployment ID is the commit SHA, so re-running the same run can reattach to the stuck deployment. Recover
+    with a new commit.
+  - The deploy step now waits up to 20 min.
 
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.

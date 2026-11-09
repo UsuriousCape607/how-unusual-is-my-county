@@ -170,5 +170,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # Normal deploys finish in ~10 s. During GitHub Pages incidents a deployment can sit with an empty status
+      # (created but not yet picked up) for many minutes, so wait up to 20 instead of the default 10 before failing.
+      # A timed-out deploy is retried best with a new commit: the deployment ID is the commit SHA, and re-running
+      # the same run can reattach to the stuck deployment.
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          timeout: 1200000
