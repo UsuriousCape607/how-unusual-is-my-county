@@ -239,6 +239,9 @@ const pdc: Translation = {
   findFoot: "Weescht du vun me Projekt, wu fehlt odder letz is? <a>Meld's an Compute Atlas</a>, die Quell vun dere Webseit.",
 
   peersTitle: "Die 40 ehnliche Kaundis, die ehnlichscht zerscht",
+  peersTitleSorted: "Die 40 ehnliche Kaundis",
+  sortedBy: (column) => `Sottiert nooch ${column}.`,
+  sortReset: "Nooch ehnlichscht sottiere",
   peersRange: (p0, p1, d0, d1) =>
     `Sie hen vun ${p0} bis ${p1} Leit un vun ${d0} bis ${d1} Leit pro Quadraatmeil. Wehl en Naame fer seller Kaundi zu vergleiche.`,
   col: {
@@ -247,10 +250,15 @@ const pdc: Translation = {
     state: "Schtaat",
     population: "Leit (2025)",
     density: "Leit pro Quadraatmeil",
+    income: "Median-Eikumme pro Haus",
     sites: (date) => `Bletz am Kumme (${date})`,
   },
   showFewer: (n) => `Yuscht die ${n} ehnlichschte weise`,
   showAll: (n) => `All ${n} ehnliche Kaundis weise`,
+  incomeNote: (period, year) =>
+    `Median-Eikumme pro Haus: US Census Bureau, American Community Survey, Fimf-Yaahr-Schetzinge fer ${period}, in Dollar vun ${year}. Yuscht fer Context gewisse; mer nemme's net fer die ehnliche Kaundis aussuche.`,
+  incomeNA: "ken",
+  incomeNATitle: "Net do: der Census Bureau hot zu wennich Antwadde katt fer's zu schetze",
 
   summaryTitle: "Zammefassing",
   aiChip: "Vun AI gschriwwe · vorher gmacht un nochgeguckt",

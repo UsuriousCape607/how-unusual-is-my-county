@@ -37,6 +37,9 @@
     "assignment:ambiguous_source_county_name": 2,
     "assignment:point_outside_county_polygons": 1
   },
+  "headline_excluded_total": 1529,
+  "headline_excluded_by_filters": 1500,
+  "headline_excluded_by_assignment": 29,
   "pipeline_candidates_before_assignment": 828,
   "pipeline_candidates_by_precision": {
     "approximate": 572,

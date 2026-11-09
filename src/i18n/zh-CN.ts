@@ -217,6 +217,9 @@ const zhCN: Translation = {
   findFoot: "知道有遗漏或错误的项目？<a>向 Compute Atlas 报告</a>，它是本网站使用的数据来源。",
 
   peersTitle: "40 个相似县（按相似度排序）",
+  peersTitleSorted: "40 个相似县",
+  sortedBy: (column) => `按${column}排序。`,
+  sortReset: "按相似程度排序",
   peersRange: (p0, p1, d0, d1) => `人口在 ${p0} 至 ${p1} 之间，人口密度在每平方英里 ${d0} 至 ${d1} 人之间。点击名称即可改为比较该县。`,
   col: {
     rank: "排名",
@@ -224,10 +227,15 @@ const zhCN: Translation = {
     state: "州",
     population: "人口（2025）",
     density: "每平方英里人数",
+    income: "家庭收入中位数",
     sites: (date) => `开发中项目（${date}）`,
   },
   showFewer: (n) => `只显示最相似的 ${n} 个`,
   showAll: (n) => `显示全部 ${n} 个相似县`,
+  incomeNote: (period, year) =>
+    `家庭收入中位数：美国人口普查局美国社区调查（ACS）${period} 五年估计值，按 ${year} 年美元计。仅供参考，不用于挑选相似县。`,
+  incomeNA: "无数据",
+  incomeNATitle: "无数据：人口普查局收到的调查回复太少，无法估计",
 
   summaryTitle: "摘要",
   aiChip: "AI 撰写的说明 · 预先生成并经核查",

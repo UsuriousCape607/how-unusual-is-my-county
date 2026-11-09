@@ -80,6 +80,22 @@ def run_checks(d) -> dict[str, tuple[bool, str]]:
     qc = d["metadata"]["facility_qc"]
     n_pipe = sum(1 for f in fac if f["metric"] == "pipeline")
     res["headline_total_matches_qc"] = (n_pipe == qc["headline_included"] == sum(m["pipeline_count"] for m in metrics), f"{n_pipe}")
+    # Median household income: every county has an ACS value or a recorded Census annotation code, never a filled-in one.
+    na = d["metadata"]["census"]["income"]["not_available"]
+    nulls = {m["geoid"] for m in metrics if m.get("median_household_income") is None}
+    res["income_complete_or_annotated"] = (
+        all("median_household_income" in m for m in metrics) and nulls == set(na)
+        and all(m["median_household_income"] > 0 for m in metrics if m["geoid"] not in nulls),
+        f"{len(metrics) - len(nulls)} with an estimate; not available: {sorted(nulls)}")
+    # The methodology's "not counted" table: its rows, subtotals and total must add up against the counts beside it.
+    ex = qc["headline_exclusions_by_reason"]
+    f_sum = sum(v for k, v in ex.items() if not k.startswith("assignment:"))
+    a_sum = sum(v for k, v in ex.items() if k.startswith("assignment:"))
+    res["exclusion_table_reconciles"] = (
+        f_sum == qc["headline_excluded_by_filters"] == qc["total_records"] - qc["pipeline_candidates_before_assignment"]
+        and a_sum == qc["headline_excluded_by_assignment"] == qc["pipeline_candidates_before_assignment"] - qc["headline_included"]
+        and f_sum + a_sum == qc["headline_excluded_total"] == qc["total_records"] - qc["headline_included"],
+        f"filters {f_sum} + county assignment {a_sum} = {f_sum + a_sum} not counted")
 
     p = d["processed"]
     cand = p[(p["facility_type"] == FACILITY_TYPE) & p["status"].isin(PIPELINE_STATUSES) & p["confidence"].isin(ACCEPTED_CONFIDENCE)]

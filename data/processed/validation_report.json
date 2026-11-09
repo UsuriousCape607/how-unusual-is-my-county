@@ -51,6 +51,14 @@
     "pass": true,
     "detail": "799"
   },
+  "income_complete_or_annotated": {
+    "pass": true,
+    "detail": "3143 with an estimate; not available: ['35011']"
+  },
+  "exclusion_table_reconciles": {
+    "pass": true,
+    "detail": "filters 1500 + county assignment 29 = 1529 not counted"
+  },
   "pipeline_candidates_included_or_explained": {
     "pass": true,
     "detail": ""

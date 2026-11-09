@@ -230,6 +230,9 @@ const azLatn: Translation = {
   findFoot: "Çatışmayan və ya səhv layihə bilirsiniz? Bu saytın mənbəyi olan <a>Compute Atlas-a bildirin</a>.",
 
   peersTitle: "40 oxşar qraflıq (ən oxşardan başlayaraq)",
+  peersTitleSorted: "40 oxşar qraflıq",
+  sortedBy: (column) => `Sıralama: ${column}.`,
+  sortReset: "Oxşarlığa görə sırala",
   peersRange: (p0, p1, d0, d1) =>
     `Əhali sayı ${p0} ilə ${p1} arasında, sıxlıq isə kv. mil üzrə ${d0} ilə ${d1} nəfər arasındadır. Həmin qraflığı müqayisə etmək üçün ad seçin.`,
   col: {
@@ -238,10 +241,15 @@ const azLatn: Translation = {
     state: "Ştat",
     population: "Əhali (2025)",
     density: "Kv. mil üzrə nəfər",
+    income: "Ev təsərrüfatının median gəliri",
     sites: (date) => `İnkişaf mərhələsindəki obyektlər (${date})`,
   },
   showFewer: (n) => `Yalnız ən oxşar ${n} qraflığı göstər`,
   showAll: (n) => `Bütün ${n} oxşar qraflığı göstər`,
+  incomeNote: (period, year) =>
+    `Ev təsərrüfatının median gəliri: ABŞ Siyahıyaalma Bürosu, Amerika İcma Sorğusu (ACS), ${period} üzrə beşillik qiymətləndirmələr, dollarla, ${year} qiymətləri ilə. Yalnız məlumat üçün göstərilir; oxşar qraflıqları seçmək üçün istifadə olunmur.`,
+  incomeNA: "yoxdur",
+  incomeNATitle: "Məlumat yoxdur: Siyahıyaalma Bürosu qiymətləndirmə üçün kifayət qədər cavab almayıb",
 
   summaryTitle: "Xülasə",
   aiChip: "Süni intellektin yazdığı izah · əvvəlcədən hazırlanıb və yoxlanılıb",

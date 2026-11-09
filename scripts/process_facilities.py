@@ -237,6 +237,10 @@ def main() -> int:
                    & df["confidence"].isin(ACCEPTED_CONFIDENCE)]
     pipe = df[df["metric_group"] == "pipeline"]
     oper = df[df["metric_group"] == "operational"]
+    # Every record not counted has one first reason: either it failed the type/status/confidence filters, or it passed
+    # them and could not be placed in one county ("assignment:*"). The subtotals let the methodology table reconcile.
+    excluded = df.loc[df["metric_group"] != "pipeline", "exclusion_reason"]
+    by_assignment = excluded.str.startswith("assignment:")
     dup_coords = pipe[pipe["location_precision"] == "exact"].groupby(
         [pipe["latitude"].round(4), pipe["longitude"].round(4)]).size()
     qc = {
@@ -246,7 +250,10 @@ def main() -> int:
         "records_by_confidence": df["confidence"].value_counts().to_dict(),
         "records_by_precision": df["location_precision"].value_counts().to_dict(),
         "headline_included": int(len(pipe)),
-        "headline_exclusions_by_reason": df.loc[df["metric_group"] != "pipeline", "exclusion_reason"].value_counts().to_dict(),
+        "headline_exclusions_by_reason": excluded.value_counts().to_dict(),
+        "headline_excluded_total": int(len(excluded)),
+        "headline_excluded_by_filters": int((~by_assignment).sum()),
+        "headline_excluded_by_assignment": int(by_assignment.sum()),
         "pipeline_candidates_before_assignment": int(len(pipe_cand)),
         "pipeline_candidates_by_precision": pipe_cand["location_precision"].value_counts().to_dict(),
         "pipeline_assignment_methods": pipe["assignment_method"].value_counts().to_dict(),

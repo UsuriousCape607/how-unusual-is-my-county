@@ -217,6 +217,9 @@ const ja: Translation = {
   findFoot: "抜けている案件や誤りをご存じですか？このサイトの出典である <a>Compute Atlas に報告</a>してください。",
 
   peersTitle: "類似する 40 郡（似ている順）",
+  peersTitleSorted: "類似する 40 郡",
+  sortedBy: (column) => `${column}の順に並べ替えています。`,
+  sortReset: "類似度順に並べ替え",
   peersRange: (p0, p1, d0, d1) => `人口は ${p0}～${p1} 人、人口密度は 1 平方マイルあたり ${d0}～${d1} 人です。名前を選ぶと、その郡で比較します。`,
   col: {
     rank: "順位",
@@ -224,10 +227,15 @@ const ja: Translation = {
     state: "州",
     population: "人口（2025）",
     density: "1 平方マイルあたりの人口",
+    income: "世帯所得の中央値",
     sites: (date) => `開発中の案件（${date}）`,
   },
   showFewer: (n) => `最も似ている ${n} 郡だけを表示`,
   showAll: (n) => `類似する ${n} 郡をすべて表示`,
+  incomeNote: (period, year) =>
+    `世帯所得の中央値：米国国勢調査局「アメリカン・コミュニティ・サーベイ」${period}年の5年推計値（${year}年ドル換算）。参考として表示しているだけで、類似する郡の選定には使っていません。`,
+  incomeNA: "なし",
+  incomeNATitle: "データなし：回答数が少なく、国勢調査局が推計できませんでした",
 
   summaryTitle: "概要",
   aiChip: "AI が書いた説明 · 事前に生成し検証済み",

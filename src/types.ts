@@ -14,6 +14,9 @@ export interface CountyMetric {
   pipeline_by_status?: { proposed: number; permitted: number; under_construction: number }; // added after v1; optional so older data degrades
   z_ln_population?: number;
   z_ln_density?: number;
+  /** ACS 5-year median household income (context only; never used to choose similar counties). null: Census could not estimate it. */
+  median_household_income?: number | null;
+  median_household_income_moe?: number | null;
 }
 
 export interface PeerRecord {
@@ -98,7 +101,14 @@ export interface Metadata {
     attribution: string;
     transformations: string;
   };
-  census: Record<string, string>;
+  census: {
+    population: string;
+    land_area: string;
+    boundaries: string;
+    license: string;
+    /** Median household income (ACS 5-year); absent in data built before it was added. */
+    income?: { description: string; period: string; dollars_year: number; table: string; use: string; not_available: Record<string, number> };
+  };
   geographic_scope: string;
   filters: { facility_type: string; pipeline_statuses: string[]; operational_status: string; confidence: string[] };
   peer_method: { n_peers: number; distance_method: string; description: string; standardization: Record<string, number> };
@@ -109,6 +119,10 @@ export interface Metadata {
     headline_included: number;
     pipeline_candidates_before_assignment: number;
     headline_exclusions_by_reason: Record<string, number>;
+    /** Records not counted: all of them, those failing the type/status/confidence filters, those with no single county. */
+    headline_excluded_total: number;
+    headline_excluded_by_filters: number;
+    headline_excluded_by_assignment: number;
     pipeline_assignment_methods: Record<string, number>;
     pipeline_assignment_failures: Record<string, number>;
     pipeline_included_by_precision: Record<string, number>;

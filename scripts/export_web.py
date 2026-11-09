@@ -21,7 +21,7 @@ from shapely.affinity import translate
 from shapely.geometry import MultiLineString, MultiPolygon, Polygon, mapping
 
 from common import (
-    ACCEPTED_CONFIDENCE, CENSUS_VINTAGE, COMPUTE_ATLAS_BASE, COMPUTE_ATLAS_TAG, DISTANCE_METHOD, FACILITY_TYPE, N_PEERS, OPERATIONAL_STATUS,
+    ACCEPTED_CONFIDENCE, ACS_INCOME_TABLE, ACS_PERIOD, ACS_VINTAGE, CENSUS_VINTAGE, COMPUTE_ATLAS_BASE, COMPUTE_ATLAS_TAG, DISTANCE_METHOD, FACILITY_TYPE, N_PEERS, OPERATIONAL_STATUS,
     POP_COLUMN, POP_REFERENCE_DATE,
     PIPELINE_STATUSES, PROCESSED, PUBLIC_DATA, RAW, SOURCES, data_version, read_json, write_json,
 )
@@ -113,6 +113,9 @@ def main() -> int:
         if f["metric"] == "pipeline":
             s = by_status.setdefault(f["county_geoid"], {k: 0 for k in PIPELINE_STATUSES})
             s[f["status"]] += 1
+    # Median household income: context only, joined here after the peers were chosen without it.
+    income = pd.read_csv(PROCESSED / "county_income.csv", dtype={"geoid": str}).set_index("geoid")
+    qc_income = read_json(PROCESSED / "qc_income.json")
     metrics = []
     for r in m.itertuples():
         rec = {
@@ -122,6 +125,10 @@ def main() -> int:
             "pipeline_count": int(r.pipeline_count), "operational_count": int(r.operational_count),
             "eligible": bool(r.eligible),
             "pipeline_by_status": by_status.get(r.geoid, {k: 0 for k in PIPELINE_STATUSES}),
+            "median_household_income": (None if pd.isna(income.at[r.geoid, "median_household_income"])
+                                        else int(income.at[r.geoid, "median_household_income"])),
+            "median_household_income_moe": (None if pd.isna(income.at[r.geoid, "median_household_income_moe"])
+                                            else int(income.at[r.geoid, "median_household_income_moe"])),
         }
         if bool(r.eligible):
             rec["z_ln_population"] = round(float(r.z_ln_population), 4)
@@ -205,6 +212,15 @@ def main() -> int:
             "boundaries": f"{CENSUS_VINTAGE} cartographic boundary file cb_{CENSUS_VINTAGE}_us_county_500k "
                           "(NAD83, reprojected to WGS84)",
             "license": "U.S. Census Bureau data are public domain",
+            "income": {
+                "description": f"Median household income in the past 12 months (in {ACS_VINTAGE} inflation-adjusted "
+                               f"dollars), American Community Survey {ACS_PERIOD} 5-year estimates, table {ACS_INCOME_TABLE}",
+                "period": ACS_PERIOD,
+                "dollars_year": ACS_VINTAGE,
+                "table": ACS_INCOME_TABLE,
+                "use": "Shown for context beside the similar counties and sortable; never used to choose them.",
+                "not_available": qc_income["not_available"],
+            },
         },
         "geographic_scope": "Counties and county equivalents in the 50 states and the District of Columbia. "
                             "Puerto Rico and other territories are excluded in this version.",

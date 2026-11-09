@@ -6,7 +6,7 @@
 The full build spec lives outside the repo; this file and METHODOLOGY.md capture the settled decisions.
 
 ## Architecture
-`scripts/download_data.py → prepare_counties.py → process_facilities.py → calculate_peers.py → export_web.py → validate_data.py`
+`scripts/download_data.py → prepare_counties.py → prepare_income.py → process_facilities.py → calculate_peers.py → export_web.py → validate_data.py`
 (run all with `python scripts/build_all.py`). Python computes every statistic and writes static JSON/GeoJSON to
 `public/data/`. The React + TypeScript + Vite frontend (`src/`, Leaflet + Recharts) only reads and displays it.
 There is no backend, database, auth, paid tiles, or live LLM.
@@ -35,6 +35,12 @@ writes `c/<GEOID>/` pages and 1200×630 `og/<GEOID>.png` cards with headless Chr
   40 nearest, self excluded, ties broken by GEOID ascending. The data-center count is never used for matching.
 - Census vintage is set once (`CENSUS_VINTAGE` in `scripts/common.py`); URLs, the required population column and the
   dates shown on the site derive from it. Changing it is a deliberate, manual step (re-verify schemas).
+- Median household income (owner request 2026-11-09): ACS 5-year table B19013, pinned by `ACS_VINTAGE` (2024 = 2020–2024)
+  in `scripts/common.py`, from the static summary file on www2.census.gov (the Census API now needs a key). Context
+  only: shown in and sortable in the similar-counties table and CSV. Only `export_web.py` reads `county_income.csv`, after
+  peers are chosen, so it never affects matching. Census annotation codes stay null ("n/a"), never filled in.
+- Methodology is collapsed by default (owner request after review, 2026-11-09). It opens from links to `#methodology`
+  and find-in-page. The "not counted" table shows subtotals and a total that `validate_data.py` reconciles.
 - Data dates must be unmissable: the "Data as of" banner (`DataFreshness.tsx`) under the header, as-of dates next to
   every count, a Data dates table in Methodology, and a neutral notice when the snapshot is > 45 days old.
 - No live fetching in the browser. Owner-approved post-MVP extension (2026-10-26): a scheduled GitHub Actions rebuild
@@ -49,7 +55,8 @@ writes `c/<GEOID>/` pages and 1200×630 `og/<GEOID>.png` cards with headless Chr
 to main, deploy to GitHub Pages. Push to main = test + deploy committed data. Census files are cached in Actions.
 
 ## Environment gotchas
-- Cloud sessions may block `www2.census.gov`; `download_data.py` fails loudly rather than substituting data.
+- Cloud sessions may block `www2.census.gov`; `download_data.py` fails loudly rather than substituting data. (The owner's
+  "fff" environment allows it since 2026-11-09.) `api.census.gov` requires an API key in the URL; use the www2 files.
 - GitHub `raw.githubusercontent.com` worked; `github.com`/`api.github.com` did not. The session can push but cannot
   change repository settings (visibility, Pages); the owner does those.
 

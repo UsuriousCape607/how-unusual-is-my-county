@@ -231,6 +231,9 @@ const es: Translation = {
   findFoot: "¿Sabes de un proyecto que falta o tiene errores? <a>Repórtalo a Compute Atlas</a>, la fuente que usa este sitio.",
 
   peersTitle: "Los 40 condados similares, del más al menos parecido",
+  peersTitleSorted: "Los 40 condados similares",
+  sortedBy: (column) => `Ordenado por ${column}.`,
+  sortReset: "Ordenar por más similar",
   peersRange: (p0, p1, d0, d1) =>
     `Van de ${p0} a ${p1} habitantes y de ${d0} a ${d1} habitantes por mi². Selecciona un nombre para comparar ese condado.`,
   col: {
@@ -239,10 +242,15 @@ const es: Translation = {
     state: "Estado",
     population: "Población (2025)",
     density: "Habitantes por mi²",
+    income: "Ingreso mediano del hogar",
     sites: (date) => `Sitios en desarrollo (${date})`,
   },
   showFewer: (n) => `Mostrar solo los ${n} más similares`,
   showAll: (n) => `Mostrar los ${n} condados similares`,
+  incomeNote: (period, year) =>
+    `Ingreso mediano del hogar: Oficina del Censo de EE. UU., estimaciones de 5 años de la Encuesta sobre la Comunidad Estadounidense ${period}, en dólares de ${year}. Se muestra solo como contexto; no se usa para elegir los condados similares.`,
+  incomeNA: "n/d",
+  incomeNATitle: "No disponible: la Oficina del Censo no tuvo suficientes respuestas para estimarlo",
 
   summaryTitle: "Resumen",
   aiChip: "Explicación escrita por IA · generada de antemano y verificada",

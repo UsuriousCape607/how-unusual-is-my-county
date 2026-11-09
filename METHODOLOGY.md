@@ -60,7 +60,7 @@ incomplete.
 3. **Approximate coordinates:** assigned only when source county + state resolve to exactly one GEOID. The
    representative point is never used to choose a county. Its agreement with the named county is recorded
    for review only (`approx_point_in_named_county` / `approx_point_outside_named_county`). Ambiguous names
-   (e.g. a bare "Fairfax" in Virginia, which matches two county equivalents) and unrecognised names are
+   (e.g. a bare "Fairfax" in Virginia, which matches two county equivalents) and unrecognized names are
    excluded and logged.
 4. `representative_multi_site` records, and any record with a `multiSite` block, are excluded.
 5. Every processed record keeps `assignment_method` and `location_precision`
@@ -80,7 +80,7 @@ zPop_i = (x_i − mean(x)) / sd(x)    zDensity_i = (y_i − mean(y)) / sd(y)
 - `distance(A, B) = sqrt((zPop_A − zPop_B)² + (zDensity_A − zDensity_B)²)`
 - Peers are the **40** counties with the smallest distance. The county itself is excluded, and exact distance
   ties are broken by GEOID ascending (a stable sort over GEOID-ordered rows).
-- The data-center count is never used to select peers.
+- The data-center count is never used to select peers, and neither is income (§ 8).
 
 ## 5. Reported statistics (per county)
 Selected count; peer median; peer mean; number of peers with fewer, equal and more records
@@ -106,3 +106,19 @@ these checks; see `TEST_RESULTS.md`.
   water, tax policy or zoning. The comparison shows how unusual a count is among demographically similar
   counties. It does not show why, whether it matters, or any environmental, economic or political effect.
 - **Population estimates** are model-based Census estimates.
+
+## 8. Context: median household income
+- **Source:** American Community Survey 2020–2024 5-year estimates, table B19013, "Median household income in the
+  past 12 months (in 2024 inflation-adjusted dollars)". It comes from the official table-based summary file
+  `acsdt5y2024-b19013.dat`, pinned by `ACS_VINTAGE` in `scripts/common.py`. It is the latest county-level release
+  (the 2021–2025 estimates are due in December 2026).
+- **Use:** shown beside the similar counties, sortable in that table, and included in the similar-counties CSV.
+  `scripts/prepare_income.py` writes it to `data/processed/county_income.csv`. Only `export_web.py` reads that
+  file, after the peers are chosen, so income cannot affect matching. `validate_data.py` recomputes the peers
+  independently of it.
+- **Missing values:** when the Census Bureau publishes an annotation code instead of an estimate, the county shows
+  "n/a"; nothing is filled in. In this release that applies only to De Baca County, NM (35011), code −666666666:
+  too few sample observations.
+- **Timing:** the income figures describe 2020–2024 and the population figures July 1, 2025. Both are labelled with
+  their own dates.
+

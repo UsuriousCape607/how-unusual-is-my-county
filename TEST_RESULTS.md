@@ -1,16 +1,16 @@
 # Test results
 
-Run on 2026-10-27 against data version `compute-atlas-v1.34.1-asof-2026-10-02_census-v2025`.
+Run on 2026-11-09 against data version `compute-atlas-v1.34.1-asof-2026-10-02_census-v2025`.
 
 | Suite | Command | Result |
 |---|---|---|
 | Python logic + input-schema + output checks | `python -m pytest -q` | **35 passed** |
-| Data & comparison validation | `python scripts/validate_data.py` | **26/26 passed** |
+| Data & comparison validation | `python scripts/validate_data.py` | **28/28 passed** |
 | AI explanation checks | `python scripts/build_ai_examples.py check` | **3/3 passed** |
 | Frontend unit tests (incl. translations) | `npm test` | **35 passed** |
 | Type check + production build | `npm run build` | **passes** |
-| End-to-end (Playwright, Chromium, desktop + 390 px mobile) | `npm run test:e2e` | **90/90 passed** (`docs/e2e-results.json`) |
-| Translation coverage (22 languages) | `npm test` (coverage test) | **212/212 messages in each of the 21 translations** |
+| End-to-end (Playwright, Chromium, desktop + 390 px mobile) | `npm run test:e2e` | **100/100 passed** (`docs/e2e-results.json`) |
+| Translation coverage (22 languages) | `npm test` (coverage test) | **219/219 messages in each of the 21 translations** |
 
 ## What is covered (spec section 12)
 **Data:** 5-digit GEOIDs with leading zeros (e.g. `01001`); no duplicate or invalid keys; valid population and land
@@ -70,6 +70,16 @@ sentence is used; limitations are present; the inputs match the current data (st
     - English output is unchanged, and the English Methodology formats numbers and dates in English.
 - The chart shows 40 peer dots; the summary breakdown, facility list and legend counts match the data.
 - The peer table expands from 10 to 40 rows, and selecting a peer refocuses the app.
+- Review-round changes (FEEDBACK.md):
+  - The similar-counties table sorts by median household income, highest first, then lowest first on a second
+    click. "Sort by most similar" restores rank order. The CSV carries the income column.
+  - With the map on "All counties", picking a similar county switches it to "Similar counties".
+  - Methodology starts collapsed and the header link opens it.
+  - The "not counted" table adds up on the page: each group's rows equal its subtotal, and the subtotals equal the
+    total of records minus counted records.
+  - `validate_data.py` adds `income_complete_or_annotated` (every county has an ACS value or a recorded Census
+    annotation code) and `exclusion_table_reconciles`. The peers still match the independent recomputation, since
+    income is not used for matching.
 - Zero-count wording appears and "has no proposed data centers" never does.
 - Share URLs, browser Back, an invalid GEOID and a data-load failure all behave sensibly.
 - Refresh after a deploy: data requests carry the build ID; old-shaped cached data still renders; a render crash

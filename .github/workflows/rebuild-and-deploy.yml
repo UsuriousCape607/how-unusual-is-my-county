@@ -64,6 +64,7 @@ jobs:
           echo "event=$EVENT new_release=$NEW_RELEASE force=$FORCE -> refresh=$refresh deploy=$deploy"
 
       # Census files change once a year; keep them between runs instead of re-downloading weekly.
+      # Bump the key when a Census input is added or its vintage moves (scripts/common.py).
       - name: Restore Census source files
         if: steps.plan.outputs.refresh == 'true'
         uses: actions/cache@v4
@@ -72,7 +73,8 @@ jobs:
             data/raw/co-est2025-alldata.csv
             data/raw/2025_Gaz_counties_national.zip
             data/raw/cb_2025_us_county_500k.zip
-          key: census-vintage-2025-v1
+            data/raw/acsdt5y2024-b19013.dat
+          key: census-vintage-2025-acs2024-v2
 
       - name: Rebuild data (download, verify, assign, compare, validate)
         if: steps.plan.outputs.refresh == 'true'

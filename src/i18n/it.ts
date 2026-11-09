@@ -231,6 +231,9 @@ const it: Translation = {
   findFoot: "Conosci un progetto mancante o errato? <a>Segnalalo a Compute Atlas</a>, la fonte usata da questo sito.",
 
   peersTitle: "Le 40 contee simili, dalla più simile",
+  peersTitleSorted: "Le 40 contee simili",
+  sortedBy: (column) => `Ordinate per ${column}.`,
+  sortReset: "Ordina per somiglianza",
   peersRange: (p0, p1, d0, d1) =>
     `Vanno da ${p0} a ${p1} abitanti e da ${d0} a ${d1} abitanti per mi². Seleziona un nome per confrontare quella contea.`,
   col: {
@@ -239,10 +242,15 @@ const it: Translation = {
     state: "Stato",
     population: "Popolazione (2025)",
     density: "Abitanti per mi²",
+    income: "Reddito familiare mediano",
     sites: (date) => `Siti in sviluppo (${date})`,
   },
   showFewer: (n) => `Mostra solo le ${n} più simili`,
   showAll: (n) => `Mostra tutte le ${n} contee simili`,
+  incomeNote: (period, year) =>
+    `Reddito familiare mediano: U.S. Census Bureau, American Community Survey, stime quinquennali ${period}, in dollari del ${year}. Mostrato solo come contesto; non viene usato per scegliere le contee simili.`,
+  incomeNA: "n.d.",
+  incomeNATitle: "Non disponibile: il Census Bureau ha ricevuto troppe poche risposte per stimarlo",
 
   summaryTitle: "Riepilogo",
   aiChip: "Spiegazione scritta dall’IA · generata in anticipo e verificata",

@@ -24,6 +24,13 @@ CENSUS_VINTAGE = 2025
 POP_COLUMN = f"POPESTIMATE{CENSUS_VINTAGE}"
 POP_REFERENCE_DATE = f"{CENSUS_VINTAGE}-07-01"  # Census estimates refer to July 1
 
+# Median household income is context only: shown beside the similar counties, never used to choose them (no step that
+# matches counties reads it). ACS 5-year estimates come out each December; this pins the latest release available
+# (2020–2024, in 2024 inflation-adjusted dollars). Moving it is a deliberate step, like CENSUS_VINTAGE.
+ACS_VINTAGE = 2024
+ACS_PERIOD = f"{ACS_VINTAGE - 4}–{ACS_VINTAGE}"
+ACS_INCOME_TABLE = "B19013"  # Median household income in the past 12 months
+
 SOURCES = {
     "compute_atlas_facilities": {
         "url": f"{COMPUTE_ATLAS_BASE}/data/facilities.json",
@@ -50,6 +57,12 @@ SOURCES = {
     "census_cb_counties_2025": {
         "url": f"https://www2.census.gov/geo/tiger/GENZ{CENSUS_VINTAGE}/shp/cb_{CENSUS_VINTAGE}_us_county_500k.zip",
         "file": f"cb_{CENSUS_VINTAGE}_us_county_500k.zip",
+    },
+    # ACS table-based summary file: one pipe-delimited table for every geography (no API key needed).
+    "census_acs5_income": {
+        "url": f"https://www2.census.gov/programs-surveys/acs/summary_file/{ACS_VINTAGE}/table-based-SF/data/5YRData/"
+               f"acsdt5y{ACS_VINTAGE}-{ACS_INCOME_TABLE.lower()}.dat",
+        "file": f"acsdt5y{ACS_VINTAGE}-{ACS_INCOME_TABLE.lower()}.dat",
     },
 }
 

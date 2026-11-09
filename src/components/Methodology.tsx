@@ -1,4 +1,5 @@
-import type { Metadata } from "../types";
+import { useEffect, useRef } from "react";
+import type { CountyMetric, Metadata } from "../types";
 import { fmtDate, fmtInt } from "../lib/format";
 import { asEnglish } from "../i18n/state";
 import { Rich, linkUrls } from "../i18n/Rich";
@@ -33,122 +34,209 @@ function Table({ rows, caption }: { rows: [string, number][]; caption: string })
   );
 }
 
-export default function Methodology({ metadata }: { metadata: Metadata }) {
+/**
+ * Records not counted, grouped so the table reconciles at a glance: the filter failures add up to the records minus the
+ * candidates, the county-assignment failures to the candidates minus the counted records, and both to the total.
+ * Every figure here comes from the pipeline's QC (validate_data.py checks they add up).
+ */
+function ExclusionTable({ qc }: { qc: Metadata["facility_qc"] }) {
+  const rows = (assignment: boolean) =>
+    Object.entries(qc.headline_exclusions_by_reason)
+      .filter(([k]) => k.startsWith("assignment:") === assignment)
+      .sort((a, b) => b[1] - a[1])
+      .map(([k, v]) => (
+        <tr key={k} className="detail">
+          <td>{REASON_LABELS[k] ?? k}</td>
+          <td className="num">{enInt(v)}</td>
+        </tr>
+      ));
+  return (
+    <table className="compact reconcile">
+      <caption>Records not in the headline count, by first reason</caption>
+      <tbody>
+        <tr className="subtotal">
+          <th scope="rowgroup">
+            Did not meet the type, status, or confidence filters ({enInt(qc.total_records)} − {enInt(qc.pipeline_candidates_before_assignment)})
+          </th>
+          <td className="num">{enInt(qc.headline_excluded_by_filters)}</td>
+        </tr>
+        {rows(false)}
+      </tbody>
+      <tbody>
+        <tr className="subtotal">
+          <th scope="rowgroup">
+            Met the filters but could not be placed in one county ({enInt(qc.pipeline_candidates_before_assignment)} −{" "}
+            {enInt(qc.headline_included)})
+          </th>
+          <td className="num">{enInt(qc.headline_excluded_by_assignment)}</td>
+        </tr>
+        {rows(true)}
+      </tbody>
+      <tfoot>
+        <tr className="total">
+          <th scope="row">
+            Total not counted ({enInt(qc.total_records)} − {enInt(qc.headline_included)})
+          </th>
+          <td className="num">{enInt(qc.headline_excluded_total)}</td>
+        </tr>
+      </tfoot>
+    </table>
+  );
+}
+
+export default function Methodology({ metadata, byGeoid }: { metadata: Metadata; byGeoid?: Map<string, CountyMetric> }) {
   const { m, lang } = useI18n(); // this section stays in English; translated versions say so
   const qc = metadata.facility_qc;
   const ca = metadata.compute_atlas;
-  const exclusions = Object.entries(qc.headline_exclusions_by_reason)
-    .sort((a, b) => b[1] - a[1])
-    .map(([k, v]) => [REASON_LABELS[k] ?? k, v] as [string, number]);
   const methods = Object.entries(qc.pipeline_assignment_methods).map(([k, v]) => [METHOD_LABELS[k] ?? k, v] as [string, number]);
+  const income = metadata.census.income;
+  const incomeMissing = income
+    ? Object.keys(income.not_available).map((g) => (byGeoid?.get(g) ? `${byGeoid.get(g)!.county_name}, ${byGeoid.get(g)!.state}` : g))
+    : [];
+
+  // Collapsed by default (most visitors never need it); it opens when reached by a link to #methodology (the header link,
+  // "Full methodology and sources") and, in browsers that support it, by find-in-page.
+  const panel = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const openIfTarget = () => {
+      if (window.location.hash === "#methodology" && panel.current) panel.current.open = true;
+    };
+    const onClick = (e: MouseEvent) => {
+      if ((e.target as Element | null)?.closest?.('a[href="#methodology"]') && panel.current) panel.current.open = true;
+    };
+    openIfTarget();
+    window.addEventListener("hashchange", openIfTarget);
+    document.addEventListener("click", onClick, true); // before the browser scrolls, so it lands on the opened section
+    return () => {
+      window.removeEventListener("hashchange", openIfTarget);
+      document.removeEventListener("click", onClick, true);
+    };
+  }, []);
 
   return (
     <section id="methodology" lang="en" className="card methodology" aria-labelledby="method-title">
       {m.methodologyEnglish && <p className="lang-note small" lang={LANGUAGE[lang].html}>{m.methodologyEnglish}</p>}
-      <h2 id="method-title">Methodology, limitations, and sources</h2>
+      <details ref={panel} className="method-panel">
+        <summary className="method-summary">
+          <h2 id="method-title">Methodology, limitations, and sources</h2>
+          <span className="method-hint">How counties are matched, what is counted, data dates, and full source credits</span>
+          <svg viewBox="0 0 14 14" aria-hidden="true" className="method-chevron">
+            <path d="M3 5.5l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </summary>
 
-      <h3>The question</h3>
-      <p>
-        Does a county have more documented data-center development than other U.S. counties with similar populations and population
-        densities? The tool compares counts of documented records. It does not estimate environmental, economic, or political effects.
-      </p>
+        <h3>The question</h3>
+        <p>
+          Does a county have more documented data-center development than other U.S. counties with similar populations and population
+          densities? The tool compares counts of documented records. It does not estimate environmental, economic, or political effects.
+        </p>
 
-      <h3>What is counted</h3>
-      <p>
-        A <strong>qualifying pipeline record</strong> is a Compute Atlas record with facility type <code>{metadata.filters.facility_type}</code>,
-        status {metadata.filters.pipeline_statuses.map((s) => <code key={s}>{s}</code>).reduce((a, b) => <>{a}, {b}</>)}, confidence{" "}
-        {metadata.filters.confidence.map((s) => <code key={s}>{s}</code>).reduce((a, b) => <>{a} or {b}</>)}, and one defensible
-        county. There is no announcement-date filter: the count is the pipeline as documented on {enDate(metadata.snapshot_date)}.
-        A record is a documented site entry, not necessarily a separate building, and the inventory does not capture every project.
-      </p>
-      <p>
-        Of {enInt(qc.total_records)} records in the snapshot, {enInt(qc.pipeline_candidates_before_assignment)} met the type, status,
-        and confidence filters and {enInt(qc.headline_included)} were assigned to a county and counted.{" "}
-        {enInt(metadata.counties.with_pipeline_records)} of {enInt(metadata.counties.eligible)} counties have at least one.
-      </p>
-      <div className="tables">
-        <Table caption="Records not in the headline count, by first reason" rows={exclusions} />
-        <Table caption="How counted records were assigned to counties" rows={methods} />
-      </div>
+        <h3>What is counted</h3>
+        <p>
+          A <strong>qualifying pipeline record</strong> is a Compute Atlas record with facility type <code>{metadata.filters.facility_type}</code>,
+          status {metadata.filters.pipeline_statuses.map((s) => <code key={s}>{s}</code>).reduce((a, b) => <>{a}, {b}</>)}, confidence{" "}
+          {metadata.filters.confidence.map((s) => <code key={s}>{s}</code>).reduce((a, b) => <>{a} or {b}</>)}, and one defensible
+          county. There is no announcement-date filter: the count is the pipeline as documented on {enDate(metadata.snapshot_date)}.
+          A record is a documented site entry, not necessarily a separate building, and the inventory does not capture every project.
+        </p>
+        <p>
+          Of {enInt(qc.total_records)} records in the snapshot, {enInt(qc.pipeline_candidates_before_assignment)} met the type, status,
+          and confidence filters and {enInt(qc.headline_included)} were assigned to a county and counted.{" "}
+          {enInt(metadata.counties.with_pipeline_records)} of {enInt(metadata.counties.eligible)} counties have at least one.
+        </p>
+        <div className="tables">
+          <ExclusionTable qc={qc} />
+          <Table caption="How counted records were assigned to counties" rows={methods} />
+        </div>
 
-      <h3>Assigning records to counties</h3>
-      <ul>
-        <li>Records with exact coordinates are placed in a county by point-in-polygon on the 2025 Census 1:500,000 boundaries, then checked against the county named in the source. Disagreements are excluded and logged for review, not guessed.</li>
-        <li>Records with approximate coordinates are assigned only when the named county and state match exactly one 2025 county. Their map points are representative, so they are drawn as translucent areas, not precise pins.</li>
-        <li>Multi-site aggregates, records without a usable county, and territories are excluded.</li>
-      </ul>
+        <h3>Assigning records to counties</h3>
+        <ul>
+          <li>Records with exact coordinates are placed in a county by point-in-polygon on the 2025 Census 1:500,000 boundaries, then checked against the county named in the source. Disagreements are excluded and logged for review, not guessed.</li>
+          <li>Records with approximate coordinates are assigned only when the named county and state match exactly one 2025 county. Their map points are representative, so they are drawn as translucent areas, not precise pins.</li>
+          <li>Multi-site aggregates, records without a usable county, and territories are excluded.</li>
+        </ul>
 
-      <h3>Choosing the 40 peers</h3>
-      <p>
-        For every county we take the natural log of its 2025 population and of its population density (people per square mile of
-        land; water excluded). Each is converted to a z-score across all {enInt(metadata.counties.eligible)} counties, using the
-        population standard deviation. The peers are the 40 counties at the smallest Euclidean distance:
-      </p>
-      <p className="formula">distance(A, B) = √[(zPop<sub>A</sub> − zPop<sub>B</sub>)² + (zDensity<sub>A</sub> − zDensity<sub>B</sub>)²]</p>
-      <p>
-        A county is never its own peer, exact ties are broken by county code, and the data-center count is never used to choose
-        peers. We report how many similar counties have fewer, the same, and more records, plus their median and mean. The
-        headline restates these counts in words: &ldquo;all&rdquo; means 40 of 40 and &ldquo;most&rdquo; means more than half (21 or more).
-        We do not compute ratios, indexes, or significance tests.
-      </p>
+        <h3>Choosing the 40 peers</h3>
+        <p>
+          For every county we take the natural log of its 2025 population and of its population density (people per square mile of
+          land; water excluded). Each is converted to a z-score across all {enInt(metadata.counties.eligible)} counties, using the
+          population standard deviation. The peers are the 40 counties at the smallest Euclidean distance:
+        </p>
+        <p className="formula">distance(A, B) = √[(zPop<sub>A</sub> − zPop<sub>B</sub>)² + (zDensity<sub>A</sub> − zDensity<sub>B</sub>)²]</p>
+        <p>
+          A county is never its own peer, exact ties are broken by county code, and the data-center count is never used to choose
+          peers. Neither is income: median household income is shown beside the similar counties, and they can be sorted by it, for
+          context only. We report how many similar counties have fewer, the same, and more records, plus their median and mean. The
+          headline restates these counts in words: &ldquo;all&rdquo; means 40 of 40 and &ldquo;most&rdquo; means more than half (21 or more).
+          We do not compute ratios, indexes, or significance tests.
+        </p>
 
-      <h3>Reading the result</h3>
-      <ul>
-        {metadata.caveats.map((c) => (
-          <li key={c}>{c}</li>
-        ))}
-        <li>{metadata.geographic_scope}</li>
-      </ul>
+        <h3>Reading the result</h3>
+        <ul>
+          {metadata.caveats.map((c) => (
+            <li key={c}>{c}</li>
+          ))}
+          <li>{metadata.geographic_scope}</li>
+        </ul>
 
-      <h3>Data dates</h3>
-      <table className="compact dates">
-        <tbody>
-          <tr><td>Facility records (Compute Atlas snapshot {ca.tag})</td><td>as of {enDate(metadata.data_dates.facility_snapshot_as_of)}</td></tr>
-          {metadata.data_dates.facility_file_retrieved_at && (
-            <tr><td>Snapshot file downloaded</td><td>{enDate(metadata.data_dates.facility_file_retrieved_at)}</td></tr>
-          )}
-          <tr><td>Population ({metadata.data_dates.population_vintage})</td><td>{enDate(metadata.data_dates.population_reference_date)}</td></tr>
-          <tr><td>Land area and county boundaries</td><td>{metadata.data_dates.geography_vintage} Census vintage</td></tr>
-          <tr><td>Site data last rebuilt</td><td>{enDate(metadata.data_dates.site_data_built_at)}</td></tr>
-        </tbody>
-      </table>
-      <p className="small">
-        Records are not fetched live: the site shows one dated snapshot so every figure can be traced and reproduced. The banner at
-        the top of the page flags any snapshot older than {STALE_DAYS} days.
-      </p>
-
-      <h3>Sources and attribution</h3>
-      <ul className="sources-list">
-        <li>
-          <strong>Facility records:</strong> <Rich text={linkUrls(ca.attribution)} a={(url) => <a href={url}>{url}</a>} /> Snapshot{" "}
-          {ca.tag} (data as of {enDate(ca.snapshot_as_of)}). {ca.transformations}
-        </li>
-        <li>
-          <strong>Citing the data used here</strong> (Compute Atlas's form for a reproducible release snapshot):{" "}
-          <Rich text={linkUrls(ca.citation)} a={(url) => <a href={url}>{url}</a>} />
-        </li>
-        <li>
-          <strong>Persistent identifier</strong> (always resolves to the latest Compute Atlas release, which may be newer than the data
-          here): <Rich text={linkUrls(ca.persistent_id)} a={(url) => <a href={url}>{url}</a>} />
-        </li>
-        <li><strong>Population:</strong> {metadata.census.population}.</li>
-        <li><strong>Land area:</strong> {metadata.census.land_area}.</li>
-        <li><strong>Boundaries:</strong> {metadata.census.boundaries}. {metadata.census.license}.</li>
-      </ul>
-      <details>
-        <summary>File provenance (URLs, retrieval dates, SHA-256)</summary>
-        <table className="compact provenance">
+        <h3>Data dates</h3>
+        <table className="compact dates">
           <tbody>
-            {Object.entries(metadata.sources).map(([k, s]) => (
-              <tr key={k}>
-                <td><a href={s.url}>{k}</a></td>
-                <td>{s.retrieved_at ? enDate(s.retrieved_at) : "supplied locally"}</td>
-                <td><code>{s.sha256?.slice(0, 16)}…</code></td>
-              </tr>
-            ))}
+            <tr><td>Facility records (Compute Atlas snapshot {ca.tag})</td><td>as of {enDate(metadata.data_dates.facility_snapshot_as_of)}</td></tr>
+            {metadata.data_dates.facility_file_retrieved_at && (
+              <tr><td>Snapshot file downloaded</td><td>{enDate(metadata.data_dates.facility_file_retrieved_at)}</td></tr>
+            )}
+            <tr><td>Population ({metadata.data_dates.population_vintage})</td><td>{enDate(metadata.data_dates.population_reference_date)}</td></tr>
+            <tr><td>Land area and county boundaries</td><td>{metadata.data_dates.geography_vintage} Census vintage</td></tr>
+            {income && (
+              <tr><td>Median household income (ACS 5-year estimates)</td><td>{income.period}, in {income.dollars_year} dollars</td></tr>
+            )}
+            <tr><td>Site data last rebuilt</td><td>{enDate(metadata.data_dates.site_data_built_at)}</td></tr>
           </tbody>
         </table>
-        <p className="muted small">Data version <code>{metadata.data_version}</code>, built {enDate(metadata.generated_at)}.</p>
+        <p className="small">
+          Records are not fetched live: the site shows one dated snapshot so every figure can be traced and reproduced. The banner at
+          the top of the page flags any snapshot older than {STALE_DAYS} days.
+        </p>
+
+        <h3>Sources and attribution</h3>
+        <ul className="sources-list">
+          <li>
+            <strong>Facility records:</strong> <Rich text={linkUrls(ca.attribution)} a={(url) => <a href={url}>{url}</a>} /> Snapshot{" "}
+            {ca.tag} (data as of {enDate(ca.snapshot_as_of)}). {ca.transformations}
+          </li>
+          <li>
+            <strong>Citing the data used here</strong> (Compute Atlas's form for a reproducible release snapshot):{" "}
+            <Rich text={linkUrls(ca.citation)} a={(url) => <a href={url}>{url}</a>} />
+          </li>
+          <li>
+            <strong>Persistent identifier</strong> (always resolves to the latest Compute Atlas release, which may be newer than the data
+            here): <Rich text={linkUrls(ca.persistent_id)} a={(url) => <a href={url}>{url}</a>} />
+          </li>
+          <li><strong>Population:</strong> {metadata.census.population}.</li>
+          <li><strong>Land area:</strong> {metadata.census.land_area}.</li>
+          <li><strong>Boundaries:</strong> {metadata.census.boundaries}. {metadata.census.license}.</li>
+          {income && (
+            <li>
+              <strong>Median household income:</strong> {income.description}. {income.use}
+              {incomeMissing.length > 0 && <> The Census Bureau had too few survey responses to estimate it for {incomeMissing.join(", ")}.</>}
+            </li>
+          )}
+        </ul>
+        <details>
+          <summary>File provenance (URLs, retrieval dates, SHA-256)</summary>
+          <table className="compact provenance">
+            <tbody>
+              {Object.entries(metadata.sources).map(([k, s]) => (
+                <tr key={k}>
+                  <td><a href={s.url}>{k}</a></td>
+                  <td>{s.retrieved_at ? enDate(s.retrieved_at) : "supplied locally"}</td>
+                  <td><code>{s.sha256?.slice(0, 16)}…</code></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="muted small">Data version <code>{metadata.data_version}</code>, built {enDate(metadata.generated_at)}.</p>
       </details>
 
       <h3>About the AI explanations</h3>
@@ -158,6 +246,7 @@ export default function Methodology({ metadata }: { metadata: Metadata }) {
         explanation is shown only if it was written from the snapshot currently on the site. The AI never calculates figures, and
         the site makes no live AI calls.
       </p>
+      </details>
     </section>
   );
 }

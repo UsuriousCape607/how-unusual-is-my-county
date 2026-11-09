@@ -237,6 +237,9 @@ const pl: Translation = {
   findFoot: "Znasz projekt, którego brakuje lub który jest błędnie opisany? <a>Zgłoś go do Compute Atlas</a>, źródła, z którego korzysta ta strona.",
 
   peersTitle: "40 podobnych hrabstw, od najbardziej podobnego",
+  peersTitleSorted: "40 podobnych hrabstw",
+  sortedBy: (column) => `Sortowanie: ${column}.`,
+  sortReset: "Sortuj od najbardziej podobnych",
   peersRange: (p0, p1, d0, d1) =>
     `Mają od ${p0} do ${p1} mieszkańców i od ${d0} do ${d1} mieszkańców na mi². Wybierz nazwę, aby porównać to hrabstwo.`,
   col: {
@@ -245,10 +248,15 @@ const pl: Translation = {
     state: "Stan",
     population: "Ludność (2025)",
     density: "Mieszkańców na mi²",
+    income: "Mediana dochodu gospodarstwa domowego",
     sites: (date) => `Lokalizacje w fazie rozwoju (${date})`,
   },
   showFewer: (n) => `Pokaż tylko ${n} najbardziej podobnych`,
   showAll: (n) => `Pokaż wszystkie podobne hrabstwa (${n})`,
+  incomeNote: (period, year) =>
+    `Mediana dochodu gospodarstwa domowego: Biuro Spisu Ludności USA, American Community Survey, pięcioletnie szacunki za lata ${period}, w dolarach z ${year} r. Podana tylko dla kontekstu; nie służy do wyboru podobnych hrabstw.`,
+  incomeNA: "b.d.",
+  incomeNATitle: "Brak danych: Biuro Spisu Ludności miało za mało odpowiedzi, by to oszacować",
 
   summaryTitle: "Podsumowanie",
   aiChip: "Wyjaśnienie napisane przez AI · wygenerowane wcześniej i sprawdzone",

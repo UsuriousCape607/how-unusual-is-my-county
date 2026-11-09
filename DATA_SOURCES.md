@@ -54,6 +54,7 @@ copies placed in `data/raw/` by hand.
 | Population, July 1 2025 (`POPESTIMATE2025`) | `co-est2025-alldata.csv` | https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/counties/totals/co-est2025-alldata.csv |
 | Land area (`ALAND_SQMI`) | `2025_Gaz_counties_national.zip` | https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2025_Gazetteer/2025_Gaz_counties_national.zip |
 | County polygons (1:500k) | `cb_2025_us_county_500k.zip` | https://www2.census.gov/geo/tiger/GENZ2025/shp/cb_2025_us_county_500k.zip |
+| Median household income, ACS 2020–2024 5-year (`B19013_E001`, MOE `B19013_M001`; context only) | `acsdt5y2024-b19013.dat` | https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b19013.dat |
 
 Landing page for the estimates: https://www.census.gov/data/tables/time-series/demo/popest/2020s-counties-total.html
 
@@ -62,6 +63,13 @@ HTTP 403 (a network policy denial, not DNS, TLS or a timeout). The pipeline ther
 from official copies: each file must pass a schema check (required columns, row/feature counts, shapefile
 components), and its SHA-256 is recorded with `acquired: "supplied_locally"`. No older vintage, synthetic or
 unofficial substitute is used.
+
+**Income file (added 2026-11-09):** the owner allowed `www2.census.gov` in the session's network, and
+`download_data.py` downloaded the ACS summary file directly, recording its SHA-256 in the manifest. The Census Data
+API (`api.census.gov`) now refuses requests without an API key, so the static summary file is used instead. It is the
+same official table and needs no key. It has county rows for all 3,144 counties in scope; Puerto Rico's 78 are
+dropped. One county has an annotation code instead of an estimate: De Baca County, NM (35011, −666666666), shown as
+"n/a". See METHODOLOGY.md § 8.
 
 **Files used for the 2026-10-26 build.** The project owner downloaded these from the official URLs above and
 supplied them to the build. Anyone can confirm they are identical to the official files by downloading them and

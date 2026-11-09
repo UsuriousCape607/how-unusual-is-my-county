@@ -1,0 +1,12 @@
+{
+  "source_file": "acsdt5y2024-b19013.dat",
+  "period": "2020–2024",
+  "counties": 3144,
+  "with_estimate": 3143,
+  "not_available": {
+    "35011": -666666666
+  },
+  "min": 22188,
+  "median": 65681,
+  "max": 181765
+}

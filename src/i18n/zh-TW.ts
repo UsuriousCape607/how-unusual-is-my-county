@@ -217,6 +217,9 @@ const zhTW: Translation = {
   findFoot: "知道有缺漏或錯誤的計畫嗎？<a>回報給 Compute Atlas</a>，也就是本網站使用的資料來源。",
 
   peersTitle: "40 個相似的郡（依相似度排序）",
+  peersTitleSorted: "40 個相似的郡",
+  sortedBy: (column) => `依${column}排序。`,
+  sortReset: "依相似程度排序",
   peersRange: (p0, p1, d0, d1) => `人口介於 ${p0} 至 ${p1}，人口密度介於每平方英里 ${d0} 至 ${d1} 人。點選名稱即可改為比較該郡。`,
   col: {
     rank: "名次",
@@ -224,10 +227,15 @@ const zhTW: Translation = {
     state: "州",
     population: "人口（2025）",
     density: "每平方英里人數",
+    income: "家戶所得中位數",
     sites: (date) => `開發中場址（${date}）`,
   },
   showFewer: (n) => `只顯示最相似的 ${n} 個`,
   showAll: (n) => `顯示全部 ${n} 個相似的郡`,
+  incomeNote: (period, year) =>
+    `家戶所得中位數：美國人口普查局美國社區調查（ACS）${period} 五年估計值，以 ${year} 年美元計。僅供參考，並未用於挑選相似的郡。`,
+  incomeNA: "無資料",
+  incomeNATitle: "無資料：人口普查局收到的調查回覆太少，無法估計",
 
   summaryTitle: "摘要",
   aiChip: "AI 撰寫的說明 · 預先產生並經查核",

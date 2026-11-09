@@ -239,6 +239,9 @@ const la: Translation = {
   findFoot: "Novistine inceptum quod deest vel erratum est? <a>Id Compute Atlas significa</a>, fonti quo hic situs utitur.",
 
   peersTitle: "40 comitatus similes, simillimo primo",
+  peersTitleSorted: "40 comitatus similes",
+  sortedBy: (column) => `Ordinatum secundum: ${column}.`,
+  sortReset: "Ordina secundum similitudinem",
   peersRange: (p0, p1, d0, d1) =>
     `Habent inter ${p0} et ${p1} incolas et inter ${d0} et ${d1} incolas per milliare quadratum. Nomen selige ut illum comitatum potius conferas.`,
   col: {
@@ -247,10 +250,15 @@ const la: Translation = {
     state: "Civitas",
     population: "Incolae (2025)",
     density: "Incolae per mil. quadr.",
+    income: "Reditus domesticus medianus",
     sites: (date) => `Loca in apparatu (${date})`,
   },
   showFewer: (n) => `Ostende tantum ${n} simillimos`,
   showAll: (n) => `Ostende omnes ${n} comitatus similes`,
+  incomeNote: (period, year) =>
+    `Reditus domesticus medianus: U.S. Census Bureau, American Community Survey, aestimationes quinquennales annorum ${period}, in dollaris anni ${year}. Ad contextum tantum ostenditur; ad comitatus similes eligendos non adhibetur.`,
+  incomeNA: "deest",
+  incomeNATitle: "Deest: Census Bureau pauciora responsa habuit quam ut eum aestimaret",
 
   summaryTitle: "Summarium",
   aiChip: "Explicatio ab intellegentia artificiali scripta · antea confecta et probata",

@@ -229,6 +229,9 @@ const tr: Translation = {
   findFoot: "Eksik veya hatalı bir proje mi biliyorsunuz? Bu sitenin kaynağı olan <a>Compute Atlas’a bildirin</a>.",
 
   peersTitle: "40 benzer ilçe (en benzerden başlayarak)",
+  peersTitleSorted: "40 benzer ilçe",
+  sortedBy: (column) => `Sıralama: ${column}.`,
+  sortReset: "Benzerliğe göre sırala",
   peersRange: (p0, p1, d0, d1) =>
     `Nüfusları ${p0} ile ${p1} arasında, nüfus yoğunlukları mil² başına ${d0} ile ${d1} kişi arasındadır. O ilçeyi karşılaştırmak için bir ad seçin.`,
   col: {
@@ -237,10 +240,15 @@ const tr: Translation = {
     state: "Eyalet",
     population: "Nüfus (2025)",
     density: "Mil² başına kişi",
+    income: "Medyan hane geliri",
     sites: (date) => `Geliştirme aşamasındaki sahalar (${date})`,
   },
   showFewer: (n) => `Yalnızca en benzer ${n} ilçeyi göster`,
   showAll: (n) => `${n} benzer ilçenin tümünü göster`,
+  incomeNote: (period, year) =>
+    `Medyan hane geliri: ABD Nüfus Sayım Bürosu, Amerikan Toplum Araştırması (ACS), ${period} dönemi beş yıllık tahminleri, ${year} doları ile. Yalnızca bağlam için gösterilir; benzer ilçeleri seçmekte kullanılmaz.`,
+  incomeNA: "yok",
+  incomeNATitle: "Veri yok: Nüfus Sayım Bürosu tahmin için yeterli yanıt alamadı",
 
   summaryTitle: "Özet",
   aiChip: "Yapay zekânın yazdığı açıklama · önceden oluşturulmuş ve kontrol edilmiş",

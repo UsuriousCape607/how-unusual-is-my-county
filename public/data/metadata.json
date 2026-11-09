@@ -1,7 +1,7 @@
 {
   "title": "How Unusual Is My County?",
   "data_version": "compute-atlas-v1.34.1-asof-2026-10-02_census-v2025",
-  "generated_at": "2026-10-29T23:44:33+00:00",
+  "generated_at": "2026-11-09T01:49:39+00:00",
   "snapshot_date": "2026-10-02",
   "default_geoid": "51107",
   "data_dates": {
@@ -10,7 +10,7 @@
     "population_reference_date": "2025-07-01",
     "population_vintage": "Vintage 2025 estimates",
     "geography_vintage": "2025",
-    "site_data_built_at": "2026-10-29T23:44:33+00:00"
+    "site_data_built_at": "2026-11-09T01:49:39+00:00"
   },
   "sources": {
     "compute_atlas_facilities": {
@@ -48,6 +48,12 @@
       "sha256": "4c90d0f805779923b5958ab13d0c1e9b99fe4932b786bfcf75dd739bb2dcb4ea",
       "bytes": 138993,
       "note": "Official file placed in data/raw/ by hand; obtained from the URL above."
+    },
+    "census_acs5_income": {
+      "url": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b19013.dat",
+      "retrieved_at": "2026-11-09T01:49:18+00:00",
+      "sha256": "b25a176b0e6c339b6f3a2a0d3d8446bf06f5f080b4395993ec9a8313efb1c229",
+      "bytes": 17917916
     }
   },
   "compute_atlas": {
@@ -69,7 +75,17 @@
     "population": "Vintage 2025 county population estimates (POPESTIMATE2025, July 1, 2025)",
     "land_area": "2025 Gazetteer county file, ALAND_SQMI (land only; water excluded)",
     "boundaries": "2025 cartographic boundary file cb_2025_us_county_500k (NAD83, reprojected to WGS84)",
-    "license": "U.S. Census Bureau data are public domain"
+    "license": "U.S. Census Bureau data are public domain",
+    "income": {
+      "description": "Median household income in the past 12 months (in 2024 inflation-adjusted dollars), American Community Survey 2020–2024 5-year estimates, table B19013",
+      "period": "2020–2024",
+      "dollars_year": 2024,
+      "table": "B19013",
+      "use": "Shown for context beside the similar counties and sortable; never used to choose them.",
+      "not_available": {
+        "35011": -666666666
+      }
+    }
   },
   "geographic_scope": "Counties and county equivalents in the 50 states and the District of Columbia. Puerto Rico and other territories are excluded in this version.",
   "filters": {
@@ -450,6 +466,9 @@
       "assignment:ambiguous_source_county_name": 2,
       "assignment:point_outside_county_polygons": 1
     },
+    "headline_excluded_total": 1529,
+    "headline_excluded_by_filters": 1500,
+    "headline_excluded_by_assignment": 29,
     "pipeline_candidates_before_assignment": 828,
     "pipeline_candidates_by_precision": {
       "approximate": 572,

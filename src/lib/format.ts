@@ -21,6 +21,11 @@ export function fmtDensity(n: number | null): string {
   return intFmt().format(n);
 }
 
+/** Whole U.S. dollars in the reader's number style ($181,765, 181.765 USD, US$181,765, …). */
+export function fmtUSD(n: number): string {
+  return new Intl.NumberFormat(intlLocale(), { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+}
+
 /** Median of integer counts is a whole or half number; show it without trailing zeros. */
 export function fmtStat(n: number, digits = 1): string {
   return Number.isInteger(n) ? String(n) : localDecimal(n.toFixed(digits).replace(/\.0$/, ""));

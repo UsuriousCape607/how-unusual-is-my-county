@@ -70,6 +70,8 @@ export default function App() {
     },
     [data, geoid],
   );
+  // Picks from the similar-county list, chart and table: the map brings its similar-counties view back for them.
+  const selectSimilar = useCallback((g: string) => select(g, "similar"), [select]);
 
   const county = geoid && data ? data.byGeoid.get(geoid) : undefined;
   const peer = geoid && data ? data.peers.peers[geoid] : undefined;
@@ -156,7 +158,7 @@ export default function App() {
 
             <div className="layout">
               <div className="area-summary">
-                <CountySummary county={county} peer={peer} metadata={data.metadata} byGeoid={data.byGeoid} facilities={facilities} onSelect={select} />
+                <CountySummary county={county} peer={peer} metadata={data.metadata} byGeoid={data.byGeoid} facilities={facilities} onSelect={selectSimilar} />
               </div>
               <aside className="area-map">
                 <div className="sticky">
@@ -175,10 +177,17 @@ export default function App() {
               </aside>
               <div className="area-rest">
                 <NumbersExplained county={county} peer={peer} metadata={data.metadata} />
-                <ComparisonChart county={county} peer={peer} byGeoid={data.byGeoid} snapshotDate={data.metadata.snapshot_date} onSelect={select} />
+                <ComparisonChart county={county} peer={peer} byGeoid={data.byGeoid} snapshotDate={data.metadata.snapshot_date} onSelect={selectSimilar} />
                 <FacilityList county={county} facilities={facilities} snapshotDate={data.metadata.snapshot_date} />
                 <FindProject selected={county.geoid} byGeoid={data.byGeoid} onSelect={select} />
-                <PeerTable county={county} peer={peer} byGeoid={data.byGeoid} snapshotDate={data.metadata.snapshot_date} onSelect={select} />
+                <PeerTable
+                  county={county}
+                  peer={peer}
+                  byGeoid={data.byGeoid}
+                  snapshotDate={data.metadata.snapshot_date}
+                  income={data.metadata.census.income}
+                  onSelect={selectSimilar}
+                />
                 <ExplanationPanel
                   county={county}
                   peer={peer}
@@ -192,7 +201,7 @@ export default function App() {
           </>
         )}
 
-        {data && <Methodology metadata={data.metadata} />}
+        {data && <Methodology metadata={data.metadata} byGeoid={data.byGeoid} />}
       </main>
 
       <footer className="site-footer">

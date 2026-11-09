@@ -7,7 +7,8 @@ import { useM } from "../i18n/I18nProvider";
 import { COLOR, MAP, RAMP, comparisonOf, type Comparison } from "../lib/theme";
 import { attachSmoothWheelZoom } from "../lib/smoothWheelZoom";
 
-export type SelectionSource = "map" | "other";
+/** Where a selection came from: a click on the map, a pick among the similar counties, or anything else (search, links). */
+export type SelectionSource = "map" | "similar" | "other";
 type MapView = "county" | "similar" | "shaded";
 
 interface Props {
@@ -313,6 +314,12 @@ export default function CountyMap(props: Props) {
         .addTo(group);
     }
   }, [facilities, m]);
+
+  // Picking one of the similar counties (list, chart, table) while the map shows all counties brings the similar-counties
+  // view back, so the map shows the new county's comparison. Clicking the map or searching keeps the chosen view.
+  useEffect(() => {
+    if (selectionSource === "similar") setView((v) => (v === "shaded" ? "similar" : v));
+  }, [selected, selectionSource]);
 
   const choose = (v: MapView) => (v === view ? go(v, true) : setView(v));
   const nExact = facilities.filter((f) => f.metric === "pipeline" && f.location_precision === "exact").length;

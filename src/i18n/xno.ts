@@ -239,6 +239,9 @@ const xno: Translation = {
   findFoot: "Conissez un projecte que defaut ou est erroné? <a>Monstrez le al Compute Atlas</a>, le source que cest site use.",
 
   peersTitle: "Les 40 countees semblables, le plus semblable primer",
+  peersTitleSorted: "Les 40 countees semblables",
+  sortedBy: (column) => `Mys en ordre solonc ${column}.`,
+  sortReset: "Mittez en ordre solonc semblance",
   peersRange: (p0, p1, d0, d1) =>
     `Ils sount de ${p0} a ${p1} gentz et de ${d0} a ${d1} gentz par mile quarré. Eslisez un noun pur comparer cel countee en lieu de cest.`,
   col: {
@@ -247,10 +250,15 @@ const xno: Translation = {
     state: "Estate",
     population: "Population (2025)",
     density: "Gentz par mile quarré",
+    income: "Revenue median des mesnies",
     sites: (date) => `Places en fesance (${date})`,
   },
   showFewer: (n) => `Monstrez tantsolement les ${n} plus semblables`,
   showAll: (n) => `Monstrez touts les ${n} countees semblables`,
+  incomeNote: (period, year) =>
+    `Revenue median des mesnies: U.S. Census Bureau, American Community Survey, estimations de cink ans pur ${period}, en dollers de ${year}. Monstré pur context tantsolement; nient use pur eslire les countees semblables.`,
+  incomeNA: "nul",
+  incomeNATitle: "Ne poit estre estimé: le Census Bureau avoit trop poy de responses",
 
   summaryTitle: "Abbregement",
   aiChip: "Explication escrite per intelligence artificiele · fait avant et examiné",

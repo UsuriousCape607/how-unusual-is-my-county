@@ -227,6 +227,9 @@ const ko: Translation = {
   findFoot: "빠졌거나 잘못된 프로젝트를 알고 계신가요? 이 사이트의 출처인 <a>Compute Atlas에 알려 주세요</a>.",
 
   peersTitle: "비슷한 카운티 40곳 (비슷한 순)",
+  peersTitleSorted: "비슷한 카운티 40곳",
+  sortedBy: (column) => `${column} 기준으로 정렬했습니다.`,
+  sortReset: "비슷한 순으로 정렬",
   peersRange: (p0, p1, d0, d1) =>
     `인구는 ${p0}~${p1}명, 인구 밀도는 제곱마일당 ${d0}~${d1}명입니다. 이름을 선택하면 그 카운티로 비교합니다.`,
   col: {
@@ -235,10 +238,15 @@ const ko: Translation = {
     state: "주",
     population: "인구(2025)",
     density: "제곱마일당 인구",
+    income: "가구 소득 중앙값",
     sites: (date) => `개발 중인 부지 (${date})`,
   },
   showFewer: (n) => `가장 비슷한 ${n}곳만 보기`,
   showAll: (n) => `비슷한 카운티 ${n}곳 모두 보기`,
+  incomeNote: (period, year) =>
+    `가구 소득 중앙값: 미국 인구조사국 미국 지역사회 조사(ACS) ${period} 5년 추정치, ${year}년 달러 기준. 참고용으로만 표시하며 비슷한 카운티를 고르는 데에는 쓰지 않습니다.`,
+  incomeNA: "없음",
+  incomeNATitle: "제공되지 않음: 인구조사국이 추정하기에는 응답 수가 너무 적었습니다",
 
   summaryTitle: "요약",
   aiChip: "AI가 작성한 설명 · 미리 생성하고 검증함",

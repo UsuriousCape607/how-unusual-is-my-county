@@ -1,11 +1,11 @@
-"""Run the full data pipeline: download -> counties -> facilities -> peers -> web export -> validation."""
+"""Run the full data pipeline: download -> counties -> income -> facilities -> peers -> web export -> validation."""
 from __future__ import annotations
 
 import subprocess
 import sys
 from pathlib import Path
 
-STEPS = ["download_data.py", "prepare_counties.py", "process_facilities.py", "calculate_peers.py",
+STEPS = ["download_data.py", "prepare_counties.py", "prepare_income.py", "process_facilities.py", "calculate_peers.py",
          "export_web.py", "validate_data.py"]
 
 

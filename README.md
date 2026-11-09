@@ -32,9 +32,9 @@ Link preview for a county, as shown on X, Facebook, WhatsApp, iMessage and Disco
 ## Build the data
 ```bash
 pip install -r requirements.txt
-python scripts/build_all.py            # download → counties → facilities → peers → export → validate
+python scripts/build_all.py            # download → counties → income → facilities → peers → export → validate
 ```
-If your network cannot reach `www2.census.gov`, download the three Census files listed in
+If your network cannot reach `www2.census.gov`, download the four Census files listed in
 [DATA_SOURCES.md](DATA_SOURCES.md) by hand, save them in `data/raw/` under the listed names, and run:
 ```bash
 python scripts/build_all.py --offline  # never touches the network; verifies schemas and records SHA-256
@@ -59,7 +59,9 @@ the county address on load. Link previews need absolute URLs; the build uses the
 downloads the similar-counties table and the county's records as CSV, and gives iframe code for news sites:
 `?county=<GEOID>&embed=1` shows a compact card with the data date, source credit and a link to the full site.
 **Find a project** searches every Compute Atlas record in the snapshot and says whether it is counted, where, or
-why not (`public/data/projects.json`, loaded only when someone searches).
+why not (`public/data/projects.json`, loaded only when someone searches). The similar-counties table sorts by any
+column, including median household income (Census ACS 2020–2024 5-year estimates). Income is context only and is
+never used to choose the similar counties. Changes made after the review round are in [FEEDBACK.md](FEEDBACK.md).
 
 ## Languages
 The interface is available in 22 languages, chosen from the globe button in the header (a compact scrolling menu on

@@ -227,6 +227,9 @@ const ht: Translation = {
   findFoot: "Ou konnen yon pwojè ki manke oswa ki gen erè? <a>Rapòte l bay Compute Atlas</a>, sous sit sa a itilize a.",
 
   peersTitle: "40 konte ki sanble yo, sa ki pi sanble an premye",
+  peersTitleSorted: "40 konte ki sanble yo",
+  sortedBy: (column) => `Ranje dapre ${column}.`,
+  sortReset: "Ranje dapre sa ki pi sanble",
   peersRange: (p0, p1, d0, d1) =>
     `Yo gen ant ${p0} ak ${p1} moun, ak ant ${d0} ak ${d1} moun pa mil kare. Chwazi yon non pou konpare konte sa a pito.`,
   col: {
@@ -235,10 +238,15 @@ const ht: Translation = {
     state: "Eta",
     population: "Popilasyon (2025)",
     density: "Moun pa mil kare",
+    income: "Revni medyàn fwaye",
     sites: (date) => `Sit an devlopman (${date})`,
   },
   showFewer: (n) => `Montre sèlman ${n} ki pi sanble yo`,
   showAll: (n) => `Montre tout ${n} konte ki sanble yo`,
+  incomeNote: (period, year) =>
+    `Revni medyàn fwaye: Biwo Resansman Etazini, Ankèt Kominote Ameriken (ACS), estimasyon 5 an pou ${period}, an dola ${year}. Nou montre l sèlman pou kontèks; nou pa sèvi avè l pou chwazi konte ki sanble yo.`,
+  incomeNA: "pa gen",
+  incomeNATitle: "Pa disponib: Biwo Resansman an pa t gen ase repons pou l estime l",
 
   summaryTitle: "Rezime",
   aiChip: "Eksplikasyon entèlijans atifisyèl ekri · prepare davans epi verifye",

@@ -165,7 +165,7 @@ export const en = {
   // Chart
   chartTitle: (name: string) => `Where ${name} falls among its 40 similar counties`,
   chartHelp: (date: string, name: string) =>
-    `Each dot is one similar county, placed by its number of sites in development on record (${date}) and coloured by whether it has fewer, the same, or more than ${name}. Hover for details; click to compare.`,
+    `Each dot is one similar county, placed by its number of sites in development on record (${date}) and colored by whether it has fewer, the same, or more than ${name}. Hover for details; click to compare.`,
   chartAria: (label: string, n: number, fewer: number, same: number, more: number) =>
     `Dot plot: ${label} has ${n}; ${fewer} similar counties have fewer, ${same} the same, ${more} more.`,
   axisLabel: "Data-center sites in development on record",
@@ -195,7 +195,7 @@ export const en = {
     permitted: "Permitted",
     under_construction: "Under construction",
     operational: "Operational",
-    cancelled: "Cancelled",
+    cancelled: "Canceled",
   } as Record<string, string>,
   precision: { exact: "Exact coordinates", approximate: "Approximate location" } as Record<string, string>,
   assignment: {
@@ -205,7 +205,7 @@ export const en = {
   } as Record<string, string>,
   reasons: {
     "status:operational": "Already operating (shown separately as context)",
-    "status:cancelled": "Cancelled",
+    "status:cancelled": "Canceled",
     "facility_type:power_generation": "A power-generation project, not a data center",
     "facility_type:crypto_mining": "A crypto-mining site, not a data center",
     "confidence:rumored": "Only rumored (low confidence)",
@@ -243,6 +243,9 @@ export const en = {
 
   // Similar-counties table
   peersTitle: "The 40 similar counties, most similar first",
+  peersTitleSorted: "The 40 similar counties",
+  sortedBy: (column: string) => `Sorted by ${column}.`,
+  sortReset: "Sort by most similar",
   peersRange: (p0: string, p1: string, d0: string, d1: string) =>
     `They range from ${p0} to ${p1} people and from ${d0} to ${d1} people per sq mi. Select a name to compare that county instead.`,
   col: {
@@ -251,10 +254,15 @@ export const en = {
     state: "State",
     population: "Population (2025)",
     density: "People per sq mi",
+    income: "Median household income",
     sites: (date: string) => `Sites in development (${date})`,
   },
   showFewer: (n: number) => `Show only the ${n} most similar`,
   showAll: (n: number) => `Show all ${n} similar counties`,
+  incomeNote: (period: string, year: string) =>
+    `Median household income: U.S. Census Bureau, American Community Survey ${period} 5-year estimates, in ${year} dollars. Shown for context only; it is not used to choose similar counties.`,
+  incomeNA: "n/a",
+  incomeNATitle: "Not available: the Census Bureau had too few survey responses to estimate it",
 
   // Summary (deterministic template) and AI examples
   summaryTitle: "Summary",

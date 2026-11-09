@@ -182,3 +182,16 @@ to English (delete keys from `nv.ts`; the English fallback is automatic).
 - **Italian (`it`), Hungarian (`hu`), Polish (`pl`), Swedish (`sv`), Spanish (`es`), Japanese (`ja`), Korean (`ko`), Chinese
   (`zh-TW`, `zh-CN`):** tone and small terminology only. Grammar near numbers was checked: Polish verb agreement
   (*ma/mają*) and genitive plural; Swedish singular/plural; Japanese spacing before 時点.
+
+## Added 2026-11-09: income column and table sorting
+Seven new strings in every language: the column name, the source note, "n/a" and its tooltip, the sorted-table title,
+"Sorted by …" and "Sort by most similar".
+
+Terms to check first:
+- **Navajo:** *Hooghan bibéeso ałníiʼgi* "median household income". An English gloss is kept in the column name.
+- **Law French:** *Revenue median des mesnies* (*mesnie* = household).
+- **Latin:** *Reditus domesticus medianus*.
+- **Katharevousa:** *Διάμεσον εἰσόδημα οἴκου*.
+- **Pennsylvania Dutch:** *Median-Eikumme pro Haus*.
+- **Mongolian:** *Өрхийн орлогын медиан*.
+- **Hungarian:** the "${year}. évi dollárban" construction.

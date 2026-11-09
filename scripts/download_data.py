@@ -20,7 +20,7 @@ import sys
 import zipfile
 from datetime import datetime, timezone
 
-from common import POP_COLUMN, RAW, SOURCES, gazetteer_delimiter, read_json, write_json
+from common import ACS_INCOME_TABLE, POP_COLUMN, RAW, SOURCES, gazetteer_delimiter, read_json, write_json
 
 MANIFEST = RAW / "manifest.json"
 MIN_COUNTY_ROWS = 3000  # 3,144 counties in the 50 states + DC; guards against truncated files
@@ -115,6 +115,20 @@ def check_boundaries(path) -> dict:
     return {"features": int(info["features"]), "crs": info["crs"], "geometry_type": info["geometry_type"]}
 
 
+def check_acs_income(path) -> dict:
+    est, moe = f"{ACS_INCOME_TABLE}_E001", f"{ACS_INCOME_TABLE}_M001"
+    with open(path, encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f, delimiter="|")
+        _require(reader.fieldnames or [], ["GEO_ID", est, moe], path.name)
+        rows = [r for r in reader if r["GEO_ID"].startswith("0500000US")]
+    if len(rows) < MIN_COUNTY_ROWS:
+        raise SchemaError(f"{path.name}: only {len(rows)} county rows")
+    if any(not r[est].lstrip("-").isdigit() for r in rows):
+        raise SchemaError(f"{path.name}: non-integer {est} values")
+    # Negative values are Census annotation codes (e.g. -666666666: too few sample cases to compute an estimate).
+    return {"county_rows": len(rows), "annotated_estimates": sum(int(r[est]) < 0 for r in rows)}
+
+
 CHECKS = {
     "compute_atlas_facilities": check_compute_atlas_facilities,
     "compute_atlas_meta": check_compute_atlas_meta,
@@ -122,6 +136,7 @@ CHECKS = {
     "census_popest_2025": check_popest,
     "census_gazetteer_2025": check_gazetteer,
     "census_cb_counties_2025": check_boundaries,
+    "census_acs5_income": check_acs_income,
 }
 
 

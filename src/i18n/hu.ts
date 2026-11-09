@@ -228,6 +228,9 @@ const hu: Translation = {
   findFoot: "Tudsz egy hiányzó vagy hibás projektről? <a>Jelezd a Compute Atlasnak</a>, az oldal forrásának.",
 
   peersTitle: "A 40 hasonló megye, a leghasonlóbbal kezdve",
+  peersTitleSorted: "A 40 hasonló megye",
+  sortedBy: (column) => `Rendezés: ${column}.`,
+  sortReset: "Rendezés hasonlóság szerint",
   peersRange: (p0, p1, d0, d1) =>
     `Népességük ${p0} és ${p1} fő között, népsűrűségük ${d0} és ${d1} fő/négyzetmérföld között van. Válassz egy nevet, hogy azt a megyét hasonlítsd össze.`,
   col: {
@@ -236,10 +239,15 @@ const hu: Translation = {
     state: "Állam",
     population: "Népesség (2025)",
     density: "Fő négyzetmérföldenként",
+    income: "Háztartási medián jövedelem",
     sites: (date) => `Fejlesztés alatt álló helyszínek (${date})`,
   },
   showFewer: (n) => `Csak a ${n} leghasonlóbb mutatása`,
   showAll: (n) => `Mind a ${n} hasonló megye mutatása`,
+  incomeNote: (period, year) =>
+    `Háztartási medián jövedelem: az USA Népszámlálási Hivatala, American Community Survey, ${period} közötti ötéves becslés, ${year}. évi dollárban. Csak tájékoztatásul jelenik meg; a hasonló megyék kiválasztásához nem használjuk.`,
+  incomeNA: "n. a.",
+  incomeNATitle: "Nincs adat: a Népszámlálási Hivatal túl kevés válasz alapján nem tudott becslést készíteni",
 
   summaryTitle: "Összefoglaló",
   aiChip: "MI által írt magyarázat · előre elkészítve és ellenőrizve",

@@ -68,6 +68,22 @@ try {
     && methodLinks.includes("https://doi.org/10.5281/zenodo.22284476")
     && (await page.textContent("#methodology")).includes(`Compute Atlas (Version ${meta.compute_atlas.tag.replace(/^v/, "")}) [Data set]`));
   check("methodology section present", await page.isVisible("#methodology"));
+  // Methodology starts collapsed and opens from the header link.
+  const methodOpen = () => page.$eval("#methodology details.method-panel", (d) => d.open);
+  check("methodology is collapsed by default", !(await methodOpen()));
+  await page.click('header a[href="#methodology"]');
+  check("the header's methodology link opens it", await methodOpen());
+  // The "not counted" table reconciles: each group's rows add up to its subtotal, and the subtotals to the total,
+  // which equals all records minus the counted ones.
+  const recon = await page.$$eval("#methodology table.reconcile tbody", (bodies) =>
+    bodies.map((b) => [...b.querySelectorAll("tr")].map((r) => Number(r.querySelector(".num").textContent.replace(/,/g, "")))));
+  const reconTotal = Number((await page.textContent("#methodology table.reconcile tfoot .num")).replace(/,/g, ""));
+  const qcF = meta.facility_qc;
+  check("the not-counted table adds up (rows → subtotals → total = records − counted)",
+    recon.length === 2 && recon.every(([sub, ...rows]) => rows.reduce((a, b) => a + b, 0) === sub)
+    && recon[0][0] + recon[1][0] === reconTotal && reconTotal === qcF.total_records - qcF.headline_included
+    && recon[0][0] === qcF.total_records - qcF.pipeline_candidates_before_assignment,
+    `${recon.map((g) => `${g[0]}=${g.slice(1).join("+")}`).join("; ")}; total ${reconTotal}`);
   await page.waitForTimeout(600);
   await page.screenshot({ path: `${OUT}/desktop-default.png`, fullPage: false });
 
@@ -91,6 +107,8 @@ try {
   const [dl] = await Promise.all([page.waitForEvent("download"), page.getByRole("menuitem", { name: "Download similar counties (CSV)" }).click()]);
   const csv = readFileSync(await dl.path(), "utf8").replace(/^\ufeff/, "").trim().split(/\r?\n/);
   check("similar-counties CSV has the county and its 40 peers", csv.length === 42 && csv[1].includes(def.county_name), `${csv.length} lines; ${dl.suggestedFilename()}`);
+  check("similar-counties CSV includes median household income", csv[0].includes(",median_household_income_acs5,")
+    && /,\d{4,6},/.test(csv[1]));
   check("CSV rows carry the Compute Atlas credit", csv[0].endsWith(",data_credit") && csv.slice(1).every((l) => l.includes("Data from Compute Atlas by Edward Kubiak (https://www.compute-atlas.com)")));
   await page.getByRole("button", { name: "Share" }).click();
   await page.getByRole("menuitem", { name: "Embed on a website…" }).click();
@@ -163,7 +181,7 @@ try {
   const cmpLegend = await page.textContent(".legend-group");
   check("map legend shows fewer/same/more counts", cmpLegend.includes(`fewer (${p.n_fewer})`) && cmpLegend.includes(`more (${p.n_greater})`), cmpLegend);
   const dotColors = await page.$$eval(".chart svg circle[r='4.5']", (els) => els.map((e) => e.getAttribute("fill")));
-  check("chart dots coloured by fewer/same/more", dotColors.filter((c) => c === "#8944ab").length === p.n_fewer && dotColors.filter((c) => c === "#c96e00").length === p.n_greater);
+  check("chart dots colored by fewer/same/more", dotColors.filter((c) => c === "#8944ab").length === p.n_fewer && dotColors.filter((c) => c === "#c96e00").length === p.n_greater);
 
   // Duplicate county names are distinguished by state.
   await input.fill("washington");
@@ -177,10 +195,28 @@ try {
   check("peer table starts with 10 rows", (await page.$$eval("#peers-title ~ .table-wrap tbody tr", (r) => r.length)) === 11);
   await page.getByRole("button", { name: /Show all 40 similar counties/ }).click();
   check("peer table expands to 40", (await page.$$eval("#peers-title ~ .table-wrap tbody tr", (r) => r.length)) === 41);
+  // Sorting: by median household income (highest first), then back to most similar first.
+  const incomeHeader = page.locator("#peers-title ~ .table-wrap th", { hasText: "Median household income" });
+  await incomeHeader.locator("button").click();
+  const incomes = await page.$$eval("#peers-title ~ .table-wrap tbody tr:not(.selected-row)", (rows) =>
+    rows.map((r) => r.children[5].textContent).filter((t) => /\d/.test(t)).map((t) => Number(t.replace(/\D/g, ""))));
+  check("the similar counties sort by median household income, highest first",
+    (await incomeHeader.getAttribute("aria-sort")) === "descending" && incomes.length >= 39
+    && incomes.every((v, i) => i === 0 || incomes[i - 1] >= v) && (await page.textContent("#peers-title")) === "The 40 similar counties",
+    incomes.slice(0, 3).join(" ≥ "));
+  await incomeHeader.locator("button").click();
+  check("clicking again sorts lowest first", (await incomeHeader.getAttribute("aria-sort")) === "ascending");
+  await page.getByRole("button", { name: "Sort by most similar" }).click();
+  check("the table returns to most similar first", (await page.textContent("#peers-title")) === "The 40 similar counties, most similar first"
+    && (await page.textContent("#peers-title ~ .table-wrap tbody tr:nth-child(2) td")) === "1");
+  // With the map on "All counties", picking a similar county brings the map back to "Similar counties".
+  await page.getByRole("button", { name: "All counties", exact: true }).click();
   const firstPeer = byGeoid.get(p.peer_geoids[0]);
   await page.click("#peers-title ~ .table-wrap tbody tr:nth-child(2) button");
   await page.waitForFunction((n) => document.querySelector("#summary-title")?.textContent.includes(n), firstPeer.county_name);
   check("selecting a peer refocuses the app", page.url().includes(`c/${firstPeer.geoid}/`));
+  check("picking a similar county switches the map from All counties to Similar counties",
+    (await page.getByRole("button", { name: "Similar counties", exact: true }).getAttribute("aria-pressed")) === "true");
 
   // Map click selects the county under the cursor (tooltip name == selected county by GEOID) without moving the camera.
   // Start from an inland county so the probe point is always over land.

@@ -218,6 +218,29 @@ button.secondary:hover { background: var(--fill); }
 .operational { margin-top: 20px; }
 .operational > summary { cursor: pointer; font-weight: 500; color: var(--link); margin-bottom: 12px; }
 .table-wrap { overflow-x: auto; margin: 0 -4px; }
+/* Sortable column headers: the whole header is the button; a chevron shows the active column and direction, and
+   appears faintly on hover so the others read as sortable too. */
+table.sortable th { padding: 0; vertical-align: bottom; }
+.sort-btn {
+  display: inline-flex; align-items: center; gap: 4px; width: 100%; min-height: 40px; padding: 8px; border: 0; background: none;
+  font: inherit; color: inherit; text-align: inherit; cursor: pointer; border-radius: 6px;
+}
+th.num .sort-btn { justify-content: flex-end; text-align: right; }
+.sort-btn:hover { color: var(--ink); }
+.sort-arrow { width: 10px; height: 10px; flex: none; opacity: 0; transition: transform 160ms ease, opacity 120ms ease; }
+.sort-btn:hover .sort-arrow, .sort-btn:focus-visible .sort-arrow { opacity: 0.35; }
+.sort-arrow.on { opacity: 1 !important; color: var(--blue); }
+.sort-arrow.on.asc { transform: rotate(180deg); }
+th[aria-sort] .sort-btn { color: var(--ink); }
+.sort-note { margin: 0 0 6px; color: var(--muted); }
+.income-note { margin-top: 12px; }
+/* Phones: the similar-counties table scrolls sideways; the county name stays pinned so every row keeps its label. */
+@media (max-width: 700px) {
+  table.sortable tr > :nth-child(2) { position: sticky; left: 0; z-index: 1; background: var(--card); box-shadow: 6px 0 6px -6px rgba(0, 0, 0, 0.18); }
+  table.sortable .selected-row > :nth-child(2) { background: var(--blue-tint); }
+  table.sortable td:nth-child(2) { min-width: 7.5em; }
+}
+@media (prefers-reduced-motion: reduce) { .sort-arrow { transition: none; } }
 table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
 th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--hairline); }
 th { font-size: 0.8125rem; font-weight: 600; color: var(--muted); }
@@ -244,9 +267,27 @@ table.compact { font-size: 0.875rem; }
 table.compact caption { text-align: left; font-weight: 600; padding-bottom: 8px; }
 table.compact td { padding: 7px 8px; }
 table.dates { max-width: 640px; margin-bottom: 8px; }
+/* Grouped table with subtotals and a total, so its numbers can be checked against the sentence above it. */
+table.reconcile th { font-size: inherit; color: var(--ink); text-align: left; padding: 9px 8px 7px; }
+table.reconcile .subtotal th, table.reconcile .subtotal td { font-weight: 600; }
+table.reconcile tbody + tbody .subtotal > * { padding-top: 16px; }
+table.reconcile .detail td:first-child { padding-left: 22px; color: var(--muted); }
+table.reconcile tfoot th, table.reconcile tfoot td { font-weight: 700; border-top: 2px solid var(--ink); border-bottom: 0; }
 .provenance td { overflow-wrap: anywhere; }
 .sources-list li { margin-bottom: 8px; }
 .methodology details > summary { cursor: pointer; color: var(--link); margin: 8px 0; }
+/* The whole section is one disclosure: a heading row with a one-line hint and a chevron, closed by default. */
+.methodology .method-panel > summary {
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 16px; margin: 0; color: inherit; list-style: none;
+}
+.method-summary::-webkit-details-marker { display: none; }
+.methodology .method-summary h2 { margin: 0; }
+.method-hint { color: var(--muted); font-size: 0.9375rem; }
+.method-chevron { grid-column: 2; grid-row: 1 / span 2; width: 16px; height: 16px; color: var(--muted); transition: transform 200ms ease; }
+.method-panel[open] .method-chevron { transform: rotate(180deg); }
+.method-panel[open] > .method-summary { margin-bottom: 8px; }
+.method-summary:hover .method-chevron { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .method-chevron { transition: none; } }
 .site-footer { padding: 24px 0 40px; font-size: 0.75rem; line-height: 1.5; color: var(--muted); }
 .site-footer a { color: var(--muted); text-decoration: underline; }
 

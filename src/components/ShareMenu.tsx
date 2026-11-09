@@ -74,10 +74,10 @@ export default function ShareMenu({ county, peer, byGeoid, facilities, snapshotD
     {
       label: m.downloadSimilar,
       run: () => {
-        const row = (c: CountyMetric, rank: string) => [rank, c.county_name, c.state, c.geoid, c.population_2025, c.density_per_sqmi, c.pipeline_count, credit];
+        const row = (c: CountyMetric, rank: string) => [rank, c.county_name, c.state, c.geoid, c.population_2025, c.density_per_sqmi, c.median_household_income, c.pipeline_count, credit];
         const rows = [row(county, "this county"), ...peer.peer_geoids.map((g, i) => row(byGeoid.get(g)!, String(i + 1)))];
         downloadCSV(`${base}-similar-counties-${snapshotDate}.csv`, toCSV(
-          ["similarity_rank", "county", "state", "geoid", "population_2025", "people_per_sq_mi", `sites_in_development_${snapshotDate}`, "data_credit"], rows));
+          ["similarity_rank", "county", "state", "geoid", "population_2025", "people_per_sq_mi", "median_household_income_acs5", `sites_in_development_${snapshotDate}`, "data_credit"], rows));
         flash(m.downloadStarted);
       },
     },

@@ -227,6 +227,9 @@ const koKore: Translation = {
   findFoot: "빠졌거나 잘못된 프로젝트를 알고 계신가요? 이 사이트의 出處인 <a>Compute Atlas에 알려 주세요</a>.",
 
   peersTitle: "類似한 카운티 40곳 (類似한 順)",
+  peersTitleSorted: "類似한 카운티 40곳",
+  sortedBy: (column) => `${column} 基準으로 整列했습니다.`,
+  sortReset: "類似한 順으로 整列",
   peersRange: (p0, p1, d0, d1) =>
     `人口는 ${p0}~${p1}名, 人口 密度는 제곱마일당 ${d0}~${d1}名입니다. 이름을 選擇하면 그 카운티로 比較합니다.`,
   col: {
@@ -235,10 +238,15 @@ const koKore: Translation = {
     state: "州",
     population: "人口(2025)",
     density: "제곱마일당 人口",
+    income: "家口 所得 中央値",
     sites: (date) => `開發 中인 敷地 (${date})`,
   },
   showFewer: (n) => `가장 類似한 ${n}곳만 보기`,
   showAll: (n) => `類似한 카운티 ${n}곳 모두 보기`,
+  incomeNote: (period, year) =>
+    `家口 所得 中央値: 美國 人口調査局 美國 地域社會 調査(ACS) ${period} 5年 推定値, ${year}年 달러 基準. 參考用으로만 表示하며 類似한 카운티를 고르는 데에는 쓰지 않습니다.`,
+  incomeNA: "없음",
+  incomeNATitle: "提供되지 않음: 人口調査局이 推定하기에는 應答 數가 너무 적었습니다",
 
   summaryTitle: "要約",
   aiChip: "AI가 作成한 說明 · 미리 生成하고 檢證함",

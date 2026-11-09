@@ -150,6 +150,21 @@
     `persistent_id`, because it resolves to the latest release, not ours.
   - The v1.34.1 files still match our SHA-256. /api's "cut on October 29" is the date of main's latest daily
     snapshot (2,879 records); the CHANGELOG says 2026-10-04.
+- Review round (2026-11-09; details and responses in FEEDBACK.md).
+  - **Exclusion table:** the "missing two records" turned out to be a row dropped in the reviewer's text view; the
+    data reconciled (seven assignment rows = 29). The table now shows grouped subtotals and a total with their
+    arithmetic. Python computes them (`headline_excluded_*` in qc), `validate_data.py` checks them
+    (`exclusion_table_reconciles`), and e2e re-adds them.
+  - **Other fixes:** "coloured" → "colored" and "Cancelled" → "Canceled" in the UI. Picking a similar county switches
+    an "All counties" map back to "Similar counties" (selection source "similar"). Methodology is a `<details>`,
+    closed by default, that opens from `#methodology` links.
+  - **Median household income:** new step `prepare_income.py`. Source: ACS 2020–2024 5-year B19013 from the static
+    summary file (api.census.gov now needs a key; the owner allowed www2.census.gov in the "fff" environment). It is
+    context only, and peers are unchanged (independent recomputation passes). De Baca, NM is null (Census code
+    −666666666).
+  - **Table:** the similar-counties table sorts by any column, with `aria-sort` and "Sort by most similar" to reset;
+    the CSV gains `median_household_income_acs5`. Seven new strings in all 22 languages. The county column is pinned
+    on phones. The CI Census cache now includes the ACS file (key bumped).
 
 ## Next steps
 1. Owner: give the three AI examples (ai/examples/*/output.md) a final read.

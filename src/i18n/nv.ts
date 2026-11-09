@@ -235,6 +235,9 @@ const nv: Translation = {
   findFoot: "Kin łaʼ ádinísh doodaiiʼ doo ákótʼée da? <a>Compute Atlas bił hólneʼ</a>; díí site éí bitsʼą́ą́dę́ę́ʼ.",
 
   peersTitle: "40 county ahééníłtʼéhígíí (tʼáá íiyisíí ahééníłtʼéhígíí áłtsé)",
+  peersTitleSorted: "40 county ahééníłtʼéhígíí",
+  sortedBy: (column) => `${column} bikʼehgo ałkééʼ siʼą́.`,
+  sortReset: "Ahééníłtʼéhígíí áłtsé",
   peersRange: (p0, p1, d0, d1) =>
     `Dineʼé ${p0}–${p1}, dóó ${d0}–${d1} dineʼé / mi². County bízhiʼ bikʼidíílniih dóó éí bił yiníłʼį́.`,
   col: {
@@ -243,10 +246,15 @@ const nv: Translation = {
     state: "Hahoodzo",
     population: "Dineʼé (2025)",
     density: "Dineʼé / mi²",
+    income: "Hooghan bibéeso ałníiʼgi (median income)",
     sites: (date) => `Kin ádoolnííłígíí (${date})`,
   },
   showFewer: (n) => `${n} tʼéiyá`,
   showAll: (n) => `County ahééníłtʼéhígíí tʼáá ałtso (${n})`,
+  incomeNote: (period, year) =>
+    `Hooghan bibéeso ałníiʼgi: U.S. Census Bureau, American Community Survey ${period} (5 nááhai), ${year} béeso bikʼehgo. Tʼáá bee ééhózin biniiyé tʼéiyá; county ahééníłtʼéhígíí doo bee ádaalyaa da.`,
+  incomeNA: "ádin",
+  incomeNATitle: "Ádin: Census Bureau bichʼįʼ haʼdííniidígíí doo łą́ą da",
 
   summaryTitle: "Áłtsʼíísígo",
   aiChip: "AI bee ályaa · áłtsé ályaa, ánéeltʼeʼ yíltaʼ",

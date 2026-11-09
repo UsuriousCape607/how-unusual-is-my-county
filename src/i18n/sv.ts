@@ -229,6 +229,9 @@ const sv: Translation = {
   findFoot: "Känner du till ett projekt som saknas eller är fel? <a>Rapportera det till Compute Atlas</a>, källan som den här webbplatsen använder.",
 
   peersTitle: "De 40 liknande countyna, mest liknande först",
+  peersTitleSorted: "De 40 liknande countyna",
+  sortedBy: (column) => `Sorterat efter ${column}.`,
+  sortReset: "Sortera efter mest lika",
   peersRange: (p0, p1, d0, d1) =>
     `De har mellan ${p0} och ${p1} invånare och mellan ${d0} och ${d1} invånare per kvadratmile. Välj ett namn för att jämföra det countyt i stället.`,
   col: {
@@ -237,10 +240,15 @@ const sv: Translation = {
     state: "Delstat",
     population: "Befolkning (2025)",
     density: "Invånare per kvadratmile",
+    income: "Medianinkomst per hushåll",
     sites: (date) => `Platser under utveckling (${date})`,
   },
   showFewer: (n) => `Visa bara de ${n} mest liknande`,
   showAll: (n) => `Visa alla ${n} liknande countyn`,
+  incomeNote: (period, year) =>
+    `Medianinkomst per hushåll: U.S. Census Bureau, American Community Survey, femårsskattningar för ${period}, i ${year} års dollar. Visas bara som sammanhang; används inte för att välja liknande countyn.`,
+  incomeNA: "uppg. saknas",
+  incomeNATitle: "Uppgift saknas: Census Bureau fick för få svar för att kunna skatta den",
 
   summaryTitle: "Sammanfattning",
   aiChip: "Förklaring skriven av AI · skapad i förväg och kontrollerad",
